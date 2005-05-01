@@ -177,6 +177,7 @@ namespace Gil {
 	    allocate(m_width, m_height);
 	    m_read(data, channels);
 	    delete[] data;
+	    return true;
 	} else if (type == FT_FLOAT) {
 	    float *data;
 	    int channels;
@@ -213,6 +214,7 @@ namespace Gil {
 	    allocate(m_width, m_height);
 	    m_read(data, channels);
 	    delete[] data;
+	    return true;
 	} 
 	return false;
     }

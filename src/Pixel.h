@@ -21,7 +21,6 @@ namespace Gil {
 	    Pixel() {}
 	    Pixel(const Type& c) {m_data[0] = c; }
 	    Pixel(const Type* c) {
-		cout << "@Pixel<Type, OneChannel>::Pixel()" << endl;
 		cout << (int)(*c) << endl;
 		m_data[0] = *c; 
 	    }
@@ -40,6 +39,8 @@ namespace Gil {
     class Pixel<Type, ThreeChannels> {
 	public:
 	    Pixel() {}
+	    Pixel(const Type& c)
+		{ m_data[0] = m_data[1] = m_data[2] = c;}
 	    Pixel(const Type& c0, const Type& c1, const Type& c2)
 		{ m_data[0] = c0; m_data[1] = c1; m_data[2] = c2;}
 	    Pixel(const Type* c) 
@@ -56,9 +57,13 @@ namespace Gil {
     class Pixel<Type, FourChannels> {
 	public:
 	    Pixel() {}
+	    Pixel(const Type& c)
+		{ m_data[0] = m_data[1] = m_data[2] = c;}
+	    Pixel(const Type& c, const Type& a)
+		{ m_data[0] = m_data[1] = m_data[2] = c; m_data[3] = a; }
 	    Pixel(const Type& c0, const Type& c1, 
-		    const Type& c2, const Type& c3)
-		{ m_data[0]=c0; m_data[1]=c1; m_data[2]=c2; m_data[3]=c3;}
+		    const Type& c2, const Type& a)
+		{ m_data[0]=c0; m_data[1]=c1; m_data[2]=c2; m_data[3]=a;}
 	    Pixel(const Type* c) 
 		{ m_data[0] = c[0]; m_data[1] = c[1]; 
 		    m_data[2] = c[2]; m_data[3] = c[3]; }
