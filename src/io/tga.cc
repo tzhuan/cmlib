@@ -3,8 +3,9 @@
 
 #include "tga.h"
 
-unsigned char *readTGA(const char *iname, int &width, int &height, int &depth, bool bAlpha)
+unsigned char *readTGA(const char *iname, int &width, int &height, int &depth)
 {
+    bool bAlpha = false;
 	FILE *fd=fopen(iname, "rb");
 	TGAFileHeader tga_header;
 

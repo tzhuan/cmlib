@@ -28,7 +28,7 @@ bool writePPM(const char *filename, unsigned char* data,
 	int width, int height, int depth);
 
 unsigned char *readTGA(const char *iname,
-	int &width, int &height, int &depth, bool bAlpha=false);
+	int &width, int &height, int &depth);
 bool writeTGA(const char *filename, unsigned char *data,
 	int width, int height, int depth);
 

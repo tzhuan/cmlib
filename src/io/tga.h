@@ -28,7 +28,7 @@ typedef struct _TGAFileHeader
 
 } TGAFileHeader;
 																	// depth in file // read alpha or not
-extern unsigned char *readTGA(const char *iname, int &width, int &height, int &depth, bool bAlpha=false);
+extern unsigned char *readTGA(const char *iname, int &width, int &height, int &depth);
 extern bool writeTGA(const char *filename, unsigned char *data, int width, int height, int depth);
 
 #endif

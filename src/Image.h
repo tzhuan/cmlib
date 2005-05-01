@@ -54,10 +54,13 @@ namespace Gil {
 	protected:
 	    void m_init_row();
 
-	    template<typename FType>
-	    void m_read(FType* data, Channels channels);
-	    template<typename FType>
-	    void m_write(FType* data, Channels channels);
+	    template<typename FileType, Channels FileChannels>
+	    void m_convert(FileType *data);
+
+	    template<typename FileType>
+	    bool m_read(const int size, const string& filename, 
+		const FileFormat format, const FileFormat* formats, 
+		FileType* (*(*funcs))(const char*, int&, int &, int &));
 	private:
 	    size_type m_width;
 	    size_type m_height;
@@ -96,38 +99,48 @@ namespace Gil {
 	    m_row[i] = m_row[i-1] + m_width;
     }
 
-    template<typename Type, Channels m_channels> template<typename FType>
-    void Image<Type, m_channels>::m_read(FType* data, Channels channels)
+    template<typename Type, Channels m_channels>
+    template<typename FileType, Channels FileChannels>
+    void Image<Type, m_channels>::m_convert(FileType *data)
     {
-	if (channels == OneChannel) {
-	    FType* d = data;
-	    Converter<FType, Type, OneChannel, m_channels> conv;
-	    for (size_type h = 0; h < m_height; ++h) {
-		for (size_type w = 0; w < m_width; ++w) {
-		    m_row[h][w] = conv(d);
-		    ++d;
-		}
+	FileType* d = data;
+	Converter<FileType, Type, FileChannels, m_channels> conv;
+	for (size_type h = 0; h < m_height; ++h) {
+	    for (size_type w = 0; w < m_width; ++w) {
+		m_row[h][w] = conv(d);
+		d += FileChannels;
 	    }
 	}
-	else if (channels == ThreeChannels) {
-	    FType* d = data;
-	    Converter<FType, Type, ThreeChannels, m_channels> conv;
-	    for (size_type h = 0; h < m_height; ++h) {
-		for (size_type w = 0; w < m_width; ++w) {
-		    m_row[h][w] = conv(d);
-		    d += 3;
+    }
+
+    template<typename Type, Channels m_channels>
+    template<typename FileType>
+    bool Image<Type, m_channels>::m_read(
+	const int size, const string& filename, const FileFormat format,
+	const FileFormat* formats, 
+	FileType* (*(*funcs))(const char*, int&, int &, int &))
+    {
+	Channels channels;
+	for (int i = 0; i < size; ++i)
+	    if (format == formats[i]) {
+		FileType* data = (*funcs[i])
+			(filename.c_str(), m_width, m_height, channels);
+		if (!data) return false;
+		allocate(m_width, m_height);
+		if (channels == OneChannel)
+		    m_convert<FileType, OneChannel>(data);
+		else if (channels == ThreeChannels)
+		    m_convert<FileType, ThreeChannels>(data);
+		else if (channels == FourChannels)
+		    m_convert<FileType, FourChannels>(data);
+		else {
+		    delete[] data;
+		    return false;
 		}
+		delete[] data;
+		return true;
 	    }
-	} else if (channels == FourChannels) {
-	    FType* d = data;
-	    Converter<FType, Type, FourChannels, m_channels> conv;
-	    for (size_type h = 0; h < m_height; ++h) {
-		for (size_type w = 0; w < m_width; ++w) {
-		    m_row[h][w] = conv(d);
-		    d += 4;
-		}
-	    }
-	}
+	return false;	
     }
 
     template<typename Type, Channels m_channels>
@@ -138,84 +151,21 @@ namespace Gil {
 	FileType type = get_type(format);
 	if (type == FT_UNKNOWN) return false;
 	else if (type == FT_BYTE) {
-	    unsigned char *data;
-	    int channels;
-	    switch(format) {
-		case FF_PGM:
-		    data = readPGM(filename.c_str(), 
-			    m_width, m_height, channels);
-		    break;
-		case FF_PPM:
-		    data = readPPM(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_BMP:
-		    data = readBMP(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_TGA:
-		    data = readTGA(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_PNG:
-		    data = readPNG(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_JPG:
-		    data = readJPG(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_TIF:
-		    data = readTIF(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		default:
-		    return false;
-		    break;
-	    }
-	    if (!data) return false;
-	    allocate(m_width, m_height);
-	    m_read(data, channels);
-	    delete[] data;
-	    return true;
+	    FileFormat formats[] = {
+		FF_PGM, FF_PPM, FF_BMP, FF_TGA, FF_PNG, FF_JPG, FF_TIF};
+	    unsigned char* (*(funcs[]))(const char*, int&, int&, int&) = {
+		readPGM, readPPM, readBMP, readTGA, readPNG, readJPG, readTIF};
+	    const int size = sizeof(formats)/sizeof(FileFormat);
+	    return m_read<unsigned char>
+			(size, filename, format, formats, funcs);
 	} else if (type == FT_FLOAT) {
-	    float *data;
-	    int channels;
-	    switch(format) {
-		case FF_HDR:
-		    data = readHDR(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_FLT:
-		    data = readFLT(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_PFM:
-		    data = readPFM(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_CRW:
-		    data = readCRW(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_UVE:
-		    data = readUVE(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		case FF_DPX:
-		    data = readDPX(filename.c_str(),
-			    m_width, m_height, channels);
-		    break;
-		default: 
-		    return false;
-		    break;
-	    }
-	    if (!data) return false;
-	    allocate(m_width, m_height);
-	    m_read(data, channels);
-	    delete[] data;
-	    return true;
-	} 
+	    FileFormat formats[] = {
+		FF_HDR, FF_FLT, FF_PFM, FF_CRW, FF_UVE, FF_DPX};
+	    float* (*(funcs[]))(const char*, int&, int&, int&) = {
+		readHDR, readFLT, readPFM, readCRW, readUVE, readDPX};
+	    const int size = sizeof(formats)/sizeof(FileFormat);
+	    return m_read<float>(size, filename, format, formats, funcs);
+	}
 	return false;
     }
 
