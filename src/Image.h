@@ -50,7 +50,7 @@ namespace Gil {
 
 	    bool read(const string& filename);
 
-	    bool write(const string& filename);
+	    bool write(const string& filename) const;
 	protected:
 	    void m_init_row();
 
@@ -218,8 +218,106 @@ namespace Gil {
     }
 
     template<typename Type, Channels m_channels>
-    bool write(string& filename)
+    bool Image<Type, m_channels>::write(const string& filename) const
     {
+	FileFormat format = get_format(filename);
+	if (format == FF_UNKNOWN) return false;
+	FileType type = get_type(format);
+	if (type == FT_UNKNOWN) return false;
+	else if (type == FT_BYTE) {
+	    unsigned char *data = 
+		new unsigned char[m_height*m_width*m_channels];
+	    TypeConverter<Type, unsigned char> tc;
+	    unsigned char *d = data;
+	    for (size_type h = 0; h < m_height; ++h)
+		for (size_type w = 0; w < m_width; ++w)
+		    for (size_type c = 0; c < m_channels; ++c) {
+			*d = tc(m_row[h][w][c]);
+			++d;
+		    }
+
+	    bool status = false;
+	    switch(format) {
+		case FF_PGM:
+		    status = writePGM(filename.c_str(), data, 
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_PPM:
+		    status = writePPM(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_BMP:
+		    status = writeBMP(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_TGA:
+		    status = writeTGA(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_PNG:
+		    status = writePNG(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_JPG:
+		    status = writeJPG(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_TIF:
+		    status = writeTIF(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		default:
+		    return false;
+		    break;
+	    }
+	    delete[] data;
+	    return status;
+	} else if (type == FT_FLOAT) {
+	    float* data = new float[m_height*m_width*m_channels];
+	    TypeConverter<Type, float> tc;
+	    float* d = data;
+	    for (size_type h = 0; h < m_height; ++h)
+		for (size_type w = 0; w < m_width; ++w)
+		    for (size_type c = 0; c < m_channels; ++c) {
+			*d = tc(m_row[h][w][c]);
+			++d;
+		    }
+	    bool status = false;
+	    switch(format) {
+		case FF_HDR:
+		    status = writeHDR(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_FLT:
+		    status = writeFLT(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_PFM:
+		    status = writePFM(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		    /* Write with CRW format is meaningless.
+		case FF_CRW:
+		    status = writeCRW(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		    */
+		case FF_UVE:
+		    status = writeUVE(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		case FF_DPX:
+		    status = writeDPX(filename.c_str(), data,
+			    m_width, m_height, m_channels);
+		    break;
+		default: 
+		    return false;
+		    break;
+	    }
+	    delete[] data;
+	    return status;
+	} else 
+	    return false;
 	return false;
     }
 }
