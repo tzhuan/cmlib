@@ -18,7 +18,7 @@ namespace Gil {
 	FileFormat fmts[] = {
 	    FF_PGM, FF_PPM, FF_BMP, FF_TGA, FF_PNG, FF_JPG, FF_JPG, FF_TIF,
 	    FF_TIF, FF_HDR, FF_FLT, FF_PFM, FF_CRW, FF_UVE, FF_DPX};
-	const int size = sizeof(strs);
+	const int size = sizeof(strs)/sizeof(const char*);
 	for (int i = 0; i < size; ++i)
 	    if (ext == strs[i])
 		return fmts[i];
@@ -37,7 +37,7 @@ namespace Gil {
 	    FT_BYTE, FT_BYTE, FT_BYTE, FT_BYTE, FT_BYTE, FT_BYTE, 
 	    FT_FLOAT, FT_FLOAT, FT_FLOAT, FT_FLOAT, FT_FLOAT, FT_FLOAT
 	};
-	const int size = sizeof(fmts);
+	const int size = sizeof(fmts)/sizeof(FileFormat);
 	for (int i = 0; i < size; ++i)
 	    if (format == fmts[i])
 		return tps[i];
