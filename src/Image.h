@@ -2,12 +2,15 @@
 #define __IMAGE_H__
 
 #include <string>
+#include <iostream>
 
 #include "Channels.h"
 #include "Column.h"
 #include "FileFormat.h"
 #include "FileIO.h"
 #include "Converter.h"
+
+using namespace std;
 
 namespace Gil {
     using std::string;
@@ -166,8 +169,12 @@ namespace Gil {
 		    data = readTIF(filename.c_str(),
 			    m_width, m_height, channels);
 		    break;
+		default:
+		    return false;
+		    break;
 	    }
 	    if (!data) return false;
+	    allocate(m_width, m_height);
 	    m_read(data, channels);
 	    delete[] data;
 	} else if (type == FT_FLOAT) {
@@ -198,8 +205,12 @@ namespace Gil {
 		    data = readDPX(filename.c_str(),
 			    m_width, m_height, channels);
 		    break;
+		default: 
+		    return false;
+		    break;
 	    }
 	    if (!data) return false;
+	    allocate(m_width, m_height);
 	    m_read(data, channels);
 	    delete[] data;
 	} 
@@ -209,7 +220,7 @@ namespace Gil {
     template<typename Type, Channels m_channels>
     bool write(string& filename)
     {
-
+	return false;
     }
 }
 

@@ -3,13 +3,15 @@
 #include "FileFormat.h"
 
 namespace Gil {
+    using std::string;
+    using std::transform;
     const FileFormat get_format(const string& filename)
     {
 	string::size_type pos = filename.rfind('.');
 	if (pos == string::npos)
 	    return FF_UNKNOWN;
 	string ext = filename.substr(pos + 1);
-	tranform(ext.begin(), ext.end(), ext.begin(), std::tolower);
+	transform(ext.begin(), ext.end(), ext.begin(), std::tolower);
 	const char*(strs[]) = {
 	    "pgm", "ppm", "bmp", "tga", "png", "jpg", "jpeg", "tif", 
 	    "tiff", "hdr", "flt", "pfm", "crw", "uve", "dpx"};

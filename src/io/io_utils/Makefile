@@ -14,4 +14,4 @@ io_utils:   $(OBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	rm -f *.o *.d core *.bak err
+	rm -f $(OBJS) *.gch *.core

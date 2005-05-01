@@ -2,6 +2,9 @@
 #define __PIXEL_H__
 
 #include "Channels.h"
+#include <iostream>
+
+using namespace std;
 
 namespace Gil {
     template<typename Type, Channels channels>
@@ -17,7 +20,11 @@ namespace Gil {
 	public:
 	    Pixel() {}
 	    Pixel(const Type& c) {m_data[0] = c; }
-	    Pixel(const Type* c) {m_data[0] = *c; }
+	    Pixel(const Type* c) {
+		cout << "@Pixel<Type, OneChannel>::Pixel()" << endl;
+		cout << (int)(*c) << endl;
+		m_data[0] = *c; 
+	    }
 	    const Type& operator[] (const size_type c) const 
 		{ return m_data[c]; }
 	    Type& operator[] (const size_type c) 

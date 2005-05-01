@@ -8,7 +8,7 @@ using std::string;
 
 //#pragma comment (linker, "/defaultlib:libpng.lib")
 
-extern map<string, string> __comments;
+//extern map<string, string> __comments;
 
 // Read a PNG file.  You may want to return an error code if the read
 // fails (depending upon the failure).  There are two "prototypes" given
@@ -138,12 +138,14 @@ bool read_png_(const char *file_name, int *w, int *h,  int *rw, int *rh, unsigne
 	*pixout = pixels;
 
 	// TODO: read and copy comments
+	/*
 	png_text *text_ptr;
 	int num_text;
     int num_comments = png_get_text(png_ptr, info_ptr, &text_ptr, &num_text);
 	for (int i=0; i<num_comments; i++) {
 		__comments[text_ptr[i].key] = text_ptr[i].text;
 	}
+	*/
 
 	// clean up after the read, and free any memory allocated - REQUIRED 
 	png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
@@ -234,6 +236,7 @@ bool writePNG(const char *file_name, unsigned char *pixels, int width, int heigh
 				PNG_FILTER_TYPE_DEFAULT); //filter_type
 
 	// write out comments if any
+	/*
 	if (!__comments.empty()) {
 		int text_cnt=__comments.size();
 		png_text *text_ptr=new png_text [text_cnt];
@@ -248,6 +251,7 @@ bool writePNG(const char *file_name, unsigned char *pixels, int width, int heigh
 		png_set_text(png_ptr, info_ptr, text_ptr, text_cnt);
 		delete [] text_ptr;
 	}
+	*/
 
 	png_write_info(png_ptr, info_ptr);
 
