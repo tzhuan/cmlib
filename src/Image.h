@@ -20,21 +20,21 @@ namespace Gil {
 	public:
 	    typedef Pixel<Type, m_channels> pixel_type;
 
-	    Image(): m_width(0), m_height(0), m_data(0), m_row(0)
-	    {}
+	    Image(): m_width(0), m_height(0), m_data(0), m_row(0) {}
 
 	    Image(const size_type w, const size_type h)
 		: m_width(w), m_height(h), m_data(0), m_row(0) 
-	    { allocate(w, h); }
+	    { 
+		m_allocate_data();
+	    }
 
-	    virtual ~Image()
-	    { delete[] m_data; delete[] m_row; }
+	    virtual ~Image() { delete[] m_data; delete[] m_row; }
 
 	    const Column<Type, m_channels> operator[] (const size_type c) const
-	    { return Column<Type, m_channels>(c, m_row); }
+		{ return Column<Type, m_channels>(c, m_row); }
 
 	    Column<Type, m_channels> operator[] (const size_type c)
-	    { return Column<Type, m_channels>(c, m_row); }
+		{ return Column<Type, m_channels>(c, m_row); }
 
 	    const size_type channels() const { return m_channels; }
 	    const size_type width() const { return m_width; }
@@ -42,25 +42,56 @@ namespace Gil {
 
 	    void fill(pixel_type& pixel);
 
-	    void allocate(const size_type w, const size_type h);
+	    template<typename AllocateType>
+	    AllocateType* allocate(const size_type size)
+		{ return new AllocateType[size]; }
 
 	    template<typename DeallocateType>
 	    void deallocate(DeallocateType raw_data)
-	    { if (raw_data) delete[] raw_data; }
+		{ if (raw_data) { delete[] raw_data; raw_data = 0;} }
 
 	    bool read(const string& filename);
-
 	    bool write(const string& filename) const;
+
+	    template<typename FromType, Channels FromChannels>
+	    struct TmpImage {
+		TmpImage(const size_type x, const size_type y, 
+		    const size_type w, const size_type h,
+		    const Image<FromType, FromChannels>& m)
+		    : m_x(x), m_y(y), m_width(w), m_height(h), m_image(m) {}
+		size_type m_x, m_y, m_width, m_height;
+		Image<FromType, FromChannels>& m_image;
+	    };
+
+	    template<typename FromType, Channels FromChannels>
+	    Image<Type, m_channels>& operator= (
+		    const Image<FromType, FromChannels>&);
+
+	    template<typename FromType, Channels FromChannels>
+	    Image<Type, m_channels>& operator= (
+		    const TmpImage<FromType, FromChannels>&);
+
+	    const TmpImage<Type, m_channels>
+	    subimage(const size_type x, const size_type y, 
+		const size_type w, const size_type h) const;
 	protected:
 	    void m_init_row();
+	    void m_allocate_data()
+	    {
+		deallocate(m_data);
+		deallocate(m_row);
+		m_data = allocate<pixel_type>(m_width*m_height); 
+		m_row = allocate<pixel_type*>(m_height);
+		m_init_row();
+	    }
 
-	    template<typename FileType, Channels FileChannels>
-	    void m_convert(FileType *data);
+	    template<typename FromType, Channels FromChannels>
+	    void m_convert(const FromType *data);
 
-	    template<typename FileType>
+	    template<typename FromType>
 	    bool m_read(const int size, const string& filename, 
 		const FileFormat format, const FileFormat* formats, 
-		FileType* (*(*funcs))(const char*, int&, int &, int &));
+		FromType* (*(*funcs))(const char*, int&, int &, int &));
 	private:
 	    size_type m_width;
 	    size_type m_height;
@@ -77,6 +108,7 @@ namespace Gil {
 		m_row[h][w] = pixel;
     }
 
+    /*
     template<typename Type, Channels m_channels>
     void Image<Type, m_channels>::allocate(
 	const size_type w, const size_type h) 
@@ -90,6 +122,7 @@ namespace Gil {
 	m_row = new pixel_type* [h];
 	m_init_row();
     }
+    */
 
     template<typename Type, Channels m_channels>
     void Image<Type, m_channels>::m_init_row()
@@ -100,39 +133,39 @@ namespace Gil {
     }
 
     template<typename Type, Channels m_channels>
-    template<typename FileType, Channels FileChannels>
-    void Image<Type, m_channels>::m_convert(FileType *data)
+    template<typename FromType, Channels FromChannels>
+    void Image<Type, m_channels>::m_convert(const FromType *data)
     {
-	FileType* d = data;
-	Converter<FileType, Type, FileChannels, m_channels> conv;
+	const FromType* d = data;
+	Converter<FromType, Type, FromChannels, m_channels> conv;
 	for (size_type h = 0; h < m_height; ++h) {
 	    for (size_type w = 0; w < m_width; ++w) {
 		m_row[h][w] = conv(d);
-		d += FileChannels;
+		d += FromChannels;
 	    }
 	}
     }
 
     template<typename Type, Channels m_channels>
-    template<typename FileType>
+    template<typename FromType>
     bool Image<Type, m_channels>::m_read(
 	const int size, const string& filename, const FileFormat format,
 	const FileFormat* formats, 
-	FileType* (*(*funcs))(const char*, int&, int &, int &))
+	FromType* (*(*funcs))(const char*, int&, int &, int &))
     {
 	Channels channels;
 	for (int i = 0; i < size; ++i)
 	    if (format == formats[i]) {
-		FileType* data = (*funcs[i])
+		FromType* data = (*funcs[i])
 			(filename.c_str(), m_width, m_height, channels);
 		if (!data) return false;
-		allocate(m_width, m_height);
+		m_allocate_data();
 		if (channels == OneChannel)
-		    m_convert<FileType, OneChannel>(data);
+		    m_convert<FromType, OneChannel>(data);
 		else if (channels == ThreeChannels)
-		    m_convert<FileType, ThreeChannels>(data);
+		    m_convert<FromType, ThreeChannels>(data);
 		else if (channels == FourChannels)
-		    m_convert<FileType, FourChannels>(data);
+		    m_convert<FromType, FourChannels>(data);
 		else {
 		    delete[] data;
 		    return false;
@@ -272,6 +305,45 @@ namespace Gil {
 	    return false;
 	return false;
     }
+
+    template<typename Type, Channels m_channels>
+    template<typename FromType, Channels FromChannels>
+    Image<Type, m_channels>& Image<Type, m_channels>::
+    operator= (const Image<FromType, FromChannels>& src)
+    {
+	if (this == &src)
+	    return *this;
+	if (m_height == src.m_height && m_width == src.m_width &&
+		m_channels == FromChannels) {
+	    memmove(m_data, src.m_data, 
+		m_height*m_width*m_channels*sizeof(Type));
+	} else {
+	    m_height = src.m_height;
+	    m_width = src.m_width;
+	    m_allocate_data();
+	    m_convert<FromType, FromChannels>(src.m_data);
+	}
+	return *this;
+    }
+
+    /*
+    template<typename Type, Channels m_channels>
+    template<typename FromType, Channels FromChannels>
+    Image<Type, m_channels>& Image<Type, m_channels>::
+    operator= (const TmpImage<FromType, FromChannels>& srctmp)
+    {
+	const Image<FromType, FromChannels> &src = srctmp.m_image;
+
+    }
+
+    template<typename Type, Channels m_channels>
+    const TmpImage<Type, m_channels>
+    Image<Type, m_channels>::subimage(const size_type x, const size_type y, 
+	    const size_type w, const size_type h) const
+    {
+	return TmpImage<Type, m_channels>(x, y, w, h, *this);
+    }
+    */
 }
 
 #endif

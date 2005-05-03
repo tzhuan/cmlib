@@ -19,20 +19,22 @@ namespace Gil {
     class Pixel<Type, OneChannel> {
 	public:
 	    Pixel() {}
-	    Pixel(const Type& c) {m_data[0] = c; }
+	    Pixel(const Type& c) {m_data = c; }
 	    Pixel(const Type* c) {
 		cout << (int)(*c) << endl;
-		m_data[0] = *c; 
+		m_data = *c; 
 	    }
 	    const Type& operator[] (const size_type c) const 
-		{ return m_data[c]; }
+		{ return m_data; }
 	    Type& operator[] (const size_type c) 
-		{ return m_data[c]; }
+		{ return m_data; }
 	    operator Type () const
-		{ return m_data[0]; }
+		{ return m_data; }
+	    Pixel<Type, OneChannel>& operator= (const Type& value)
+		{ m_data = value; return *this; }
 	protected:
 	private:
-	    Type m_data[OneChannel];
+	    Type m_data;
     };
 
     template<typename Type>
