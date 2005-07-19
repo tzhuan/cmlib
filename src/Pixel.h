@@ -1,81 +1,68 @@
 #ifndef __PIXEL_H__
 #define __PIXEL_H__
 
-#include "Channels.h"
-#include <iostream>
+#include <algorithm>
 
-using namespace std;
-
-namespace Gil {
-    template<typename Type, Channels channels>
-    class Pixel {
+namespace Gil{
+    
+    template <typename Type, size_t Channel>
+    class Pixel{
 	public:
-	protected:
+	    typedef Pixel<Type, Channel> PixelType; // will be used later
+	    typedef Type& RefType;
+	    typedef const Type& ConstRefType;
+	    typedef Type* PtrType;
+	    typedef const Type& ConstPtrType;
+
+	    // default constructor, do nothing
+	    Pixel(){}
+
+	    Pixel(ConstRefType c){ std::fill(m_data, m_data+Channel, c); }
+
+	    Pixel(ConstPtrType c){ std::copy(c, c+Channel, m_data); }
+
+	    RefType operator [](int i){ return m_data[i]; }
+	    
+	    ConstRefType operator [](int i) const { return m_data[i]; }
+
 	private:
-	    Pixel();
+	    Type m_data[Channel];
     };
 
-    template<typename Type>
-    class Pixel<Type, OneChannel> {
+    // partial specialization for Channel == 1
+    template <typename Type>
+    class Pixel<Type, 1>{
 	public:
-	    Pixel() {}
-	    Pixel(const Type& c) {m_data = c; }
-	    Pixel(const Type* c) {
-		cout << (int)(*c) << endl;
-		m_data = *c; 
-	    }
-	    const Type& operator[] (const size_type c) const 
-		{ return m_data; }
-	    Type& operator[] (const size_type c) 
-		{ return m_data; }
-	    operator Type () const
-		{ return m_data; }
-	    Pixel<Type, OneChannel>& operator= (const Type& value)
-		{ m_data = value; return *this; }
-	protected:
-	private:
-	    Type m_data;
+	    typedef Type PixelType;
+
+	    // We don't need anything else, because
+	    // Pixel<Type, 1> should be degrade to Type.
     };
 
-    template<typename Type>
-    class Pixel<Type, ThreeChannels> {
-	public:
-	    Pixel() {}
-	    Pixel(const Type& c)
-		{ m_data[0] = m_data[1] = m_data[2] = c;}
-	    Pixel(const Type& c0, const Type& c1, const Type& c2)
-		{ m_data[0] = c0; m_data[1] = c1; m_data[2] = c2;}
-	    Pixel(const Type* c) 
-		{ m_data[0] = c[0]; m_data[1] = c[1]; m_data[2] = c[2]; }
-	    const Type& operator[] (const size_type c) const 
-		{ return m_data[c]; }
-	    Type& operator[] (const size_type c) 
-		{ return m_data[c]; }
-	private:
-	    Type m_data[ThreeChannels];
-    };
+    // utilities to make pixel
+    // Pixel with 3 channels or 4 channels are most commonly used.
+    //
+    // For most cases, Type are primitive types such as unsigned char 
+    // or float, so we pass arguments by value.
+    template <typename Type>
+    Pixel<Type, 3> make_pixel(Type c1, Type c2, Type c3){
+	Pixel<Type, 3> p;
+	p[0] = c1;
+	p[1] = c2;
+	p[2] = c3;
+	return p;
+    }
+    
+    template <typename Type>
+    Pixel<Type, 4> make_pixel(Type c1, Type c2, Type c3, Type c4){
+	Pixel<Type, 4> p;
+	p[0] = c1;
+	p[1] = c2;
+	p[2] = c3;
+	p[3] = c4;
+	return p;
+    }
 
-    template<typename Type>
-    class Pixel<Type, FourChannels> {
-	public:
-	    Pixel() {}
-	    Pixel(const Type& c)
-		{ m_data[0] = m_data[1] = m_data[2] = c;}
-	    Pixel(const Type& c, const Type& a)
-		{ m_data[0] = m_data[1] = m_data[2] = c; m_data[3] = a; }
-	    Pixel(const Type& c0, const Type& c1, 
-		    const Type& c2, const Type& a)
-		{ m_data[0]=c0; m_data[1]=c1; m_data[2]=c2; m_data[3]=a;}
-	    Pixel(const Type* c) 
-		{ m_data[0] = c[0]; m_data[1] = c[1]; 
-		    m_data[2] = c[2]; m_data[3] = c[3]; }
-	    const Type& operator[] (const size_type c) const 
-		{ return m_data[c]; }
-	    Type& operator[] (const size_type c) 
-		{ return m_data[c]; }
-	private:
-	    Type m_data[FourChannels];
-    };
-}
+} // namespace Gil
 
-#endif
+#endif // __PIXEL_H__
