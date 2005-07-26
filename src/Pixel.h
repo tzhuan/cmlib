@@ -1,18 +1,20 @@
 #ifndef __PIXEL_H__
 #define __PIXEL_H__
 
+// #include "Channels.h"
 #include <algorithm>
 
-namespace Gil{
+namespace Gil {
     
-    template <typename Type, size_t Channel>
-    class Pixel{
+    template<typename Type, size_t Channel>
+    class BasicPixel {
 	public:
-	    typedef Pixel<Type, Channel> PixelType; // will be used later
 	    typedef Type& RefType;
 	    typedef const Type& ConstRefType;
 	    typedef Type* PtrType;
 	    typedef const Type& ConstPtrType;
+	    typedef BasicPixel<Type, Channel> Self;
+	    typedef const BasicPixel<Type, Channel> ConstSelf;
 
 	    // default constructor, do nothing
 	    Pixel(){}
@@ -25,27 +27,51 @@ namespace Gil{
 	    
 	    ConstRefType operator [](int i) const { return m_data[i]; }
 
-	private:
+	    Self& color(){ return *this; } // will be used later
+	    
+	    ConstSelf& color() const { return *this; } // will be used later
+
+	protected:
 	    Type m_data[Channel];
     };
 
-    // partial specialization for Channel == 1
     template <typename Type>
-    class Pixel<Type, 1>{
+    class AlphaPixel{
 	public:
-	    typedef Type PixelType;
+	    Type& alpha(){ return m_alpha; }
+	    const Type& alpha(){ return m_alpha; }
 
-	    // We don't need anything else, because
-	    // Pixel<Type, 1> should be degrade to Type.
+	protected:
+	    Type m_alpha;
+    };
+
+    // selection template, from Loki
+    template <typename T1, typename T2, bool S>
+    struct Select{
+	typedef T1 Result;
+    };
+
+    template <typename T1, typename T2>
+    struct Select<T1, T2, true>{
+	typedef T2 Result;
+    };
+
+    struct EmptyType{};
+
+    template <typename Type, size_t Channel, bool HasAlpha>
+    class Pixel
+	: public BasicPixel<Type, Channel>,
+	  public Select<EmptyType, AlphaPixel<Type>, HasAlpha>::Result
+    {
+	public:
+	    
     };
 
     // utilities to make pixel
     // Pixel with 3 channels or 4 channels are most commonly used.
-    //
-    // For most cases, Type are primitive types such as unsigned char 
-    // or float, so we pass arguments by value.
-    template <typename Type>
-    Pixel<Type, 3> make_pixel(Type c1, Type c2, Type c3){
+    /*
+    template<typename Type>
+    Pixel<Type, 3> make_pixel(const Type& c1, const Type& c2, const Type& c3){
 	Pixel<Type, 3> p;
 	p[0] = c1;
 	p[1] = c2;
@@ -53,16 +79,15 @@ namespace Gil{
 	return p;
     }
     
-    template <typename Type>
-    Pixel<Type, 4> make_pixel(Type c1, Type c2, Type c3, Type c4){
+    template<typename Type>
+    Pixel<Type, 4> make_pixel(const Type& c1, const Type& c2, const Type& c3, const Type& c4){
 	Pixel<Type, 4> p;
 	p[0] = c1;
 	p[1] = c2;
 	p[2] = c3;
 	p[3] = c4;
 	return p;
-    }
-
-} // namespace Gil
+    }*/
+}
 
 #endif // __PIXEL_H__
