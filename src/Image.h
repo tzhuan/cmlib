@@ -1,65 +1,76 @@
-#ifndef __IMAGE_H__
-#define __IMAGE_H__
+#ifndef __GIL_IMAGE_H__
+#define __GIL_IMAGE_H__
 
-#include <string>
-#include <iostream>
+//#include <string>
+//#include <iostream>
 
-#include "Channels.h"
-#include "Column.h"
+#include <algorithm>
+
 #include "FileFormat.h"
 #include "FileIO.h"
-#include "Converter.h"
+#include "Pixel.h"
+//#include "Converter.h"
 
 using namespace std;
 
 namespace Gil {
-    using std::string;
+    //using std::string;
 
-    template<typename Type, Channels m_channels>
+    template<typename Type, size_t Channels>
     class Image {
 	public:
-	    typedef Pixel<Type, m_channels> pixel_type;
+	    // This will make PixelType of Pixel<Type, 1> be Type directly.
+	    typedef typename Pixel<Type,Channels>::PixelType PixelType;
 
-	    Image(): m_width(0), m_height(0), m_data(0), m_row(0) {}
+	    Image(): m_width(0), m_height(0), m_data(NULL), m_row(NULL) {}
 
-	    Image(const size_type w, const size_type h)
-		: m_width(w), m_height(h), m_data(0), m_row(0) 
-	    { 
-		m_allocate_data();
+	    Image(size_t w, size_t h)
+		: Image() // initialize members to zero first
+	    {
+		allocate(w, h);
 	    }
 
-	    virtual ~Image() { delete[] m_data; delete[] m_row; }
+	    virtual ~Image() { 
+		delete[] m_data; 
+		delete[] m_row; 
+	    }
 
-	    const Column<Type, m_channels> operator[] (const size_type c) const
-		{ return Column<Type, m_channels>(c, m_row); }
+	    size_t channels() const { return Channels; }
+	    size_t width() const { return m_width; }
+	    size_t height() const { return m_height; }
 
-	    Column<Type, m_channels> operator[] (const size_type c)
-		{ return Column<Type, m_channels>(c, m_row); }
+	    void fill(PixelType& pixel){
+		std::fill(m_data, m_data + m_width*m_height, pixel);
+	    }
 
-	    const size_type channels() const { return m_channels; }
-	    const size_type width() const { return m_width; }
-	    const size_type height() const { return m_height; }
+	    void allocate(size_t w, size_t h){
+		if(w != m_width or h != m_height){
+		    // operator delete will automatically check for NULL
+		    delete [] m_data;
+		    delete [] m_row;
+		    
+		    if(w != 0 and h != 0){
+			m_data = new PixelType[w*h];
+			m_row = new PixelType*[h];
+			m_width = w;
+			m_height = h;
+			m_init_row();
+		    }else{
+			m_width = m_height = 0;
+			m_data = NULL;
+			m_row = NULL;
+		    }
+		}
+	    }
 
-	    void fill(pixel_type& pixel);
-
-	    template<typename AllocateType>
-	    AllocateType* allocate(const size_type size)
-		{ return new AllocateType[size]; }
-
-	    template<typename DeallocateType>
-	    void deallocate(DeallocateType raw_data)
-		{ if (raw_data) { delete[] raw_data; raw_data = 0;} }
-
-	    bool read(const string& filename);
-	    bool write(const string& filename) const;
-
+	    /*
 	    template<typename FromType, Channels FromChannels>
 	    struct TmpImage {
-		TmpImage(const size_type x, const size_type y, 
-		    const size_type w, const size_type h,
+		TmpImage(const size_t x, const size_t y, 
+		    const size_t w, const size_t h,
 		    const Image<FromType, FromChannels>& m)
 		    : m_x(x), m_y(y), m_width(w), m_height(h), m_image(m) {}
-		size_type m_x, m_y, m_width, m_height;
+		size_t m_x, m_y, m_width, m_height;
 		Image<FromType, FromChannels>& m_image;
 	    };
 
@@ -70,43 +81,29 @@ namespace Gil {
 	    template<typename FromType, Channels FromChannels>
 	    Image<Type, m_channels>& operator= (
 		    const TmpImage<FromType, FromChannels>&);
+		    */
 
+	    /*
 	    const TmpImage<Type, m_channels>
-	    subimage(const size_type x, const size_type y, 
-		const size_type w, const size_type h) const;
+	    subimage(const size_t x, const size_t y, 
+		const size_t w, const size_t h) const;
+		*/
+
+	    PixelType& operator ()(int x, int y) { return m_row[y][x]; }
+	    const PixelType& operator ()(int x, int y) const { return m_row[y][x]; }
+
 	protected:
 	    void m_init_row();
-	    void m_allocate_data()
-	    {
-		deallocate(m_data);
-		deallocate(m_row);
-		m_data = allocate<pixel_type>(m_width*m_height); 
-		m_row = allocate<pixel_type*>(m_height);
-		m_init_row();
-	    }
 
-	    template<typename FromType, Channels FromChannels>
-	    void m_convert(const FromType *data);
+	    //template<typename FromType, Channels FromChannels>
+	    //void m_convert(const FromType *data);
 
-	    template<typename FromType>
-	    bool m_read(const int size, const string& filename, 
-		const FileFormat format, const FileFormat* formats, 
-		FromType* (*(*funcs))(const char*, int&, int &, int &));
 	private:
-	    size_type m_width;
-	    size_type m_height;
-	    Pixel<Type, m_channels> *m_data;
-	    Pixel<Type, m_channels> **m_row;
+	    size_t m_width;
+	    size_t m_height;
+	    PixelType *m_data;
+	    PixelType **m_row;
     };
-
-    template<typename Type, Channels m_channels>
-    void Image<Type, m_channels>::fill(pixel_type& pixel)
-    {
-	if (!m_data) return;
-	for (size_type h = 0; h < m_height; ++h)
-	    for (size_type w = 0; w < m_width; ++w)
-		m_row[h][w] = pixel;
-    }
 
     /*
     template<typename Type, Channels m_channels>
@@ -122,13 +119,12 @@ namespace Gil {
 	m_row = new pixel_type* [h];
 	m_init_row();
     }
-    */
 
     template<typename Type, Channels m_channels>
     void Image<Type, m_channels>::m_init_row()
     {
 	m_row[0] = m_data;
-	for (size_type i = 1; i < m_height; ++i)
+	for (size_t i = 1; i < m_height; ++i)
 	    m_row[i] = m_row[i-1] + m_width;
     }
 
@@ -138,8 +134,8 @@ namespace Gil {
     {
 	const FromType* d = data;
 	Converter<FromType, Type, FromChannels, m_channels> conv;
-	for (size_type h = 0; h < m_height; ++h) {
-	    for (size_type w = 0; w < m_width; ++w) {
+	for (size_t h = 0; h < m_height; ++h) {
+	    for (size_t w = 0; w < m_width; ++w) {
 		m_row[h][w] = conv(d);
 		d += FromChannels;
 	    }
@@ -214,9 +210,9 @@ namespace Gil {
 		new unsigned char[m_height*m_width*m_channels];
 	    TypeConverter<Type, unsigned char> tc;
 	    unsigned char *d = data;
-	    for (size_type h = 0; h < m_height; ++h)
-		for (size_type w = 0; w < m_width; ++w)
-		    for (size_type c = 0; c < m_channels; ++c) {
+	    for (size_t h = 0; h < m_height; ++h)
+		for (size_t w = 0; w < m_width; ++w)
+		    for (size_t c = 0; c < m_channels; ++c) {
 			*d = tc(m_row[h][w][c]);
 			++d;
 		    }
@@ -261,9 +257,9 @@ namespace Gil {
 	    float* data = new float[m_height*m_width*m_channels];
 	    TypeConverter<Type, float> tc;
 	    float* d = data;
-	    for (size_type h = 0; h < m_height; ++h)
-		for (size_type w = 0; w < m_width; ++w)
-		    for (size_type c = 0; c < m_channels; ++c) {
+	    for (size_t h = 0; h < m_height; ++h)
+		for (size_t w = 0; w < m_width; ++w)
+		    for (size_t c = 0; c < m_channels; ++c) {
 			*d = tc(m_row[h][w][c]);
 			++d;
 		    }
@@ -281,12 +277,11 @@ namespace Gil {
 		    status = writePFM(filename.c_str(), data,
 			    m_width, m_height, m_channels);
 		    break;
-		    /* Write with CRW format is meaningless.
+		    //Write with CRW format is meaningless.
 		case FF_CRW:
 		    status = writeCRW(filename.c_str(), data,
 			    m_width, m_height, m_channels);
 		    break;
-		    */
 		case FF_UVE:
 		    status = writeUVE(filename.c_str(), data,
 			    m_width, m_height, m_channels);
@@ -326,7 +321,6 @@ namespace Gil {
 	return *this;
     }
 
-    /*
     template<typename Type, Channels m_channels>
     template<typename FromType, Channels FromChannels>
     Image<Type, m_channels>& Image<Type, m_channels>::
@@ -344,6 +338,7 @@ namespace Gil {
 	return TmpImage<Type, m_channels>(x, y, w, h, *this);
     }
     */
-}
 
-#endif
+} // namespace Gil
+
+#endif // __GIL_IMAGE_H__

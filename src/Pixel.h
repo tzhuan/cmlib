@@ -1,5 +1,5 @@
-#ifndef __PIXEL_H__
-#define __PIXEL_H__
+#ifndef __GIL_PIXEL_H__
+#define __GIL_PIXEL_H__
 
 // #include "Channels.h"
 #include <algorithm>
@@ -17,11 +17,11 @@ namespace Gil {
 	    typedef const BasicPixel<Type, Channel> ConstSelf;
 
 	    // default constructor, do nothing
-	    Pixel(){}
+	    BasicPixel(){}
 
-	    Pixel(ConstRefType c){ std::fill(m_data, m_data+Channel, c); }
+	    BasicPixel(ConstRefType c){ std::fill(m_data, m_data+Channel, c); }
 
-	    Pixel(ConstPtrType c){ std::copy(c, c+Channel, m_data); }
+	    BasicPixel(ConstPtrType c){ std::copy(c, c+Channel, m_data); }
 
 	    RefType operator [](int i){ return m_data[i]; }
 	    
@@ -58,12 +58,11 @@ namespace Gil {
 
     struct EmptyType{};
 
-    template <typename Type, size_t Channel, bool HasAlpha>
+    template <typename Type, size_t Channel, bool HasAlpha = false>
     class Pixel
 	: public BasicPixel<Type, Channel>,
 	  public Select<EmptyType, AlphaPixel<Type>, HasAlpha>::Result
     {
-	public:
 	    
     };
 
@@ -90,4 +89,4 @@ namespace Gil {
     }*/
 }
 
-#endif // __PIXEL_H__
+#endif // __GIL_PIXEL_H__

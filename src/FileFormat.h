@@ -1,5 +1,5 @@
-#ifndef __FILE_FORMAT_H__
-#define __FILE_FORMAT_H__
+#ifndef __GIL_FILE_FORMAT_H__
+#define __GIL_FILE_FORMAT_H__
 
 #include <string>
 
@@ -16,6 +16,7 @@ namespace Gil {
 
     const FileFormat get_format(const std::string&);
     const FileType get_type(const FileFormat&);
-}
 
-#endif
+} // namespace Gil
+
+#endif // __GIL_FILE_FORMAT_H__

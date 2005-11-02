@@ -1,7 +1,6 @@
 #ifndef __CONVERT_H__
 #define __CONVERT_H__
 
-#include "Channels.h"
 #include "Pixel.h"
 
 namespace Gil {
