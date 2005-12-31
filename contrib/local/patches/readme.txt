@@ -4,8 +4,9 @@ zlib-1.2.4:
 jpeg-8a:
   patch with jpeg-8a.diff
 
-libpng-1.4.1:
+libpng-1.5.2:
   cp config.h.in config.h
+  cp scripts/pnglibconf.h.prebuilt pnglibconf.h
 
 libtiff-3.9.2:
   cp libtiff/tif_config.vc.h libtiff/tif_config.h
