@@ -19,8 +19,9 @@ namespace Gil {
     template<typename Type, size_t Channels>
     class Image {
 	public:
-	    // This will make PixelType of Pixel<Type, 1> be Type directly.
+	    // Pixel<Type, 1> will degenerate into Type
 	    typedef typename Pixel<Type,Channels>::PixelType PixelType;
+	    typedef typename Pixel<Type,Channels>::ConstPixelType ConstPixelType;
 
 	    Image(): m_width(0), m_height(0), m_data(NULL), m_row(NULL) {}
 
@@ -81,19 +82,21 @@ namespace Gil {
 	    template<typename FromType, Channels FromChannels>
 	    Image<Type, m_channels>& operator= (
 		    const TmpImage<FromType, FromChannels>&);
-		    */
 
-	    /*
 	    const TmpImage<Type, m_channels>
 	    subimage(const size_t x, const size_t y, 
 		const size_t w, const size_t h) const;
 		*/
 
 	    PixelType& operator ()(int x, int y) { return m_row[y][x]; }
-	    const PixelType& operator ()(int x, int y) const { return m_row[y][x]; }
+	    ConstPixelType& operator ()(int x, int y) const { return m_row[y][x]; }
 
 	protected:
-	    void m_init_row();
+	    void m_init_row(){
+		m_row[0] = m_data;
+		for (size_t i = 1; i < m_height; ++i)
+		    m_row[i] = m_row[i-1] + m_width;
+	    }
 
 	    //template<typename FromType, Channels FromChannels>
 	    //void m_convert(const FromType *data);
@@ -118,14 +121,6 @@ namespace Gil {
 	m_data = new pixel_type [w*h];
 	m_row = new pixel_type* [h];
 	m_init_row();
-    }
-
-    template<typename Type, Channels m_channels>
-    void Image<Type, m_channels>::m_init_row()
-    {
-	m_row[0] = m_data;
-	for (size_t i = 1; i < m_height; ++i)
-	    m_row[i] = m_row[i-1] + m_width;
     }
 
     template<typename Type, Channels m_channels>
