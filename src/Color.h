@@ -147,15 +147,6 @@ namespace Gil {
 	    Type my_data[Channel];
     };
 
-    template <typename Type>
-    class Color<Type, 1> {
-	public:
-	    // in Image<Type, 1>, this will make Pixel<Type, 1> 
-	    // degenerated to Type.
-	    typedef Type ColorType;
-	    typedef const Type ConstColorType;
-    };
-
     // default behavior to print all channels in a pixel
     // to avoid unprintable characters, values are converted
     // to DebugType defined in TypeTrait.

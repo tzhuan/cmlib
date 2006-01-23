@@ -8,22 +8,24 @@
 
 #include "FileFormat.h"
 #include "FileIO.h"
-#include "Pixel.h"
+#include "Color.h"
 //#include "Converter.h"
 
-using namespace std;
-
 namespace Gil {
-    //using std::string;
 
-    template<typename Type, size_t Channels>
+    template<typename Type>
     class Image {
 	public:
-	    // Pixel<Type, 1> will degenerate into Type
-	    typedef typename Pixel<Type,Channels>::PixelType PixelType;
-	    typedef typename Pixel<Type,Channels>::ConstPixelType ConstPixelType;
-
-	    Image(): m_width(0), m_height(0), m_data(NULL), m_row(NULL) {}
+	    typedef Type* PtrType;
+	    typedef const Type* ConstPtrType;
+	    typedef Type& RefType;
+	    typedef const Type& ConstRefType;
+	    
+	    Image()
+		: my_width(0), my_height(0), my_data(NULL), my_row(NULL)
+	    {
+		// empty
+	    }
 
 	    Image(size_t w, size_t h)
 		: Image() // initialize members to zero first
@@ -31,35 +33,34 @@ namespace Gil {
 		allocate(w, h);
 	    }
 
-	    virtual ~Image() { 
-		delete[] m_data; 
-		delete[] m_row; 
+	    ~Image() { 
+		delete [] my_data; 
+		delete [] my_row; 
 	    }
 
-	    size_t channels() const { return Channels; }
-	    size_t width() const { return m_width; }
-	    size_t height() const { return m_height; }
+	    size_t width() const { return my_width; }
+	    size_t height() const { return my_height; }
 
-	    void fill(PixelType& pixel){
-		std::fill(m_data, m_data + m_width*m_height, pixel);
+	    void fill(ConstRefType pixel){
+		std::fill(begin(), end(), pixel);
 	    }
 
 	    void allocate(size_t w, size_t h){
-		if(w != m_width or h != m_height){
-		    // operator delete will automatically check for NULL
-		    delete [] m_data;
-		    delete [] m_row;
+		if(w != my_width or h != my_height){
+		    // the delete operator will automatically check for NULL
+		    delete [] my_data;
+		    delete [] my_row;
 		    
 		    if(w != 0 and h != 0){
-			m_data = new PixelType[w*h];
-			m_row = new PixelType*[h];
-			m_width = w;
-			m_height = h;
-			m_init_row();
+			my_data = new PixelType[w*h];
+			my_row = new PixelType*[h];
+			my_width = w;
+			my_height = h;
+			init_row();
 		    }else{
-			m_width = m_height = 0;
-			m_data = NULL;
-			m_row = NULL;
+			my_width = my_height = 0;
+			my_data = NULL;
+			my_row = NULL;
 		    }
 		}
 	    }
@@ -70,42 +71,47 @@ namespace Gil {
 		TmpImage(const size_t x, const size_t y, 
 		    const size_t w, const size_t h,
 		    const Image<FromType, FromChannels>& m)
-		    : m_x(x), m_y(y), m_width(w), m_height(h), m_image(m) {}
-		size_t m_x, m_y, m_width, m_height;
-		Image<FromType, FromChannels>& m_image;
+		    : my_x(x), my_y(y), my_width(w), my_height(h), my_image(m) {}
+		size_t my_x, my_y, my_width, my_height;
+		Image<FromType, FromChannels>& my_image;
 	    };
 
 	    template<typename FromType, Channels FromChannels>
-	    Image<Type, m_channels>& operator= (
+	    Image<Type, my_channels>& operator= (
 		    const Image<FromType, FromChannels>&);
 
 	    template<typename FromType, Channels FromChannels>
-	    Image<Type, m_channels>& operator= (
+	    Image<Type, my_channels>& operator= (
 		    const TmpImage<FromType, FromChannels>&);
 
-	    const TmpImage<Type, m_channels>
+	    const TmpImage<Type, my_channels>
 	    subimage(const size_t x, const size_t y, 
 		const size_t w, const size_t h) const;
 		*/
 
-	    PixelType& operator ()(int x, int y) { return m_row[y][x]; }
-	    ConstPixelType& operator ()(int x, int y) const { return m_row[y][x]; }
+	    RefType operator ()(int x, int y) { return my_row[y][x]; }
+	    ConstRefType operator ()(int x, int y) const { return my_row[y][x]; }
+
+	    PtrType begin() { return my_data; }
+	    ConstPtrType begin() const { return my_data; }
+	    PtrType end() { return my_data + my_width*my_height; }
+	    ConstPtrType end() const { return my_data + my_width*my_height; }
 
 	protected:
-	    void m_init_row(){
-		m_row[0] = m_data;
-		for (size_t i = 1; i < m_height; ++i)
-		    m_row[i] = m_row[i-1] + m_width;
+	    void init_row(){
+		my_row[0] = my_data;
+		for (size_t i = 1; i < my_height; ++i)
+		    my_row[i] = my_row[i-1] + my_width;
 	    }
 
 	    //template<typename FromType, Channels FromChannels>
-	    //void m_convert(const FromType *data);
+	    //void my_convert(const FromType *data);
 
 	private:
-	    size_t m_width;
-	    size_t m_height;
-	    PixelType *m_data;
-	    PixelType **m_row;
+	    size_t my_width;
+	    size_t my_height;
+	    Type *my_data;
+	    Type **my_row;
     };
 
     /*
