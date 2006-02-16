@@ -1,53 +1,54 @@
-#ifndef __GIL_COLOR_H__
-#define __GIL_COLOR_H__
+#ifndef GIL_COLOR_H
+#define GIL_COLOR_H
 
 #include <iostream>
 #include <iterator>
 #include <algorithm>
 #include <functional>
 
-namespace Gil {
-    // type definitions
-    typedef unsigned char byte;
+namespace gil {
+    // scalar type, may be used later...
+    typedef unsigned char Byte1;
+    typedef float Float1;
 
     // utilities
-    template <typename Type>
-    Type clamp(Type value, Type lower, Type upper){
+    template <typename T>
+    T clamp(T value, T lower, T upper){
 	return std::min( std::max(value, lower), upper );
     }
     
     // type traits
-    template <typename Type>
+    template <typename T>
     struct TypeTrait {
-	typedef Type DebugType;
+	typedef T DebugType;
 	
-	static Type zero();
+	static T zero();
 	
 	// for alpha channel
-	static Type transparent();
-	static Type opaque();
+	static T transparent();
+	static T opaque();
 
-	static Type multiply(Type a, Type b);
+	static T multiply(T a, T b);
     };
 
     template <>
-    struct TypeTrait<byte> {
+    struct TypeTrait<Byte1> {
 	typedef int DebugType;
-	static byte zero() { return 0; }
-	static byte transparent() { return 0; }
-	static byte opaque() { return 255; }
-	static byte multiply(byte a, byte b){
-	    return (byte)( ((int)a * (int)b) / 255 );
+	static Byte1 zero() { return 0; }
+	static Byte1 transparent() { return 0; }
+	static Byte1 opaque() { return 255; }
+	static Byte1 multiply(Byte1 a, Byte1 b){
+	    return (Byte1)( ((int)a * (int)b) / 255 );
 	}
     };
 
     template <>
-    struct TypeTrait<float> {
+    struct TypeTrait<Float1> {
 	typedef float DebugType;
-	static float zero() { return 0.0f; }
-	static float transparent() { return 0.0f; }
-	static float opaque() { return 1.0f; }
-	static float multiply(float a, float b){
+	static Float1 zero() { return 0.0f; }
+	static Float1 transparent() { return 0.0f; }
+	static Float1 opaque() { return 1.0f; }
+	static Float1 multiply(Float1 a, Float1 b){
 	    return a*b;
 	}
     };
@@ -143,6 +144,8 @@ namespace Gil {
 			  bind2nd(ptr_fun(TypeTrait<Type>::multiply), v) );
 	    }
 
+	    static size_t channels() { return Channel; }
+
 	protected:
 	    Type my_data[Channel];
     };
@@ -176,6 +179,23 @@ namespace Gil {
 	return result;
     }
 
-} // namespace Gil
+    template <typename T>
+    struct ColorTrait {
+	typedef T BaseType;
+	static size_t channels() { return 1; }
+    };
+    
+    template <typename T, size_t C>
+    struct ColorTrait< Color<T,C> > {
+	typedef T BaseType;
+	static size_t channels() { return C; }
+    };
 
-#endif // __GIL_COLOR_H__
+    typedef Color<Byte1,3> Byte3;
+    typedef Color<Byte1,4> Byte4;
+    typedef Color<Float1,3> Float3;
+    typedef Color<Float1,4> Float4;
+
+} // namespace gil
+
+#endif // GIL_COLOR_H

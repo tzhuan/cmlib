@@ -1,18 +1,13 @@
-#ifndef __GIL_IMAGE_H__
-#define __GIL_IMAGE_H__
-
-//#include <iostream>
+#ifndef GIL_IMAGE_H
+#define GIL_IMAGE_H
 
 #include <algorithm>
 #include <string>
 #include <cstdio>
 
-//#include "FileFormat.h"
-//#include "FileIO.h"
 #include "Color.h"
-//#include "Converter.h"
 
-namespace Gil {
+namespace gil {
 
     template<typename Type> class Image;
     
@@ -46,6 +41,7 @@ namespace Gil {
 
 	    size_t width() const { return my_width; }
 	    size_t height() const { return my_height; }
+	    size_t channels() const { return ColorTrait<Type>::channels(); }
 
 	    void fill(ConstRefType pixel){
 		std::fill(begin(), end(), pixel);
@@ -92,18 +88,18 @@ namespace Gil {
 	    bool read(FILE* fd);
 
 	    template <class Reader>
-	    bool read(const std::string& filename, Reader& reader);
+	    bool read(const std::string& filename);
 	    
 	    template <class Reader>
-	    bool read(FILE* fd, Reader& reader);
+	    bool read(FILE* fd);
 
 	    bool write(const std::string& filename);
 
 	    template <class Writer>
-	    bool write(const std::string& filename, Writer& writer);
+	    bool write(const std::string& filename);
 	    
 	    template <class Writer>
-	    bool write(FILE* fh, Writer& writer);
+	    bool write(FILE* fh);
 	    
 	    friend void swap<>(Image<Type>& a, Image<Type>& b);
 
@@ -147,24 +143,25 @@ namespace Gil {
 
     template <typename Type>
     template <typename Reader>
-    bool Image<Type>::read(const std::string& filename, Reader& reader){
+    bool Image<Type>::read(const std::string& filename){
 	FILE* fd = fopen(filename.c_str(), "rb");
 	if(fd == NULL)
 	    return false;
-	read(fd, reader);
+	bool result = read<Reader>(fd);
 	fclose(fd);
-	return reader.good();
+	return result;
     }
     
     template <typename Type>
     template <typename Reader>
-    bool Image<Type>::read(FILE* fd, Reader& reader){
-	reader.open(fd);
+    bool Image<Type>::read(FILE* fd){
+	Reader reader;
+	reader.init_read(fd);
 	size_t w, h, c;
 	reader.read_header(w, h, c);
 	allocate(w, h);
-	reader.read_pixel(my_data);
-	reader.close();
+	reader.read_pixel(my_data[0].begin());
+	reader.finish();
 	return reader.good();
     }
 
@@ -175,27 +172,34 @@ namespace Gil {
 
     template <typename Type>
     template <typename Writer>
-    bool Image<Type>::write(const std::string& filename, Writer& writer){
+    bool Image<Type>::write(const std::string& filename){
 	FILE* fd = fopen(filename.c_str(), "wb");
 	if(fd == NULL)
 	    return false;
-	write(fd, writer);
+	bool result = write<Writer>(fd);
 	fclose(fd);
-	return writer.good();
+	return result;
     }
     
     template <typename Type>
     template <typename Writer>
-    bool Image<Type>::write(FILE* fd, Writer& writer){
-	writer.open(fd);
+    bool Image<Type>::write(FILE* fd){
+	Writer writer;
+	writer.init_write(fd);
 	size_t c; // FIXME: how to get the channel number?
 	writer.write_header(my_width, my_height, c);
 	writer.write_pixel(my_data);
-	writer.close();
+	writer.finish();
 	return writer.good();
     }
 
+    typedef Image<Byte1> ByteImage1;
+    typedef Image<Byte3> ByteImage3;
+    typedef Image<Byte4> ByteImage4;
+    typedef Image<Float1> FloatImage1;
+    typedef Image<Float3> FloatImage3;
+    typedef Image<Float4> FloatImage4;
 
-} // namespace Gil
+} // namespace gil
 
-#endif // __GIL_IMAGE_H__
+#endif // GIL_IMAGE_H

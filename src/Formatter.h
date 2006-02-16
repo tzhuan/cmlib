@@ -1,41 +1,36 @@
-#ifndef __GIL_FORMATTER_H__
+#ifndef GIL_FORMATTER_H
 
 #include <cstdio>
 #include "Color.h"
 
-namespace Gil {
+namespace gil {
 
     struct Formatter{
-	virtual void open(FILE* fh, bool write) {}
+	virtual void init_read(FILE* fh) {}
+	virtual void init_write(FILE* fh) {}
 	virtual bool good() { return false; }
 
 	virtual void read_header(size_t& w, size_t& h, size_t& c) {}
 	virtual void write_header(size_t w, size_t h, size_t c) {}
 
 	virtual void finish() {}
-	virtual void close() {}
-	
     };
 
     class PngFormatter : public Formatter {
 	public:
-	    void open(FILE* fh, bool write);
+	    void init_read(FILE* fh) {}
+	    void init_write(FILE* fh) {}
 
 	    void read_header(size_t& w, size_t& h, size_t& c);
 	    void write_header(size_t w, size_t h, size_t c);
 
-	    void read_pixel(byte* pixels);
-	    void read_pixel(Color<byte,3>* pixels);
-	    void read_pixel(Color<byte,4>* pixels);
+	    void read_pixel(Byte1* pixels);
 
-	    void write_pixel(byte* pixels);
-	    void write_pixel(Color<byte,3>* pixels);
-	    void write_pixel(Color<byte,4>* pixels);
+	    void write_pixel(Byte1* pixels);
 	    
 	    void finish();
-	    void close();
     };
 
-} // namespace Gil
+} // namespace gil
 
-#endif // __GIL_FORMATTER_H__
+#endif // GIL_FORMATTER_H
