@@ -18,6 +18,8 @@ namespace gil {
 
     class PngFormatter : public Formatter {
 	public:
+	    typedef Byte1 BaseType;
+
 	    void init_read(FILE* fh) {}
 	    void init_write(FILE* fh) {}
 
