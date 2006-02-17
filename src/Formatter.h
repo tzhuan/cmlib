@@ -5,33 +5,28 @@
 
 namespace gil {
 
-    struct Formatter{
-	virtual void init_read(FILE* fh) {}
-	virtual void init_write(FILE* fh) {}
-	virtual bool good() { return false; }
-
-	virtual void read_header(size_t& w, size_t& h, size_t& c) {}
-	virtual void write_header(size_t w, size_t h, size_t c) {}
-
-	virtual void finish() {}
-    };
-
-    class PngFormatter : public Formatter {
+    class PngReader {
 	public:
-	    typedef Byte1 BaseType;
-
-	    void init_read(FILE* fh) {}
-	    void init_write(FILE* fh) {}
-
-	    void read_header(size_t& w, size_t& h, size_t& c);
-	    void write_header(size_t w, size_t h, size_t c);
-
-	    void read_pixel(Byte1* pixels);
-
-	    void write_pixel(Byte1* pixels);
+	    PngReader(FILE* fh);
+	    ~PngReader();
 	    
-	    void finish();
+	    void read_header(size_t& w, size_t& h, size_t& c);
+	    
+	    template <typename Conv>
+	    void read_pixel(typename Conv::Internal* pixels, Conv convert);
     };
+
+    class PngWriter {
+	public:
+	    PngWriter(FILE* fh);
+	    ~PngWriter();
+	    
+	    void write_header(size_t w, size_t h, size_t c);
+	    
+	    template <typename Conv>
+	    void write_pixel(typename Conv::Internal* pixels, Conv converter);
+    };
+
 
 } // namespace gil
 

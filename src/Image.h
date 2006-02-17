@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include "Color.h"
+#include "Converter.h"
 
 namespace gil {
 
@@ -14,7 +15,7 @@ namespace gil {
     template<typename Type>
     void swap(Image<Type>& a, Image<Type>& b);
 
-    template<typename Type>
+    template<typename Type, typename Conv>
     class Image {
 	public:
 	    typedef Type* PtrType;
