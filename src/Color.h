@@ -84,18 +84,12 @@ namespace gil {
 		set(c0, c1, c2, c3);
 	    }
 
-	    Color(const Color<Type,3>& color){
-		set(color[0], color[1], color[2]);
-		if(Channel == 4)
-		    my_data[3] == TypeTrait<Type>::opaque();
-	    }
-
-	    Color(const Color<Type,4>& color){
-		set(color[0], color[1], color[2], color[3]);
-	    }
-
-	    void set(Type c0){
+	    void fill(Type c0){
 		std::fill(begin(), end(), c0);
+	    }
+	    
+	    void set(Type c0){
+		fill(c0);
 	    }
 
 	    void set(Type c0, Type c1, Type c2){

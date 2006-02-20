@@ -10,12 +10,13 @@
 
 namespace gil {
 
-    template<typename Type> class Image;
+    template<typename, template<typename,typename> class Conv=DefaultConverter> 
+    class Image;
     
     template<typename Type>
     void swap(Image<Type>& a, Image<Type>& b);
 
-    template<typename Type, typename Conv>
+    template<typename Type, template<typename,typename> class Conv>
     class Image {
 	public:
 	    typedef Type* PtrType;
@@ -86,23 +87,36 @@ namespace gil {
 	    // IO functions	    
 	    bool read(const std::string& filename);
 
-	    bool read(FILE* fd);
-
 	    template <class Reader>
-	    bool read(const std::string& filename);
+	    bool read(const std::string& filename, Reader& reader);
 	    
 	    template <class Reader>
-	    bool read(FILE* fd);
+	    bool read(FILE* fd, Reader& reader);
 
 	    bool write(const std::string& filename);
 
 	    template <class Writer>
-	    bool write(const std::string& filename);
+	    bool write(const std::string& filename, Writer& writer);
 	    
 	    template <class Writer>
-	    bool write(FILE* fh);
+	    bool write(FILE* fh, Writer& writer);
 	    
 	    friend void swap<>(Image<Type>& a, Image<Type>& b);
+
+	    // converter
+	    struct Converter {
+		typedef Type Internal;
+		
+		template <typename External>
+		static void ext2int(Internal& to, const External& from){
+		    Conv<Internal,External>::convert(to, from);
+		}
+		
+		template <typename External>
+		static void int2ext(External& to, const Internal& from){
+		    Conv<External,Internal>::convert(to, from);
+		}
+	    };
 
 	protected:
 	    void init_row(){
@@ -127,71 +141,54 @@ namespace gil {
 	swap(a.my_row, b.my_row);
     }
 
-    template <typename Type>
-    bool Image<Type>::read(const std::string& filename){
+    template <typename Type, template<typename,typename> class Conv>
+    bool Image<Type,Conv>::read(const std::string& filename){
 	FILE* fd = fopen(filename.c_str(), "rb");
 	if(fd == NULL)
 	    return false;
-	bool status = read(fd);
+	// TODO detect file type here
+	// 
 	fclose(fd);
-	return status;
-    }
-    
-    template <typename Type>
-    bool Image<Type>::read(FILE* fd){
-	// autodetect filetype
+	return true;
     }
 
-    template <typename Type>
+    template <typename Type, template<typename,typename> class Conv>
     template <typename Reader>
-    bool Image<Type>::read(const std::string& filename){
+    bool Image<Type,Conv>::read(const std::string& filename, Reader& reader){
 	FILE* fd = fopen(filename.c_str(), "rb");
 	if(fd == NULL)
 	    return false;
-	bool result = read<Reader>(fd);
+	bool result = read(fd, reader);
 	fclose(fd);
 	return result;
     }
     
-    template <typename Type>
+    template <typename Type, template<typename,typename> class Conv>
     template <typename Reader>
-    bool Image<Type>::read(FILE* fd){
-	Reader reader;
-	reader.init_read(fd);
-	size_t w, h, c;
-	reader.read_header(w, h, c);
-	allocate(w, h);
-	reader.read_pixel(my_data[0].begin());
-	reader.finish();
-	return reader.good();
+    bool Image<Type,Conv>::read(FILE* fd, Reader& reader){
+	return reader(*this);
     }
 
-    template <typename Type>
-    bool Image<Type>::write(const std::string& filename){
+    template <typename Type, template<typename,typename> class Conv>
+    bool Image<Type,Conv>::write(const std::string& filename){
 	// should detect file format by the file extension.
     }
 
-    template <typename Type>
+    template <typename Type, template<typename,typename> class Conv>
     template <typename Writer>
-    bool Image<Type>::write(const std::string& filename){
+    bool Image<Type,Conv>::write(const std::string& filename, Writer& writer){
 	FILE* fd = fopen(filename.c_str(), "wb");
 	if(fd == NULL)
 	    return false;
-	bool result = write<Writer>(fd);
+	bool result = write(fd, writer);
 	fclose(fd);
 	return result;
     }
     
-    template <typename Type>
+    template <typename Type, template<typename,typename> class Conv>
     template <typename Writer>
-    bool Image<Type>::write(FILE* fd){
-	Writer writer;
-	writer.init_write(fd);
-	size_t c; // FIXME: how to get the channel number?
-	writer.write_header(my_width, my_height, c);
-	writer.write_pixel(my_data);
-	writer.finish();
-	return writer.good();
+    bool Image<Type,Conv>::write(FILE* fd, Writer& writer){
+	return writer(*this);
     }
 
     typedef Image<Byte1> ByteImage1;

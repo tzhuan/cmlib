@@ -10,8 +10,8 @@ namespace gil {
 	    PngReader(FILE* fh);
 	    ~PngReader();
 	    
-	    template <typename Conv>
-	    void read_pixel(typename Conv::Internal* &pixel, size_t& w, size_t& h);
+	    template <typename I>
+	    void operator ()(I& image);
     };
 
     class PngWriter {
@@ -19,8 +19,8 @@ namespace gil {
 	    PngWriter(FILE* fh);
 	    ~PngWriter();
 	    
-	    template <typename Conv>
-	    void write_pixel(typename Conv::Internal* pixel, size_t w, size_t h);
+	    template <typename I>
+	    void operator ()(const I& image);
     };
 
 
