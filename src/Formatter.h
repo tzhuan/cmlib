@@ -7,20 +7,26 @@ namespace gil {
 
     class PngReader {
 	public:
-	    PngReader(FILE* fh);
-	    ~PngReader();
-	    
 	    template <typename I>
-	    void operator ()(I& image);
+	    void operator ()(I& image, FILE* f);
     };
 
     class PngWriter {
 	public:
-	    PngWriter(FILE* fh);
-	    ~PngWriter();
-	    
 	    template <typename I>
-	    void operator ()(const I& image);
+	    void operator ()(const I& image, FILE* f);
+    };
+
+    class TiffReader {
+	public:
+	    template <typename I>
+	    void operator ()(I& image, FILE* f);
+    };
+
+    class TiffWriter {
+	public:
+	    template <typename I>
+	    void operator ()(const I& image, FILE* f);
     };
 
 

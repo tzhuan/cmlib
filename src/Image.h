@@ -83,23 +83,6 @@ namespace gil {
 	    PtrType end() { return my_data + my_width*my_height; }
 	    ConstPtrType end() const { return my_data + my_width*my_height; }
 
-
-	    // IO functions	    
-	    bool read(const std::string& filename);
-
-	    template <class Reader>
-	    bool read(const std::string& filename, Reader& reader);
-	    
-	    template <class Reader>
-	    bool read(FILE* fd, Reader& reader);
-
-	    bool write(const std::string& filename);
-
-	    template <class Writer>
-	    bool write(const std::string& filename, Writer& writer);
-	    
-	    template <class Writer>
-	    bool write(FILE* fh, Writer& writer);
 	    
 	    friend void swap<>(Image<Type>& a, Image<Type>& b);
 
@@ -141,55 +124,6 @@ namespace gil {
 	swap(a.my_row, b.my_row);
     }
 
-    template <typename Type, template<typename,typename> class Conv>
-    bool Image<Type,Conv>::read(const std::string& filename){
-	FILE* fd = fopen(filename.c_str(), "rb");
-	if(fd == NULL)
-	    return false;
-	// TODO detect file type here
-	// 
-	fclose(fd);
-	return true;
-    }
-
-    template <typename Type, template<typename,typename> class Conv>
-    template <typename Reader>
-    bool Image<Type,Conv>::read(const std::string& filename, Reader& reader){
-	FILE* fd = fopen(filename.c_str(), "rb");
-	if(fd == NULL)
-	    return false;
-	bool result = read(fd, reader);
-	fclose(fd);
-	return result;
-    }
-    
-    template <typename Type, template<typename,typename> class Conv>
-    template <typename Reader>
-    bool Image<Type,Conv>::read(FILE* fd, Reader& reader){
-	return reader(*this);
-    }
-
-    template <typename Type, template<typename,typename> class Conv>
-    bool Image<Type,Conv>::write(const std::string& filename){
-	// should detect file format by the file extension.
-    }
-
-    template <typename Type, template<typename,typename> class Conv>
-    template <typename Writer>
-    bool Image<Type,Conv>::write(const std::string& filename, Writer& writer){
-	FILE* fd = fopen(filename.c_str(), "wb");
-	if(fd == NULL)
-	    return false;
-	bool result = write(fd, writer);
-	fclose(fd);
-	return result;
-    }
-    
-    template <typename Type, template<typename,typename> class Conv>
-    template <typename Writer>
-    bool Image<Type,Conv>::write(FILE* fd, Writer& writer){
-	return writer(*this);
-    }
 
     typedef Image<Byte1> ByteImage1;
     typedef Image<Byte3> ByteImage3;
