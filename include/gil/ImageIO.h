@@ -33,13 +33,26 @@ namespace gil {
 	return true;
     }
 
+    // take need special care of TIFF
+    class TiffReader;
+    
+    template <typename I>
+    bool read(I& image, const std::string& filename, TiffReader& reader){
+	reader(image, filename);
+	return true;
+    }
+
+    // no implementation, just to make linking error.
+    template <typename I>
+    bool read(I& image, FILE* f, TiffReader& reader); 
+
     template <typename I, typename W>
-    void write(I& image, FILE* f, W& writer){
+    void write(const I& image, FILE* f, W& writer){
 	writer(image, f);
     }
     
     template <typename I>
-    bool write(I& image, const std::string& filename){
+    bool write(const I& image, const std::string& filename){
 	FILE* f = fopen(filename.c_str(), "rb");
 	if(f == NULL)
 	    return false;
@@ -50,7 +63,7 @@ namespace gil {
     }
 
     template <typename I, typename W>
-    bool write(I& image, const std::string& filename, W& writer){
+    bool write(const I& image, const std::string& filename, W& writer){
 	FILE* f = fopen(filename.c_str(), "rb");
 	if(f == NULL)
 	    return false;
@@ -58,6 +71,19 @@ namespace gil {
 	fclose(f);
 	return true;
     }
+
+    // take need special care of TIFF
+    class TiffWriter;
+    
+    template <typename I>
+    bool write(I& image, const std::string& filename, TiffWriter& writer){
+	writer(image, filename);
+	return true;
+    }
+
+    // no implementation, just to make linking error.
+    template <typename I>
+    bool write(I& image, FILE* f, TiffWriter& writer);
 
 } // namespace gil
 
