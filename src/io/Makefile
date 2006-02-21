@@ -1,17 +1,15 @@
-CFLAGS+=    -I/usr/local/include
-CXXFLAGS+=  $(CFLAGS) -D__UNIX__ -DTHREADS -DUSE_LIBPNG
+CXXFLAGS+=    -I/usr/local/include
 
-SRCS = bmp.cc hdrio.cc jpg.cc pngio.cc tif.cc ppm.cc tga.cc crw.cc \
-       pfm.cc uve.cc dpx.cc
+SRCS = exr.cpp
 
-OBJS = ${SRCS:.cc=.o}
+OBJS = ${SRCS:.cpp=.o}
 
-.SUFFIXES: .cc
+.SUFFIXES: .cpp
 
-io:   $(OBJS) 
+io: $(OBJS)
 	@echo $@ is made
 
-.cc.o:
+.cpp.o:
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
