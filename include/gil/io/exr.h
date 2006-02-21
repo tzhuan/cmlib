@@ -5,8 +5,14 @@
 #include <vector>
 #include "../Image.h"
 
-class Imf::RgbaInputFile;
-class Imf::RgbaOutputFile;
+
+#ifndef INCLUDED_IMF_HEADER_H
+// forward declaration
+namespace Imf{
+    class RgbaInputFile;
+    class RgbaOutputFile;
+}
+#endif
 
 namespace gil {
     
@@ -14,15 +20,25 @@ namespace gil {
 
     class ExrReader {
 	public:
+	    ExrReader() : my_istream(NULL), my_input_file(NULL)
+	    {
+		// empty
+	    }
+
+	    ~ExrReader() {
+		finish();
+	    }
+	    
 	    template <typename I>
 	    void operator ()(I& image, FILE* f);
 
 	private:
 	    void init(FILE* f, size_t& w, size_t& h);
-	    void read_scanline(std::vector<Byte4>& buf);
+	    void read_scanline(std::vector<Float4>& buf, int y);
+	    void finish();
 	    
-	    auto_ptr<C_IStream> my_istream;
-	    auto_ptr<Imf::RgbaInputFile> my_input_file;
+	    C_IStream* my_istream;
+	    Imf::RgbaInputFile* my_input_file;
     };
 
     class ExrWriter {
@@ -34,10 +50,17 @@ namespace gil {
     template <typename I>
     void ExrReader::operator ()(I& image, FILE* f)
     {
+	typedef typename I::Converter Conv;
 	size_t width, height;
 	init(f, width, height);
 	image.allocate(width, height);
-	std::vector<Byte4> buffer(width); // scanline buffer
+	std::vector<Float4> buffer(width); // scanline buffer
+	for(size_t y = 0; y < height; y++){
+	    read_scanline(buffer, y);
+	    for(size_t x = 0; x < width; x++)
+		Conv::ext2int( image(x,y), buffer[x] );
+	}
+	finish();
     }
 
 } // namespace gil

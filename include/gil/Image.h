@@ -13,8 +13,8 @@ namespace gil {
     template<typename, template<typename,typename> class Conv=DefaultConverter> 
     class Image;
     
-    template<typename Type>
-    void swap(Image<Type>& a, Image<Type>& b);
+    template<typename Type, template<typename,typename> class Conv>
+    void swap(Image<Type,Conv>& a, Image<Type,Conv>& b);
 
     template<typename Type, template<typename,typename> class Conv>
     class Image {
@@ -23,6 +23,9 @@ namespace gil {
 	    typedef const Type* ConstPtrType;
 	    typedef Type& RefType;
 	    typedef const Type& ConstRefType;
+
+	    typedef PtrType iterator;
+	    typedef ConstPtrType const_iterator;
 	    
 	    Image()
 		: my_width(0), my_height(0), my_data(NULL), my_row(NULL)
@@ -43,6 +46,7 @@ namespace gil {
 
 	    size_t width() const { return my_width; }
 	    size_t height() const { return my_height; }
+	    size_t size() const { return my_width*my_height; }
 	    size_t channels() const { return ColorTrait<Type>::channels(); }
 
 	    void fill(ConstRefType pixel){
@@ -78,10 +82,10 @@ namespace gil {
 		return *this;
 	    }
 
-	    PtrType begin() { return my_data; }
-	    ConstPtrType begin() const { return my_data; }
-	    PtrType end() { return my_data + my_width*my_height; }
-	    ConstPtrType end() const { return my_data + my_width*my_height; }
+	    iterator begin() { return my_data; }
+	    const_iterator begin() const { return my_data; }
+	    iterator end() { return my_data + my_width*my_height; }
+	    const_iterator end() const { return my_data + my_width*my_height; }
 
 	    
 	    friend void swap<>(Image<Type>& a, Image<Type>& b);
@@ -115,8 +119,9 @@ namespace gil {
 	    Type **my_row;
     };
 
-    template <typename Type>
-    void swap(Image<Type>& a, Image<Type>& b){
+    template<typename Type, template<typename,typename> class Conv>
+    void swap(Image<Type,Conv>& a, Image<Type,Conv>& b)
+    {
 	using std::swap;
 	swap(a.my_width, b.my_width);
 	swap(a.my_height, b.my_height);

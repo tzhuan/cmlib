@@ -144,6 +144,11 @@ namespace gil {
 	    Type my_data[Channel];
     };
 
+    template <typename T>
+    struct Color<T, 1> {
+	typedef T ColorType;
+    };
+
     // default behavior to print all channels in a pixel
     // to avoid unprintable characters, values are converted
     // to DebugType defined in TypeTrait.
