@@ -19,6 +19,7 @@ namespace gil {
     template<typename Type, template<typename,typename> class Conv>
     class Image {
 	public:
+	    typedef Type ColorType;
 	    typedef Type* PtrType;
 	    typedef const Type* ConstPtrType;
 	    typedef Type& RefType;
