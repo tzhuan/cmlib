@@ -1,24 +1,31 @@
-CXXFLAGS+=    -I/usr/local/include -I../include -fPIC -g -Wall
-LIBS=    -L/usr/local/lib -lpng -ljpeg -ltiff -lz -lm
-TARGET= libgil2.so
+HEADERS = -I../include
+CXXFLAGS = $(HEADERS) -I/usr/local/include -fPIC -Wall -g -pipe
+LIBS =    -L/usr/local/lib -lpng -ljpeg -ltiff -lz
+TARGET = libgil2.so
 
-IO_DIR= io
+CXXFLAGS += $(shell pkg-config --cflags OpenEXR)
+LIBS += $(shell pkg-config --libs OpenEXR)
 
-.SUFFIXES: .cc
+IO_DIR = io
+UTIL_DIR = $(IO_DIR)/io_utils
+IO_SRCS = $(IO_DIR)/exr.cpp
+IO_OBJS = $(IO_SRCS:.cpp=.o)
 
-$(TARGET): $(OBJS)
-	@echo Compiling $@
-	@cd $(IO_DIR) && $(MAKE)
-	@cd $(UTIL_DIR) && $(MAKE)
-	$(CXX) $(CXXFLAGS) -shared -o $@ \
-	    $(OBJS) $(IO_OBJS) $(UTIL_OBJS) $(LDFLAGS)
+%.o: %.cpp
+	@ echo Compiling $<
+	@ $(CXX) -c $< -o $@ $(CXXFLAGS)
 
-.cpp.o:
-	$(CXX) $(CXXFLAGS) -c $<
+$(TARGET): $(IO_OBJS)
+	@ echo Building  $@
+	@ $(CXX) -o $@ -shared $(OBJS) $(IO_OBJS) $(UTIL_OBJS) $(LIBS)
 
 clean:
 	rm -f $(TARGET) $(OBJS) *.gch *.core
+	@ cd $(IO_DIR) && $(MAKE) clean
 
-clean-all: clean
-	@cd $(IO_DIR) && $(MAKE) clean
-	@cd $(UTIL_DIR) && $(MAKE) clean
+depend:
+	makedepend -Y $(HEADERS) $(IO_SRCS) 2>/dev/null
+# DO NOT DELETE
+
+io/exr.o: ../include/gil/io/exr.h ../include/gil/Image.h
+io/exr.o: ../include/gil/Color.h ../include/gil/Converter.h

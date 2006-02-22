@@ -159,8 +159,8 @@ void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
 {
     RgbaChannels ch;
     if(c == 1) ch = WRITE_Y;
-    else if(c == 3) ch = WRITE_YC;
-    else ch = WRITE_YCA;
+    else if(c == 3) ch = WRITE_RGB;
+    else ch = WRITE_RGBA;
     
     try{
 	my_ostream = new C_OStream(f);

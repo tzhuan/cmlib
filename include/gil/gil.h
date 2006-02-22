@@ -3,5 +3,6 @@
 
 #include "Image.h"
 #include "ImageIO.h"
+#include "Formatter.h"
 
 #endif
