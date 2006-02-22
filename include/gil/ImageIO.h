@@ -53,7 +53,7 @@ namespace gil {
     
     template <typename I>
     bool write(const I& image, const std::string& filename){
-	FILE* f = fopen(filename.c_str(), "rb");
+	FILE* f = fopen(filename.c_str(), "wb");
 	if(f == NULL)
 	    return false;
 	// TODO detect file type here
@@ -64,7 +64,7 @@ namespace gil {
 
     template <typename I, typename W>
     bool write(const I& image, const std::string& filename, W& writer){
-	FILE* f = fopen(filename.c_str(), "rb");
+	FILE* f = fopen(filename.c_str(), "wb");
 	if(f == NULL)
 	    return false;
 	read(image, f, writer);

@@ -42,7 +42,7 @@ namespace gil {
 	typedef T From;
 	static void convert(T& to, const T& from)
 	{
-	    return; // do nothing
+	    to = from;
 	}
     };
 
@@ -53,7 +53,7 @@ namespace gil {
 	typedef Color<T,C> From;
 	static void convert(To& to, const From& from)
 	{
-	    return; // do nothing
+	    to = from;
 	}
     };
     

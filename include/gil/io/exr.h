@@ -79,7 +79,8 @@ namespace gil {
     void ExrWriter::operator ()(const I& image, FILE* f)
     {
 	typedef typename I::Converter Conv;
-	size_t width, height;
+	size_t width = image.width();
+	size_t height = image.height();
 	
 	init( f, width, height, image.channels() );
 	std::vector<Float4> buffer(width);

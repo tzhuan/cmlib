@@ -1,13 +1,12 @@
 #include <exception>
 #include <stdexcept>
-#include <iostream>
 #include <cstdio>
-#include <cassert>
+
+// OpenEXR headers
 #include <ImfRgbaFile.h>
-#include <ImfFrameBuffer.h>
 #include <ImfIO.h>
-#include <ImfArray.h>
 #include <half.h>
+
 #include "gil/io/exr.h"
 
 using namespace std;
@@ -65,7 +64,7 @@ void C_IStream::clear()
 
 class gil::C_OStream : public OStream {
     public:
-	C_OStream(FILE* f, const char* filename = NULL)
+	C_OStream(FILE* f, const char* filename = "")
 	    : OStream(filename), my_file(f)
 	{
 	    // empty
@@ -160,8 +159,8 @@ void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
 {
     RgbaChannels ch;
     if(c == 1) ch = WRITE_Y;
-    else if(c == 3) ch = WRITE_RGB;
-    else ch = WRITE_RGBA;
+    else if(c == 3) ch = WRITE_YC;
+    else ch = WRITE_YCA;
     
     try{
 	my_ostream = new C_OStream(f);
