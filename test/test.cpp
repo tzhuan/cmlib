@@ -5,18 +5,20 @@ using namespace std;
 using namespace gil;
 
 int main(void){
-    FloatImage3 test;
-    ExrReader r;
-    read(test, "input.exr", r);
+    ByteImage3 img;
+    JpegReader r;
+    read(img, "input.jpg", r);
+    
+    cout << "reading done, size: " << img.width() << 'x' << img.height() << endl;
 
-    int h = test.height() / 2;
+    int h = img.height() / 2;
     
     for(size_t y = 0; y < h; y++)
-	for(size_t x = 0; x < test.width(); x++)
-	    swap( test(x, y), test(x, test.height()-y-1) );
+	for(size_t x = 0; x < img.width(); x++)
+	    swap( img(x, y), img(x, img.height()-y-1) );
 
     ExrWriter w;
-    write(test, "output.exr", w);
+    write(img, "output.exr", w);
 
     return 0;
 }

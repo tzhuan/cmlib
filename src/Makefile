@@ -8,7 +8,7 @@ LIBS += $(shell pkg-config --libs OpenEXR)
 
 IO_DIR = io
 UTIL_DIR = $(IO_DIR)/io_utils
-IO_SRCS = $(IO_DIR)/exr.cpp
+IO_SRCS = $(IO_DIR)/exr.cpp $(IO_DIR)/jpeg.cpp
 IO_OBJS = $(IO_SRCS:.cpp=.o)
 
 %.o: %.cpp
@@ -29,3 +29,4 @@ depend:
 
 io/exr.o: ../include/gil/io/exr.h ../include/gil/Image.h
 io/exr.o: ../include/gil/Color.h ../include/gil/Converter.h
+io/jpeg.o: ../include/gil/Color.h ../include/gil/io/jpeg.h
