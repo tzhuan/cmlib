@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <cstdio>
 
+#include "../Color.h"
+
 namespace gil {
 
     class JpegReader {

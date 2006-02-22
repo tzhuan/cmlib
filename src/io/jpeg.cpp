@@ -3,7 +3,6 @@
 #include <cstdio>
 #include <jpeglib.h>
 
-#include "gil/Color.h"
 #include "gil/io/jpeg.h"
 
 using namespace std;

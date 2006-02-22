@@ -8,7 +8,7 @@ LIBS += $(shell pkg-config --libs OpenEXR)
 
 IO_DIR = io
 UTIL_DIR = $(IO_DIR)/io_utils
-IO_SRCS = $(IO_DIR)/exr.cpp $(IO_DIR)/jpeg.cpp
+IO_SRCS = $(IO_DIR)/exr.cpp $(IO_DIR)/jpeg.cpp $(IO_DIR)/png.cpp
 IO_OBJS = $(IO_SRCS:.cpp=.o)
 
 %.o: %.cpp
