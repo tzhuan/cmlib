@@ -5,7 +5,7 @@ using namespace std;
 using namespace gil;
 
 int main(void){
-    ByteImage3 img;
+    ByteImage1 img;
     JpegReader r;
     read(img, "input.jpg", r);
     
@@ -17,8 +17,8 @@ int main(void){
 	for(size_t x = 0; x < img.width(); x++)
 	    swap( img(x, y), img(x, img.height()-y-1) );
 
-    PngWriter w;
-    write(img, "output.png", w);
+    JpegWriter w;
+    write(img, "output.jpg", w);
 
     return 0;
 }

@@ -86,11 +86,45 @@ namespace gil {
 	    void operator ()(const I& image, FILE* f);
 
 	private:
+	    // use type T as scanline buffer
+	    template <typename T, typename I>
+	    void write_pixels(I& image);
+	    
+	    void init(FILE* f, size_t w, size_t h, size_t c);
+	    void write_scanline(std::vector<Byte1>& buf);
+	    void write_scanline(std::vector<Byte3>& buf);
+	    void finish();
 	    void cleanup() throw ();
 	    
 	    void* my_cinfo;
 	    void* my_jerr;
     };
+
+    template <typename T, typename I>
+    void JpegWriter::write_pixels(I& image)
+    {
+	typedef typename I::Converter Conv;
+	size_t w = image.width(), h = image.height();
+	std::vector<T> buffer(w);
+	for(size_t y = 0; y < h; y++){
+	    for(size_t x = 0; x < w; x++)
+		Conv::int2ext( buffer[x], image(x,y) );
+	    
+	    write_scanline(buffer);
+	}
+    }
+
+    template <typename I>
+    void JpegWriter::operator ()(const I& image, FILE* f)
+    {
+	size_t c = (image.channels()==1) ? 1 : 3;
+	init( f, image.width(), image.height(), c);
+	if(c == 1)
+	    write_pixels<Byte1>(image);
+	else
+	    write_pixels<Byte3>(image);
+	finish();
+    }
 
 } // namespace gil
 
