@@ -9,6 +9,7 @@
 namespace gil {
     // scalar type, may be used later...
     typedef unsigned char Byte1;
+    typedef unsigned short Short1;
     typedef float Float1;
 
     // utilities
@@ -39,6 +40,17 @@ namespace gil {
 	static Byte1 opaque() { return 255; }
 	static Byte1 multiply(Byte1 a, Byte1 b){
 	    return (Byte1)( ((int)a * (int)b) / 255 );
+	}
+    };
+
+    template <>
+    struct TypeTrait<Short1> {
+	typedef int DebugType;
+	static Short1 zero() { return 0; }
+	static Short1 transparent() { return 0; }
+	static Short1 opaque() { return 65535; }
+	static Short1 multiply(Short1 a, Short1 b){
+	    return (Short1)( ((int)a * (int)b) / 65535 );
 	}
     };
 
@@ -192,6 +204,8 @@ namespace gil {
 
     typedef Color<Byte1,3> Byte3;
     typedef Color<Byte1,4> Byte4;
+    typedef Color<Short1,3> Short3;
+    typedef Color<Short1,4> Short4;
     typedef Color<Float1,3> Float3;
     typedef Color<Float1,4> Float4;
 

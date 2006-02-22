@@ -134,6 +134,9 @@ namespace gil {
     typedef Image<Byte1> ByteImage1;
     typedef Image<Byte3> ByteImage3;
     typedef Image<Byte4> ByteImage4;
+    typedef Image<Short1> ShortImage1;
+    typedef Image<Short3> ShortImage3;
+    typedef Image<Short4> ShortImage4;
     typedef Image<Float1> FloatImage1;
     typedef Image<Float3> FloatImage3;
     typedef Image<Float4> FloatImage4;

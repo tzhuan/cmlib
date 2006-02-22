@@ -34,7 +34,46 @@ namespace gil {
 	    to = static_cast<Float1>(from) / 255.0f;
 	}
     };
+
+    template <>
+    struct DefaultConverter<Short1, Byte1> {
+	typedef Short1 To;
+	typedef Byte1 From;
+	static void convert(To& to, From from)
+	{
+	    to = static_cast<Short1>(from * 255);
+	}
+    };
+
+    template <>
+    struct DefaultConverter<Byte1, Short1> {
+	typedef Byte1 To;
+	typedef Short1 From;
+	static void convert(To& to, From from)
+	{
+	    to = static_cast<Byte1>(from / 255);
+	}
+    };
+
+    template <>
+    struct DefaultConverter<Short1, Float1> {
+	typedef Short1 To;
+	typedef Float1 From;
+	static void convert(To& to, From from)
+	{
+	    to = static_cast<Short1>(from * 65535.0f);
+	}
+    };
     
+    template <>
+    struct DefaultConverter<Float1, Short1> {
+	typedef Float1 To;
+	typedef Short1 From;
+	static void convert(To& to, From from)
+	{
+	    to = static_cast<Float1>(from) / 65535.0f;
+	}
+    };
 
     template <typename T>
     struct DefaultConverter<T, T> {
