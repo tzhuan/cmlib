@@ -40,6 +40,7 @@ namespace gil {
 		}
 		for (size_t i = 1; i < my_height; ++i)
 		    row_pointers[i] = row_pointers[i-1] + my_width;
+
 		read((unsigned char**)row_pointers);
 		image.allocate(my_width, my_height);
 		for (size_t h = 0; h < my_height; ++h)
@@ -55,7 +56,6 @@ namespace gil {
 	    size_t my_width;
 	    size_t my_height;
 	    size_t my_channels;
-	    size_t my_bit_depth;
     };
 
     class PngWriter {
@@ -63,23 +63,25 @@ namespace gil {
 	    template <typename I>
 	    void operator ()(const I& image, FILE* f)
 	    {
+		init(f);
 		if (image.channels() >= 4)
 		    write<I, Color<Byte1, 4>::ColorType>(image);
 		else if (image.channels() == 3)
 		    write<I, Color<Byte1, 3>::ColorType>(image);
 		else
 		    write<I, Color<Byte1, 1>::ColorType>(image);
+		finish();
 	    }
 	protected:
 	    void init(FILE* f);
 	    void write(unsigned char** row_pointers);
 	    void finish();
 	    template<typename I, typename color_type>
-	    void write(I& image)
+	    void write(const I& image)
 	    {
 		my_width = image.width();
 		my_height = image.height();
-		my_channels = color_type::channels();
+		my_channels = ColorTrait<color_type>::channels();
 
 		color_type **row_pointers = new color_type*[my_height];
 		try {
