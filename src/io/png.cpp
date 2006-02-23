@@ -15,7 +15,7 @@ void PngReader::check(FILE *f)
 void PngReader::read(unsigned char** row_pointers)
 {
     png_structp png_ptr = (png_structp)my_png_ptr;
-    png_infop info_ptr = (png_infop)my_info_ptr;
+    //png_infop info_ptr = (png_infop)my_info_ptr;
 
     png_read_image(png_ptr, row_pointers);
 }
@@ -96,7 +96,7 @@ void PngWriter::init(FILE *f)
 	throw std::bad_alloc();
     }
 
-    png_infop info_ptr = (png_infop)my_info_ptr;
+    //png_infop info_ptr = (png_infop)my_info_ptr;
 
     if (setjmp(png_jmpbuf(png_ptr))) {
 	png_destroy_write_struct(

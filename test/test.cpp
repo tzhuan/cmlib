@@ -6,8 +6,7 @@ using namespace gil;
 
 int main(void){
     ByteImage4 img;
-    PngReader r;
-    read(img, "input.png", r);
+    read<PngReader>(img, "input.png");
     
     cout << "reading done, size: " << img.width() << 'x' << img.height() << endl;
 
@@ -18,7 +17,7 @@ int main(void){
 	    swap( img(x, y), img(x, img.height()-y-1) );
 
     TiffWriter w;
-    write(img, "output.tif", w);
+    write<PngWriter>(img, "output.png");
 
     return 0;
 }
