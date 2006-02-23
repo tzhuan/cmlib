@@ -5,9 +5,9 @@ using namespace std;
 using namespace gil;
 
 int main(void){
-    ByteImage1 img;
-    JpegReader r;
-    read(img, "input.jpg", r);
+    ByteImage4 img;
+    PngReader r;
+    read(img, "input.png", r);
     
     cout << "reading done, size: " << img.width() << 'x' << img.height() << endl;
 
@@ -17,8 +17,8 @@ int main(void){
 	for(size_t x = 0; x < img.width(); x++)
 	    swap( img(x, y), img(x, img.height()-y-1) );
 
-    JpegWriter w;
-    write(img, "output.jpg", w);
+    TiffWriter w;
+    write(img, "output.tif", w);
 
     return 0;
 }

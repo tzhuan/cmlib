@@ -1,4 +1,4 @@
-SRCS = exr.cpp jpeg.cpp png.cpp
+SRCS = exr.cpp jpeg.cpp png.cpp tiff.cpp
 OBJS = ${SRCS:.cpp=.o}
 
 clean:

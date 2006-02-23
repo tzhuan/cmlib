@@ -6,5 +6,6 @@
 #include "io/png.h"
 #include "io/exr.h"
 #include "io/jpeg.h"
+#include "io/tiff.h"
 
 #endif // GIL_FORMATTER_H
