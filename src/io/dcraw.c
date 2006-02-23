@@ -40,12 +40,14 @@
    NO_JPEG disables decoding of compressed Kodak DC120 files.
    NO_LCMS disables the "-p" option.
  */
+/*
 #ifndef NO_JPEG
 #include <jpeglib.h>
 #endif
 #ifndef NO_LCMS
 #include <lcms.h>
 #endif
+*/
 
 #ifdef __CYGWIN__
 #include <io.h>
@@ -78,7 +80,6 @@ typedef unsigned long long UINT64;
 typedef unsigned char uchar;
 typedef unsigned short ushort;
 
-namespace { // BEGIN OF ANONYMOUS NAMESAPCE
 /*
    All global variables are defined here, and all functions that
    access them are prefixed with "CLASS".  Note that a thread-safe
@@ -1565,8 +1566,9 @@ void CLASS kodak_radc_load_raw()
 #undef FORYX
 #undef PREDICTOR
 
-#ifdef NO_JPEG
+//#ifdef NO_JPEG
 void CLASS kodak_jpeg_load_raw() {}
+/*
 #else
 
 METHODDEF(boolean)
@@ -1622,6 +1624,7 @@ void CLASS kodak_jpeg_load_raw()
   maximum = 0xff << 1;
 }
 #endif
+*/
 
 void CLASS kodak_dc120_load_raw()
 {
@@ -5724,6 +5727,7 @@ dng_skip:
     }
 }
 
+/*
 #ifndef NO_LCMS
 void CLASS apply_profile (char *input, char *output)
 {
@@ -5753,13 +5757,14 @@ void CLASS apply_profile (char *input, char *output)
 	hOutProfile, TYPE_RGBA_16, INTENT_PERCEPTUAL, 0);
   cmsDoTransform (hTransform, image, image, width*height);
   maximum = 0xffff;
-  raw_color = 1;		/* Don't use rgb_cam with a profile */
+  raw_color = 1;		// Don't use rgb_cam with a profile
   cmsDeleteTransform (hTransform);
   cmsCloseProfile (hOutProfile);
 quit:
   cmsCloseProfile (hInProfile);
 }
 #endif
+*/
 
 void CLASS convert_to_rgb()
 {
@@ -5994,56 +5999,29 @@ void CLASS write_psd (FILE *ofp)
   free (buffer);
 }
 
-void read_crw(FILE *f)
+int ext_identify(FILE *f)
 {
-    assert(f);
     ifp = f;
     identify();
-    // read data
-    (*load_raw)();
+    return make[0];
 }
 
-float *loadCRW(char *filename, int &imgWidth, int &imgHeight)
+void ext_init(size_t *w, size_t *h, size_t *m)
 {
-    ifp = fopen(filename,"rb");
-    if (!ifp) {
-		return NULL;
-	}
-
-    if (identify(filename)) {
-		return NULL;
-    }
-
-    //image = (unsigned short (*)[4])calloc (height * width, sizeof *image);
-    //if (!image) {
-	//	return NULL;
-    //}
-
-	data=new float [width*height];
-
-    (*load_raw)();
-
-	imgWidth = width;
-	imgHeight = height;
-
-	// copy pixels from image
-	//float *p=data;
-	//int i=0;
-	//for (int y=0; y<height; y++) {
-	//	for (int x=0; x<width; x++) {
-	//		*p=image[i][FC(y,x)];
-	//		p++;
-	//		i++;
-	//	}
-	//}
-
-	fclose(ifp);
-    //free(image);
-
-	return data;
+    *w = iwidth;
+    *h = iheight;
+    *m = meta_length;
+    
+    // default options
+    clip_color = 0;
+    bright = 0.25;
 }
 
-} // END OF ANONYMOUS NAMESAPCE
+void ext_read(unsigned short (*row_pointers)[4])
+{
+    image = row_pointers;
+    (*load_raw)();
+}
 
 /*
 int CLASS main (int argc, char **argv)
