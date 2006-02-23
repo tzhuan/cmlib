@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include "Color.h"
+#include "FileFormat.h"
 
 #include "io/png.h"
 #include "io/exr.h"
