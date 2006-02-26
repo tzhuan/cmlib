@@ -17,6 +17,9 @@ namespace {
     const int EXP = 3;
     const int COLXS = 128;
 
+    const size_t MIN_ENC_LENGTH = 8;
+    const size_t MAX_ENC_LENGTH = 32767; // 0x7FFF
+
 
     // this part imported from original header.c in io_utils
     
@@ -119,7 +122,7 @@ namespace {
     }
 
     // put out a format value
-    void fputformat(char *s, FILE *fp)
+    void fputformat(const char *s, FILE *fp)
     {
 	fputs(FMTSTR, fp);
 	fputs(s, fp);
@@ -383,6 +386,58 @@ namespace {
 	}
     }
 
+    void rgb_2_realpixels(const vector<Float3>& realscan, vector<Byte4>& scanout)
+    {
+	size_t x;
+	float r, g, b, max;
+	float factor;
+	int exp;
+
+	for (x = 0; x < realscan.size(); x++) {
+	    r = realscan[x][RED];
+	    g = realscan[x][GRN];
+	    b = realscan[x][BLU];
+
+	    /* find max */
+	    max = r;
+	    if (max < g) max = g;
+	    if (max < b) max = b;
+
+	    /* find normalize factor */
+	    factor=1;
+	    exp=0;
+
+	    if (max>0) {
+		while ((max > 1.0) || (max < 0.5)) {
+		    if (max>1.0) {
+			max *= 0.5;	
+			factor *= 0.5;
+			exp++;
+		    } else {
+			max *= 2;
+			factor *= 2;
+			exp--;
+		    }
+		}
+
+		r *= factor;
+		g *= factor;
+		b *= factor;
+
+		scanout[x][RED] = (unsigned char)(r*255+0.5);
+		scanout[x][GRN] = (unsigned char)(g*255+0.5);
+		scanout[x][BLU] = (unsigned char)(b*255+0.5);
+		scanout[x][EXP] = COLXS + exp;
+	    } else if (max==0) {
+		scanout[x][RED] = 0;
+		scanout[x][GRN] = 0;
+		scanout[x][BLU] = 0;
+		scanout[x][EXP] = 0;	
+	    } else {
+		// it is an error
+	    }
+	}
+    }
 
 } // end of anonymous namespace
 
@@ -510,4 +565,37 @@ void HdrReader::finish()
     my_enc_buffer.resize(0);
 }
 
+void HdrWriter::init(FILE* f, size_t w, size_t h)
+{
+    my_file = f;
+    char* argv = new char[128];
+    strcpy(argv, "hdrio");
+    int x = w, y = h;
 
+    newheader("RADIANCE", my_file);
+    printargs(1, &argv, my_file);
+    delete [] argv;
+
+    fputformat(COLRFMT, my_file);
+    fprintf(my_file, "\n");
+    fprtresolu(x, y, my_file);
+    
+    my_enc_buffer.resize(w);
+}
+
+void HdrWriter::write_scanline(const vector<Float3>& buf)
+{
+    rgb_2_realpixels(buf, my_enc_buffer);
+    write_encoded();
+}
+
+void HdrWriter::write_encoded()
+{
+    
+}
+
+void HdrWriter::finish()
+{
+    my_file = NULL;
+    my_enc_buffer.resize(0);
+}
