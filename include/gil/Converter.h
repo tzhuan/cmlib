@@ -180,6 +180,28 @@ namespace gil {
 	    to.set( from, from, from, TypeTrait<T>::opaque() );
 	}
     };
+
+    template <typename T1, typename T2, size_t C>
+    struct DefaultConverter< T1, Color<T2,C> > {
+	typedef T1 To;
+	typedef Color<T2,C> From;
+	static void convert(To& to, const From& from){
+	    T2 tmp;
+	    DefaultConverter<T2, From>::convert(tmp, from);
+	    DefaultConverter<To, T2>::convert(to, tmp);
+	}
+    };
+    
+    template <typename T1, typename T2, size_t C>
+    struct DefaultConverter< Color<T1,C>, T2 > {
+	typedef Color<T1,C> To;
+	typedef T2 From;
+	static void convert(To& to, const From& from){
+	    T1 tmp;
+	    DefaultConverter<T1, From>::convert(tmp, from);
+	    DefaultConverter<To, T1>::convert(to, tmp);
+	}
+    };
     
     // arbitary conversion
     template <typename T1, size_t C1, typename T2, size_t C2>

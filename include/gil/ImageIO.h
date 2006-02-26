@@ -39,6 +39,9 @@ namespace gil {
 		read<ExrReader>(image, f);
 		break;
 
+	    case FF_HDR:
+		read<HdrReader>(image, f);
+
 	    default:
 		fclose(f);
 		return false;

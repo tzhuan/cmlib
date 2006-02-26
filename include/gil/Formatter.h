@@ -8,5 +8,6 @@
 #include "io/exr.h"
 #include "io/jpeg.h"
 #include "io/tiff.h"
+#include "io/hdr.h"
 
 #endif // GIL_FORMATTER_H
