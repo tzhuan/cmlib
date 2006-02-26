@@ -138,6 +138,9 @@ namespace gil {
 	    case FF_EXR:
 		return write<ExrWriter>(image, filename);
 
+	    case FF_HDR:
+		return write<HdrWriter>(image, filename);
+
 	    default:
 		return false;
 	}

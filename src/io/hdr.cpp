@@ -19,6 +19,7 @@ namespace {
 
     const size_t MIN_ENC_LENGTH = 8;
     const size_t MAX_ENC_LENGTH = 32767; // 0x7FFF
+    const size_t MINRUN = 4;
 
 
     // this part imported from original header.c in io_utils
@@ -591,7 +592,58 @@ void HdrWriter::write_scanline(const vector<Float3>& buf)
 
 void HdrWriter::write_encoded()
 {
-    
+    size_t len = my_enc_buffer.size();
+    Byte4* scanline = &my_enc_buffer[0];
+    size_t i, j, beg, cnt=1;
+    size_t c2;
+
+    if (len < MIN_ENC_LENGTH or len > MAX_ENC_LENGTH){
+	// OOBs, write out flat
+	fwrite(scanline, sizeof(Byte4), len, my_file);
+	return;
+    }
+    /* put magic header */
+    putc(2, my_file);
+    putc(2, my_file);
+    putc(len>>8, my_file);
+    putc(len&255, my_file);
+    /* put components seperately */
+    for (i = 0; i < 4; i++) {
+	for (j = 0; j < len; j += cnt) {	/* find next run */
+	    for (beg = j; beg < len; beg += cnt) {
+		for (cnt = 1; cnt < 127; cnt++){
+		    if(beg+cnt >= len)
+			break;
+		    if(scanline[beg+cnt][i] != scanline[beg][i])
+			break;
+		}
+
+		if (cnt >= MINRUN)
+		    break;			/* long enough */
+	    }
+	    if (beg-j > 1 && beg-j < MINRUN) {
+		c2 = j+1;
+		while (scanline[c2++][i] == scanline[j][i])
+		    if (c2 == beg) {	/* short run */
+			putc(128+beg-j, my_file);
+			putc(scanline[j][i], my_file);
+			j = beg;
+			break;
+		    }
+	    }
+	    while (j < beg) {		/* write out non-run */
+		if ((c2 = beg-j) > 128) c2 = 128;
+		putc(c2, my_file);
+		while (c2--)
+		    putc(scanline[j++][i], my_file);
+	    }
+	    if (cnt >= MINRUN) {		/* write out run */
+		putc(128+cnt, my_file);
+		putc(scanline[beg][i], my_file);
+	    } else
+		cnt = 0;
+	}
+    }
 }
 
 void HdrWriter::finish()

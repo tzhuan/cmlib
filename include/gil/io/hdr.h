@@ -73,7 +73,7 @@ namespace gil {
     template <typename I>
     void HdrWriter::operator ()(const I& image, FILE* f)
     {
-	size_t width, height;
+	size_t width = image.width(), height = image.height();
 	init(f, width, height);
 	
 	typedef typename I::Converter Conv;

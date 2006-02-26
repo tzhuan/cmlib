@@ -6,8 +6,8 @@ using namespace std;
 using namespace gil;
 
 int main(void){
-    ByteImage1 img;
+    FloatImage4 img;
     read(img, "input.hdr");
-    write(img, "output.png");
+    write(img, "output.tiff");
     return 0;
 }
