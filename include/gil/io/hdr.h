@@ -7,9 +7,14 @@
 
 #include "../Color.h"
 
+// turn off the turnoff warnings
+#ifdef _MSC_VER
+#pragma warning(disable:4251) 
+#endif
+
 namespace gil {
 
-    class HdrReader {
+    class DLLAPI HdrReader {
 	public:
 	    HdrReader() : my_file(NULL)
 	    {
@@ -49,7 +54,7 @@ namespace gil {
 	finish();
     }
     
-    class HdrWriter {
+    class DLLAPI HdrWriter {
 	public:
 	    HdrWriter() : my_file(NULL)
 	    {

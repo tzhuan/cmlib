@@ -4,6 +4,8 @@
 #include <string>
 #include <cstdio>
 
+#include "Color.h" // to define DLLAPI on windows
+
 namespace gil {
 
     enum FileFormat{
@@ -14,11 +16,11 @@ namespace gil {
 
     // get file format by filename extension
     // this will be used in write()
-    FileFormat get_format(const std::string& name);
+    FileFormat DLLAPI get_format(const std::string& name);
 
     // get file format by its magic number
     // this will be used in read()
-    FileFormat get_format(FILE* f);
+    FileFormat DLLAPI get_format(FILE* f);
 
 } // namespace gil
 

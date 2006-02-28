@@ -55,12 +55,12 @@ namespace gil {
 	    }
 
 	    void allocate(size_t w, size_t h){
-		if(w != my_width or h != my_height){
+		if(w != my_width || h != my_height){
 		    // the delete operator will automatically check for NULL
 		    delete [] my_data;
 		    delete [] my_row;
 		    
-		    if(w != 0 and h != 0){
+		    if(w != 0 && h != 0){
 			my_data = new Type[w*h];
 			my_row = new Type*[h];
 			my_width = w;

@@ -102,7 +102,7 @@ FileFormat gil::get_format(FILE* f)
     const size_t MAGIC_LENGTH = 12;
     
     char buf[MAGIC_LENGTH];
-    size_t n_read = fread(buf, 1, MAGIC_LENGTH, f);
+    int n_read = fread(buf, 1, MAGIC_LENGTH, f);
     fseek(f, -n_read, SEEK_CUR);
     if(n_read < MAGIC_LENGTH){
 	return FF_UNKNOWN;

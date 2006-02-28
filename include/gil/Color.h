@@ -6,6 +6,15 @@
 #include <algorithm>
 #include <functional>
 
+// set DLLAPI if we're using VC
+#ifdef _MSC_VER
+#ifdef BUILD_VC_DLL
+#define DLLAPI __declspec(dllexport)
+#else
+#define DLLAPI __declspec(dllimport)
+#endif // BUILD_VC_DLL
+#endif // WIN32
+
 namespace gil {
     // scalar type, may be used later...
     typedef unsigned char Byte1;

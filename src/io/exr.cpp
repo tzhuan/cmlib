@@ -3,6 +3,11 @@
 #include <cstdio>
 
 // OpenEXR headers
+// turn off the turnoff warnings if we're using VC
+#ifdef _MSC_VER
+#pragma warning(disable:4290) 
+#endif
+
 #include <ImfRgbaFile.h>
 #include <ImfIO.h>
 #include <half.h>
@@ -55,7 +60,7 @@ Int64 C_IStream::tellg()
 void C_IStream::seekg(Int64 pos)
 {
     clearerr(my_file);
-    fseek(my_file, pos, SEEK_SET);
+    fseek(my_file, static_cast<long>(pos), SEEK_SET);
 }
 
 void C_IStream::clear()
@@ -98,7 +103,7 @@ Int64 C_OStream::tellp()
 void C_OStream::seekp(Int64 pos)
 {
     clearerr(my_file);
-    fseek(my_file, pos, SEEK_SET);
+    fseek(my_file, static_cast<long>(pos), SEEK_SET);
 }
 
 void C_OStream::clear()
@@ -119,7 +124,7 @@ void ExrReader::init(FILE* f, size_t& w, size_t& h)
 	my_min_x = dw.min.x;
 	my_min_y = dw.min.y;
     }
-    catch(exception& e){
+    catch(exception&){
 	cleanup();
 	throw;
     }
@@ -141,7 +146,7 @@ void ExrReader::read_scanline(vector<Float4>& buf_float, int y)
 	    buf_float[i][3] = buf_half[i].a;
 	}
     }
-    catch(exception& e){
+    catch(exception&){
 	cleanup();
 	throw;
     }
@@ -167,7 +172,7 @@ void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
 	my_ostream = new C_OStream(f);
 	my_output_file = new RgbaOutputFile( *(C_OStream*)my_ostream, Header(w, h), ch );
     }
-    catch(exception& e){
+    catch(exception&){
 	cleanup();
 	throw;
     }
@@ -190,7 +195,7 @@ void ExrWriter::write_scanline(vector<Float4>& buf_float, int y)
 	output_file->setFrameBuffer( &buf_half[0] - y * width, 1, width );
 	output_file->writePixels(1);
     }
-    catch(exception& e){
+    catch(exception&){
 	cleanup();
 	throw;
     }

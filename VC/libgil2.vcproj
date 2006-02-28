@@ -106,7 +106,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\include;D:\Projects\include\OpenEXR;D:\Projects\include"
-				PreprocessorDefinitions="WIN32"
+				PreprocessorDefinitions="WIN32;BUILD_VC_DLL"
 				RuntimeLibrary="2"
 				WarningLevel="3"
 				DisableSpecificWarnings="4996"
@@ -124,6 +124,8 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib libpng.lib libtiff.lib libjpeg.lib Half.lib Iex.lib IlmImf.lib Imath.lib"
 				AdditionalLibraryDirectories="D:\Projects\lib"
+				GenerateMapFile="true"
+				MapExports="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -189,6 +191,10 @@
 				</File>
 				<File
 					RelativePath="..\src\io\hdr.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\io\jpeg.cpp"
 					>
 				</File>
 				<File

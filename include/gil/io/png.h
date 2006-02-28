@@ -8,7 +8,7 @@
 #include "../Color.h"
 
 namespace gil {
-    class PngReader {
+    class DLLAPI PngReader {
 	public:
 	    template <typename I>
 	    void operator ()(I& image, FILE* f)
@@ -60,7 +60,7 @@ namespace gil {
 	    size_t my_channels;
     };
 
-    class PngWriter {
+    class DLLAPI PngWriter {
 	public:
 	    template <typename I>
 	    void operator ()(const I& image, FILE* f)

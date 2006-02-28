@@ -10,7 +10,7 @@ namespace gil {
     class C_IStream;
     class C_OStream;
 
-    class ExrReader {
+    class DLLAPI ExrReader {
 	public:
 	    ExrReader() : my_istream(NULL), my_input_file(NULL)
 	    {
@@ -52,7 +52,7 @@ namespace gil {
     }
 
     
-    class ExrWriter {
+    class DLLAPI ExrWriter {
 	public:
 	    ExrWriter() : my_ostream(NULL), my_output_file(NULL)
 	    {

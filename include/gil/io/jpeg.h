@@ -9,7 +9,7 @@
 
 namespace gil {
 
-    class JpegReader {
+    class DLLAPI JpegReader {
 	public:
 	    JpegReader() : my_cinfo(NULL), my_jerr(NULL)
 	    {
@@ -71,7 +71,7 @@ namespace gil {
 	finish();
     }
 
-    class JpegWriter {
+    class DLLAPI JpegWriter {
 	public:
 	    JpegWriter() : my_cinfo(NULL), my_jerr(NULL)
 	    {

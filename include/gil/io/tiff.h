@@ -11,7 +11,7 @@
 
 namespace gil {
 
-    class TiffReader {
+    class DLLAPI TiffReader {
 	public:
 	    TiffReader() : my_tiff(NULL)
 	    {
@@ -72,7 +72,7 @@ namespace gil {
 	finish();
     }
 
-    class TiffWriter {
+    class DLLAPI TiffWriter {
 	public:
 	    TiffWriter() : my_tiff(NULL)
 	    {

@@ -6,7 +6,7 @@
 #include "../Color.h"
 
 namespace gil {
-    class CrwReader {
+    class DLLAPI CrwReader {
 	public:
 	    template <typename I>
 	    void operator ()(I& image, FILE* f)
