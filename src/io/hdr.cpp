@@ -380,10 +380,10 @@ namespace {
 		realscan[x][2] = 0;                       
 	    }                                              
 	    else {
-		v = ldexp(1.0/256, scanin[x][EXP]-128);
-		realscan[x][0] = (scanin[x][RED] + 0.5)*v;
-		realscan[x][1] = (scanin[x][GRN] + 0.5)*v;
-		realscan[x][2] = (scanin[x][BLU] + 0.5)*v;
+		v = static_cast<float>( ldexp(1.0/256, scanin[x][EXP]-128) );
+		realscan[x][0] = v * (scanin[x][RED] + 0.5f);
+		realscan[x][1] = v * (scanin[x][GRN] + 0.5f);
+		realscan[x][2] = v * (scanin[x][BLU] + 0.5f);
 	    }
 	}
     }
@@ -475,7 +475,7 @@ void HdrReader::read_encoded()
     size_t len = my_enc_buffer.size();
     
     // determine scanline type
-    if (len < MIN_ENC_LENGTH or len > MAX_ENC_LENGTH){
+    if (len < MIN_ENC_LENGTH || len > MAX_ENC_LENGTH){
 	read_encoded_old();
 	return;
     }
@@ -545,7 +545,7 @@ void HdrReader::read_encoded_old(size_t pos)
 	if(ferror(my_file))
 	    throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
 	    
-	if ( (*p)[RED] == 1 and (*p)[GRN] == 1 and (*p)[BLU] == 1) {
+	if ( (*p)[RED] == 1 && (*p)[GRN] == 1 && (*p)[BLU] == 1) {
 	    for (i = (*p)[EXP] << rshift; i > 0; i--) {
 		*p = *(p-1);
 		++p;
@@ -598,7 +598,7 @@ void HdrWriter::write_encoded()
     size_t i, j, beg, cnt=1;
     size_t c2;
 
-    if (len < MIN_ENC_LENGTH or len > MAX_ENC_LENGTH){
+    if (len < MIN_ENC_LENGTH || len > MAX_ENC_LENGTH){
 	// OOBs, write out flat
 	fwrite(scanline, sizeof(Byte4), len, my_file);
 	return;

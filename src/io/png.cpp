@@ -1,3 +1,4 @@
+#include <cassert>
 #include <png.h>
 
 #include "gil/Exception.h"

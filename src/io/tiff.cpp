@@ -3,9 +3,12 @@
 #include <string>
 #include <vector>
 
+#include "gil/io/tiff.h"
+
+// must include tiffio.h after gil/io/tiff.h
+// or you will failed to compile under VC++
 #include <tiffio.h>
 
-#include "gil/io/tiff.h"
 
 using namespace std;
 using namespace gil;

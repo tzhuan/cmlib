@@ -63,7 +63,7 @@ namespace gil {
 	static Float1 opaque() { return 1.0f; }
 	static Float1 mix(Float1 a, Float1 b, Float1 w)
 	{
-	    return a * (1.0-w) + b * w;
+	    return a * (1.0f-w) + b * w;
 	}
     };
     

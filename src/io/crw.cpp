@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cassert>
 
 #include "gil/Exception.h"
 #include "gil/io/crw.h"
