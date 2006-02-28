@@ -9,6 +9,7 @@
 
 namespace gil {
 
+    // Read functions
     template <typename R, typename I>
     inline void read(I& image, FILE* f, R& reader){
 	reader(image, f);
@@ -18,6 +19,33 @@ namespace gil {
     inline void read(I& image, FILE* f){
 	R reader;
 	read(image, f, reader);
+    }
+
+    template <typename R, typename I>
+    bool read(I& image, const std::string& filename, R& reader){
+	FILE* f = fopen(filename.c_str(), "rb");
+	if(f == NULL)
+	    return false;
+	read(image, f, reader);
+	fclose(f);
+	return true;
+    }
+
+    // take need special care of TIFF
+    template <typename I>
+    inline bool read(I& image, const std::string& filename, TiffReader& reader){
+	reader(image, filename);
+	return true;
+    }
+    // no implementation, just to make linking error.
+    template <typename I>
+    void read(I& image, FILE* f, TiffReader& reader);
+    
+    
+    template <typename R, typename I>
+    inline bool read(I& image, const std::string& filename){
+	R reader;
+	return read(image, filename, reader);
     }
     
     template <typename I>
@@ -34,6 +62,10 @@ namespace gil {
 	    case FF_JPEG:
 		read<JpegReader>(image, f);
 		break;
+ 
+	    case FF_TIFF:
+ 	        fclose(f);
+ 	        return read<TiffReader>(image, filename);
 
 	    case FF_EXR:
 		read<ExrReader>(image, f);
@@ -41,6 +73,7 @@ namespace gil {
 
 	    case FF_HDR:
 		read<HdrReader>(image, f);
+		break;
 
 	    default:
 		fclose(f);
@@ -51,48 +84,7 @@ namespace gil {
 	return true;
     }
 
-    template <typename R, typename I>
-    bool read(I& image, const std::string& filename, R& reader){
-	FILE* f = fopen(filename.c_str(), "rb");
-	if(f == NULL)
-	    return false;
-	read(image, f, reader);
-	fclose(f);
-	return true;
-    }
-    
-    template <typename R, typename I>
-    inline bool read(I& image, const std::string& filename){
-	R reader;
-	return read(image, filename, reader);
-    }
-
-    // take need special care of TIFF
-    class TiffReader;
-    
-    template <typename I>
-    inline bool read(I& image, const std::string& filename, TiffReader& reader){
-	reader(image, filename);
-	return true;
-    }
-    
-    class TiffWriter;
-    
-    template <typename I>
-    inline bool write(I& image, const std::string& filename, TiffWriter& writer)
-    {
-	return writer(image, filename);
-    }
-
-    // no implementation, just to make linking error.
-    template <typename I>
-    bool write(I& image, FILE* f, TiffWriter& writer);
-
-
-    // no implementation, just to make linking error.
-    template <typename I>
-    void read(I& image, FILE* f, TiffReader& reader);
-
+    // Write functions
     template <typename W, typename I>
     inline void write(const I& image, FILE* f, W& writer)
     {
@@ -116,12 +108,23 @@ namespace gil {
 	return true;
     }
     
+    // take care of TiffWriter
+    template <typename I>
+    inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
+    {
+	return writer(image, filename);
+    }
+
+    // no implementation, just to make linking error.
+    template <typename I>
+    bool write(const I& image, FILE* f, TiffWriter& writer);
+    
     template <typename W, typename I>
     inline bool write(const I& image, const std::string& filename){
 	W writer; 
 	return write(image, filename, writer);
     }
-    
+
     template <typename I>
     bool write(const I& image, const std::string& filename)
     {

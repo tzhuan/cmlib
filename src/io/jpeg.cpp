@@ -1,7 +1,12 @@
 #include <exception>
 #include <vector>
 #include <cstdio>
+
+// libjpeg is stupid and didn't use this to remove C++ name mangling
+// in their official header file
+extern "C" {
 #include <jpeglib.h>
+}
 
 #include "gil/io/jpeg.h"
 
@@ -14,7 +19,7 @@ void JpegReader::init(FILE* f, size_t& w, size_t& h, size_t& c)
 	my_jerr = new jpeg_error_mgr;
 	my_cinfo = new jpeg_decompress_struct;
     }
-    catch(exception& e){
+    catch(exception&){
 	cleanup();
 	throw;
     }
@@ -67,7 +72,7 @@ void JpegWriter::init(FILE* f, size_t w, size_t h, size_t c)
 	my_jerr = new jpeg_error_mgr;
 	my_cinfo = new jpeg_compress_struct;
     }
-    catch(exception& e){
+    catch(exception&){
 	cleanup();
 	throw;
     }
