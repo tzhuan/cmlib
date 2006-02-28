@@ -1,7 +1,7 @@
 INSTALL_DIR = /usr/local/lib
 TARGET = libgil2.so
 HEADERS = -I../include
-CXXFLAGS = $(HEADERS) -I/usr/local/include -fPIC -Wall -g -pipe
+CXXFLAGS = $(HEADERS) -I/usr/local/include -fPIC -Wall -O3 -pipe
 LIBS =    -L/usr/local/lib -lpng -ljpeg -ltiff -lz
 
 CXXFLAGS += $(shell pkg-config --cflags OpenEXR)
@@ -44,10 +44,17 @@ depend:
 	makedepend -Y $(HEADERS) $(SRCS) $(IO_SRCS) 2>/dev/null
 # DO NOT DELETE
 
-FileFormat.o: ../include/gil/FileFormat.h
-io/exr.o: ../include/gil/io/exr.h ../include/gil/Image.h
-io/exr.o: ../include/gil/Color.h ../include/gil/Converter.h
-io/jpeg.o: ../include/gil/io/jpeg.h ../include/gil/Color.h
-io/png.o: ../include/gil/io/png.h ../include/gil/Color.h
-io/tiff.o: ../include/gil/io/tiff.h ../include/gil/Color.h
-io/hdr.o: ../include/gil/io/hdr.h ../include/gil/Color.h
+FileFormat.o: ../include/gil/FileFormat.h ../include/gil/Color.h
+io/jpeg.o: ../include/gil/io/jpeg.h ../include/gil/Exception.h
+io/jpeg.o: ../include/gil/Color.h
+io/png.o: ../include/gil/Exception.h ../include/gil/io/png.h
+io/png.o: ../include/gil/Exception.h ../include/gil/Color.h
+io/tiff.o: ../include/gil/io/tiff.h ../include/gil/Exception.h
+io/tiff.o: ../include/gil/Color.h
+io/exr.o: ../include/gil/Exception.h ../include/gil/io/exr.h
+io/exr.o: ../include/gil/Image.h ../include/gil/Color.h
+io/exr.o: ../include/gil/Converter.h
+io/hdr.o: ../include/gil/Exception.h ../include/gil/io/hdr.h
+io/hdr.o: ../include/gil/Color.h
+io/crw.o: ../include/gil/Exception.h ../include/gil/io/crw.h
+io/crw.o: ../include/gil/Color.h

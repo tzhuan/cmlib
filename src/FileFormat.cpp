@@ -87,7 +87,7 @@ FileFormat gil::get_format(const string& filename)
 	return FF_UNKNOWN;
     string ext = filename.substr(pos + 1);
     // convert to lower case
-    transform(ext.begin(), ext.end(), ext.begin(), tolower);
+    transform(ext.begin(), ext.end(), ext.begin(), ptr_fun<int,int>(tolower));
 
     const FormatTable table = get_ext_table();
     FormatTable::const_iterator it = table.find(ext);
@@ -99,7 +99,7 @@ FileFormat gil::get_format(const string& filename)
 
 FileFormat gil::get_format(FILE* f)
 {
-    const size_t MAGIC_LENGTH = 12;
+    const int MAGIC_LENGTH = 12;
     
     char buf[MAGIC_LENGTH];
     int n_read = fread(buf, 1, MAGIC_LENGTH, f);

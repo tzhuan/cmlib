@@ -1,8 +1,8 @@
 CXXFLAGS = -I../include 
 LIBS = -L../src -lgil2
 
-%.o: %.c
-	$(CXX) -c $< $(CXXFLAGS)
+%.o: %.cpp
+	$(CXX) -c $< $(CXXFLAGS) -Wall -O3
 
 test: test.o ../src/libgil2.so
 	$(CXX) -o $@ test.o $(LIBS)

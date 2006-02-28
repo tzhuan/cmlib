@@ -13,6 +13,8 @@
 #else
 #define DLLAPI __declspec(dllimport)
 #endif // BUILD_VC_DLL
+#else
+#define DLLAPI
 #endif // WIN32
 
 namespace gil {

@@ -70,6 +70,7 @@ namespace gil {
 	    throw InvalidFormat("unsupported tiff channel number");
 	}
 	finish();
+	return true;
     }
 
     class DLLAPI TiffWriter {
@@ -133,6 +134,7 @@ namespace gil {
 	    write_pixels<Byte4>(image);
 
 	finish();
+	return true;
     }
 
 } // namespace gil
