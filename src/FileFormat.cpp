@@ -25,7 +25,7 @@ namespace {
 	    return ext_table;
 
 	// not built yet
-	
+	built = true;
 	ext_table["png"]  = FF_PNG;
 	ext_table["jpg"]  = FF_JPEG;
 	ext_table["jpeg"] = FF_JPEG;
@@ -55,15 +55,26 @@ namespace {
 	    return magic_table;
 
 	// not built yet
+	built = true;
+
 	magic_table["\x89PNG"]  = FF_PNG;
+	
 	magic_table["\xFF\xD8"]  = FF_JPEG;
+	
 	magic_table[string("MM\0\x2A",4)] = FF_TIFF;
 	magic_table[string("II\x2A\0",4)] = FF_TIFF;
+	
 	magic_table["\x76\x2F\x31\x01"] = FF_EXR;
+	
 	magic_table["BM"] = FF_BMP;
+	
 	magic_table[string("\0\0\x02\0",4)] = FF_TARGA;
 	magic_table[string("\0\0\x03\0",4)] = FF_TARGA;
+	
 	magic_table["#?RADIANCE"] = FF_HDR;
+	
+	magic_table["P5"] = FF_PGM;
+	magic_table["P6"] = FF_PPM;
 
 	return magic_table;
     }
@@ -88,7 +99,7 @@ FileFormat gil::get_format(const string& filename)
 
 FileFormat gil::get_format(FILE* f)
 {
-    const size_t MAGIC_LENGTH = 10;
+    const size_t MAGIC_LENGTH = 12;
     
     char buf[MAGIC_LENGTH];
     size_t n_read = fread(buf, 1, MAGIC_LENGTH, f);
@@ -98,11 +109,11 @@ FileFormat gil::get_format(FILE* f)
     }
 
     string magic(buf, n_read);
-    const FormatTable& magic_table = get_magic_table();
-    typedef FormatTable::const_iterator CI;
-    for(CI i = magic_table.begin(); i != magic_table.end(); ++i)
-	if( magic.compare(0, i->first.length(), i->first) == 0 )
-	    return i->second;
+    const FormatTable& table = get_magic_table();
+    FormatTable::const_iterator it = table.upper_bound(magic);
+    --it;
+    if( magic.compare(0, it->first.length(), it->first) == 0)
+	return it->second;
     
     return FF_UNKNOWN;
 }

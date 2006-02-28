@@ -32,6 +32,9 @@ $(IO_DIR)/dcraw.o: $(IO_DIR)/dcraw.cpp
 install: $(TARGET)
 	@ echo Installing $(TARGET) to $(INSTALL_DIR)
 	@ install -m644 $(TARGET) $(INSTALL_DIR)
+	@ echo -n Running ldconfig...
+	@ ldconfig
+	@ echo done
 
 clean:
 	rm -f $(TARGET) $(OBJS) *.gch *.core
