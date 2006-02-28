@@ -1,0 +1,51 @@
+# Put the directory where I can find png.h, jpeglib.h, blahblah...
+INCLUDE_DIR = -I"D:\Projects\include" -I"D:\Projects\include\OpenEXR"
+
+# If you want to build a "pure" static library, 
+# e.g. no dependency on libpng, libjpeg, libtiff, zlib and openexr,
+# you must include all .o files in them.
+# Give me a directory and all object files (*.o) in it will be
+# included in the static library
+EXTRA_OBJ_DIR = static
+
+# Compiler options
+CXXFLAGS = -O3 -Wall -pipe
+
+# You can choose your favorite tools
+CC = gcc
+CXX = g++
+AR = ar rc
+
+# Target name
+TARGET = libgil2.a
+
+
+# I don't think you'll need to touch following lines...
+
+CXXFLAGS += -I"..\include" $(INCLUDE_DIR)
+
+IO_DIR = io
+SRCS = FileFormat.cpp
+IO_SRCS = $(IO_DIR)\jpeg.cpp $(IO_DIR)\png.cpp $(IO_DIR)\tiff.cpp \
+	  $(IO_DIR)\exr.cpp $(IO_DIR)\hdr.cpp \
+	  $(IO_DIR)\crw.cpp $(IO_DIR)\dcraw.cpp
+
+OBJS = $(SRCS:.cpp=.o)
+IO_OBJS = $(IO_SRCS:.cpp=.o)
+
+%.o: %.cpp
+	@ echo Compiling $<
+	@ $(CXX) -c $< -o $@ $(CXXFLAGS)
+
+$(TARGET): $(OBJS) $(IO_OBJS)
+	@ echo Building  $@
+	$(AR) $(TARGET) $(OBJS) $(IO_OBJS) $(EXTRA_OBJ_DIR)\\*.o
+
+$(IO_DIR)\dcraw.o: $(IO_DIR)\dcraw.cpp
+	@ echo Compiling $<
+	$(CC) -x c -c $< -o $@ $(CXXFLAGS)
+
+clean:
+	del $(TARGET) $(OBJS) *.gch *.core
+	@ cd $(IO_DIR) && $(MAKE) clean
+
