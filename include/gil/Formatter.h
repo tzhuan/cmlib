@@ -9,5 +9,6 @@
 #include "io/jpeg.h"
 #include "io/tiff.h"
 #include "io/hdr.h"
+#include "io/ppm.h"
 
 #endif // GIL_FORMATTER_H

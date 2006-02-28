@@ -75,6 +75,10 @@ namespace gil {
 		read<HdrReader>(image, f);
 		break;
 
+	    case FF_PPM:
+		read<PpmReader>(image, f);
+		break;
+
 	    default:
 		fclose(f);
 		return false;
@@ -143,6 +147,9 @@ namespace gil {
 
 	    case FF_HDR:
 		return write<HdrWriter>(image, filename);
+
+	    case FF_PPM:
+		return write<PpmWriter>(image, filename);
 
 	    default:
 		return false;
