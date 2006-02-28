@@ -111,6 +111,8 @@ FileFormat gil::get_format(FILE* f)
     string magic(buf, n_read);
     const FormatTable& table = get_magic_table();
     FormatTable::const_iterator it = table.upper_bound(magic);
+    if(it == table.begin()) // smaller than the first key
+	return FF_UNKNOWN;
     --it;
     if( magic.compare(0, it->first.length(), it->first) == 0)
 	return it->second;
