@@ -3,6 +3,8 @@
 
 #include <cstdio>
 #include <stdexcept>
+
+#include "../Exception.h"
 #include "../Color.h"
 
 namespace gil {
@@ -20,7 +22,7 @@ namespace gil {
 		else if (my_channels == 4)
 		    read<I, Color<Byte1, 4>::ColorType>(image);
 		else
-		    throw std::runtime_error("channels");
+		    throw InvalidFormat("channels");
 		finish();
 	    }
 	protected:

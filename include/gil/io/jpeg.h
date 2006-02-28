@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <cstdio>
 
+#include "../Exception.h"
 #include "../Color.h"
 
 namespace gil {
@@ -65,7 +66,7 @@ namespace gil {
 	    read_pixels<Byte3>(image);
 	} else {
 	    finish();
-	    throw std::runtime_error("unsupported jpeg channel number");
+	    throw InvalidFormat("unsupported jpeg channel number");
 	}
 	finish();
     }

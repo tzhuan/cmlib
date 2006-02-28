@@ -7,6 +7,7 @@
 #include <ImfIO.h>
 #include <half.h>
 
+#include "gil/Exception.h"
 #include "gil/io/exr.h"
 
 using namespace std;
@@ -39,9 +40,9 @@ bool C_IStream::read(char c[], int n)
 	// between I/O errors and end of file, so we call ferror() to
 	// determine what happened.
 	if( ferror(my_file) )
-	    throw runtime_error("error reading file");
+	    throw FileError("error reading file");
 	else
-	    throw runtime_error("unexpected end of file");
+	    throw EndOfFile("unexpected EOF in C_IStream::read()");
     }
     return feof(my_file) == 0;
 }
@@ -83,9 +84,9 @@ void C_OStream::write(const char c[], int n)
 {
     if( fwrite(c, n, 1, my_file) != 1 ){
 	if( ferror(my_file) )
-	    throw runtime_error("error writing file");
+	    throw FileError("error writing file");
 	else
-	    throw runtime_error("unexpected end of file");
+	    throw EndOfFile("unexpected EOF in C_OStream::write()");
     }
 }
 

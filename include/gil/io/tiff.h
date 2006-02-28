@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstdio>
 
+#include "../Exception.h"
 #include "../Color.h"
 
 namespace gil {
@@ -66,7 +67,7 @@ namespace gil {
 	    read_pixels<Byte4>(image);
 	} else {
 	    finish();
-	    throw std::runtime_error("unsupported tiff channel number");
+	    throw InvalidFormat("unsupported tiff channel number");
 	}
 	finish();
     }

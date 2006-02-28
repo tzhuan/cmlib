@@ -1,4 +1,6 @@
 #include <cstdio>
+
+#include "gil/Exception.h"
 #include "gil/io/crw.h"
 
 extern "C" {
@@ -13,7 +15,7 @@ void CrwReader::check(FILE *f)
 {
     assert(f);
     if (!ext_identify(f))
-	throw std::runtime_error("unsupported format");
+	throw InvalidFormat("unsupported format in CrwReader::check()");
 }
 
 void CrwReader::init()

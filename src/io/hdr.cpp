@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cmath>
 
+#include "gil/Exception.h"
 #include "gil/io/hdr.h"
 
 using namespace std;
@@ -449,10 +450,10 @@ void HdrReader::init(FILE* f, size_t& w, size_t& h)
     // or it will failed on 64bit machines.
     int x, y;
     if( checkheader(my_file, COLRFMT, NULL) < 0)
-	throw runtime_error("invalid HDR format in HdrReader::init()");
+	throw InvalidFormat("invalid HDR format in HdrReader::init()");
 	    
     if(fgetresolu(&x, &y, my_file) < 0)
-	throw runtime_error("invalid HDR format in HdrReader::init()");
+	throw InvalidFormat("invalid HDR format in HdrReader::init()");
     
     w = x;
     h = y;
@@ -480,7 +481,7 @@ void HdrReader::read_encoded()
     }
     
     if ((code = getc(my_file)) == EOF)
-	throw runtime_error("unexpected eod of file");
+	throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
     
     if (code != 2) {
 	ungetc(code, my_file);
@@ -492,7 +493,7 @@ void HdrReader::read_encoded()
     my_enc_buffer[0][BLU] = getc(my_file);
     
     if ((code = getc(my_file)) == EOF)
-	throw runtime_error("unexpected eod of file");
+	throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
     
     if (my_enc_buffer[0][GRN] != 2 || my_enc_buffer[0][BLU] & 128) {
 	    my_enc_buffer[0][RED] = 2;
@@ -502,13 +503,13 @@ void HdrReader::read_encoded()
     }
     
     if ( static_cast<size_t>(my_enc_buffer[0][BLU]<<8 | code) != len )
-	    throw runtime_error("length mismatch in HdrReader::read_encoded()");
+	    throw InvalidFormat("length mismatch in HdrReader::read_encoded()");
     
     // read each component
     for (i = 0; i < 4; i++){
 	for (j = 0; j < len; ) {
 	    if ((code = getc(my_file)) == EOF)
-		throw runtime_error("unexpected eod of file");
+		throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
 		
 	    if (code > 128) {	
 		// run
@@ -540,9 +541,9 @@ void HdrReader::read_encoded_old(size_t pos)
 	(*p)[BLU] = getc(my_file);
 	(*p)[EXP] = getc(my_file);
 	if(feof(my_file))
-	    throw runtime_error("unexpected eod of file");
+	    throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
 	if(ferror(my_file))
-	    throw runtime_error("error reading file");
+	    throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
 	    
 	if ( (*p)[RED] == 1 and (*p)[GRN] == 1 and (*p)[BLU] == 1) {
 	    for (i = (*p)[EXP] << rshift; i > 0; i--) {

@@ -1,4 +1,6 @@
-#include "png.h" 
+#include <png.h>
+
+#include "gil/Exception.h"
 #include "gil/io/png.h"
 
 using namespace gil;
@@ -9,7 +11,7 @@ void PngReader::check(FILE *f)
     assert(f);
     fread(header, 1, MAGIC_NUMBER, f);
     if (png_sig_cmp(header, 0, MAGIC_NUMBER))
-	throw std::runtime_error("not png");
+	throw InvalidFormat("not png");
 }
 
 void PngReader::read(unsigned char** row_pointers)
@@ -121,7 +123,7 @@ void PngWriter::write(unsigned char** row_pointers)
     else if (my_channels == 4)
 	color_type = PNG_COLOR_TYPE_RGBA;
     else
-	throw std::runtime_error("color type");
+	throw InvalidFormat("color type");
 
     png_uint_32 width = my_width, height = my_height;
 
