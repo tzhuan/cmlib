@@ -17,7 +17,7 @@ namespace gil {
     T clamp(T value, T lower, T upper){
 	return std::min( std::max(value, lower), upper );
     }
-    
+
     // type traits
     template <typename T>
     struct TypeTrait {
@@ -28,8 +28,7 @@ namespace gil {
 	// for alpha channel
 	static T transparent();
 	static T opaque();
-
-	static T multiply(T a, T b);
+	static T mix(T a, T b, T w);
     };
 
     template <>
@@ -38,8 +37,9 @@ namespace gil {
 	static Byte1 zero() { return 0; }
 	static Byte1 transparent() { return 0; }
 	static Byte1 opaque() { return 255; }
-	static Byte1 multiply(Byte1 a, Byte1 b){
-	    return (Byte1)( ((int)a * (int)b) / 255 );
+	static Byte1 mix(Byte1 a, Byte1 b, Byte1 w)
+	{
+	    return ( a * (255-w) + b * w ) / 255;
 	}
     };
 
@@ -49,8 +49,9 @@ namespace gil {
 	static Short1 zero() { return 0; }
 	static Short1 transparent() { return 0; }
 	static Short1 opaque() { return 65535; }
-	static Short1 multiply(Short1 a, Short1 b){
-	    return (Short1)( ((int)a * (int)b) / 65535 );
+	static Short1 mix(Short1 a, Short1 b, Short1 w)
+	{
+	    return ( a * (65535-w) + b * w ) / 65535;
 	}
     };
 
@@ -60,8 +61,21 @@ namespace gil {
 	static Float1 zero() { return 0.0f; }
 	static Float1 transparent() { return 0.0f; }
 	static Float1 opaque() { return 1.0f; }
-	static Float1 multiply(Float1 a, Float1 b){
-	    return a*b;
+	static Float1 mix(Float1 a, Float1 b, Float1 w)
+	{
+	    return a * (1.0-w) + b * w;
+	}
+    };
+    
+    template <>
+    struct TypeTrait<double> {
+	typedef double DebugType;
+	static double zero() { return 0.0; }
+	static double transparent() { return 0.0; }
+	static double opaque() { return 1.0; }
+	static double mix(double a, double b, double w)
+	{
+	    return a * (1.0-w) + b * w;
 	}
     };
     
@@ -132,24 +146,6 @@ namespace gil {
 	    PtrType end() { return my_data+Channel; }
 	    ConstPtrType end() const { return my_data+Channel; }
 
-	    ColorType operator *(Type v){
-		using namespace std;
-		ColorType color;
-		transform(begin(),
-			  end(),
-			  color.begin(),
-			  bind2nd(ptr_fun(TypeTrait<Type>::multiply), v) );
-		return color;
-	    }
-
-	    ColorType& operator *=(Type v){
-		using namespace std;
-		transform(begin(),
-			  end(),
-			  begin(),
-			  bind2nd(ptr_fun(TypeTrait<Type>::multiply), v) );
-	    }
-
 	    static size_t channels() { return Channel; }
 
 	protected:
@@ -174,8 +170,10 @@ namespace gil {
     }
 
     // other utilities
+    // minimal and maximal
     template <typename T, size_t C>
-    Color<T,C> min(const Color<T,C>& a, const Color<T,C>& b){
+    Color<T,C> min(const Color<T,C>& a, const Color<T,C>& b)
+    {
 	Color<T,C> result;
 	for(size_t i = 0; i < C; i++)
 	    result[i] = std::min(a[i], b[i]);
@@ -183,13 +181,35 @@ namespace gil {
     }
 
     template <typename T, size_t C>
-    Color<T,C> max(const Color<T,C>& a, const Color<T,C>& b){
+    Color<T,C> max(const Color<T,C>& a, const Color<T,C>& b)
+    {
 	Color<T,C> result;
 	for(size_t i = 0; i < C; i++)
 	    result[i] = std::max(a[i], b[i]);
 	return result;
     }
 
+    // linear interpolation
+    template <typename T, size_t C>
+    Color<T,C> mix(const Color<T,C>& a, const Color<T,C>& b, T w)
+    {
+	Color<T,C> result;
+	for(size_t i = 0; i < C; i++)
+	    result[i] = TypeTrait<T>::mix(a[i], b[i], w);
+	return result;
+    }
+    
+    template <typename T, size_t C, typename W>
+    Color<T,C> mix(const Color<T,C>& a, const Color<T,C>& b, W w)
+    {
+	Color<T,C> result;
+	const W opaque = TypeTrait<W>::opaque();
+	W u = opaque - w;
+	for(size_t i = 0; i < C; i++)
+	    result[i] = static_cast<T>( ( u * a[i] + w * b[i] ) / opaque );
+	return result;
+    }
+    
     template <typename T>
     struct ColorTrait {
 	typedef T BaseType;

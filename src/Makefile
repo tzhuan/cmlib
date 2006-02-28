@@ -1,7 +1,8 @@
+INSTALL_DIR = /usr/local/lib
+TARGET = libgil2.so
 HEADERS = -I../include
 CXXFLAGS = $(HEADERS) -I/usr/local/include -fPIC -Wall -g -pipe
 LIBS =    -L/usr/local/lib -lpng -ljpeg -ltiff -lz
-TARGET = libgil2.so
 
 CXXFLAGS += $(shell pkg-config --cflags OpenEXR)
 LIBS += $(shell pkg-config --libs OpenEXR)
@@ -27,6 +28,10 @@ $(TARGET): $(OBJS) $(IO_OBJS)
 $(IO_DIR)/dcraw.o: $(IO_DIR)/dcraw.cpp
 	@ echo Compiling $<
 	@ $(CC) -x c -c $< -o $@ $(CXXFLAGS)
+
+install: $(TARGET)
+	@ echo Installing $(TARGET) to $(INSTALL_DIR)
+	@ install -m644 $(TARGET) $(INSTALL_DIR)
 
 clean:
 	rm -f $(TARGET) $(OBJS) *.gch *.core
