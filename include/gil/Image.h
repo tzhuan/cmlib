@@ -77,6 +77,10 @@ namespace gil {
 	    RefType operator ()(int x, int y) { return my_row[y][x]; }
 	    ConstRefType operator ()(int x, int y) const { return my_row[y][x]; }
 
+	    // If you turn on /Wp64, VC warns when size_t is passed, so I added this
+	    RefType operator ()(size_t x, size_t y) { return my_row[y][x]; }
+	    ConstRefType operator ()(size_t x, size_t y) const { return my_row[y][x]; }
+
 	    Image& operator =(const Image& img){
 		allocate(img.width(), img.height());
 		std::copy(img.begin(), img.end(), begin());
