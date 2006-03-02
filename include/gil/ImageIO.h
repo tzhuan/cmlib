@@ -1,6 +1,8 @@
 #ifndef GIL_IMAGE_IO_H
 #define GIL_IMAGE_IO_H
 
+#include <iostream>
+
 #include <string>
 #include <cstdio>
 #include "Image.h"
@@ -76,7 +78,11 @@ namespace gil {
 		break;
 
 	    case FF_PPM:
-		read<PpmReader>(image, f);
+		read<PpmReader<Byte3, '6'> >(image, f);
+		break;
+
+	    case FF_PGM:
+		read<PpmReader<Byte1, '5'> >(image, f);
 		break;
 
 	    default:
@@ -149,7 +155,10 @@ namespace gil {
 		return write<HdrWriter>(image, filename);
 
 	    case FF_PPM:
-		return write<PpmWriter>(image, filename);
+		return write<PpmWriter<Byte3, '6'> >(image, filename);
+
+	    case FF_PGM:
+		return write<PpmWriter<Byte1, '5'> >(image, filename);
 
 	    default:
 		return false;
