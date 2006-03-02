@@ -48,7 +48,7 @@ namespace gil {
 	for(size_t y = 0; y < height; y++){
 	    read_scanline(buffer);
 	    for(size_t x = 0; x < width; x++)
-		Conv::ext2int( image(x,y), buffer[x] );
+		Conv::ext2int( image(x,y), buffer[static_cast<int>(x)] );
 	}
 	
 	finish();
@@ -85,7 +85,7 @@ namespace gil {
 	std::vector<Float3> buffer(width);
 	for(size_t y = 0; y < height; y++){
 	    for(size_t x = 0; x < width; x++)
-		Conv::int2ext( buffer[x], image(x,y) );
+		Conv::int2ext( buffer[static_cast<int>(x)], image(x,y) );
 	    write_scanline(buffer);
 	}
 	

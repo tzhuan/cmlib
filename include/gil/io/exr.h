@@ -44,7 +44,7 @@ namespace gil {
 	image.allocate(width, height);
 	std::vector<Float4> buffer(width); // scanline buffer
 	for(size_t y = 0; y < height; y++){
-	    read_scanline(buffer, y);
+	    read_scanline(buffer, static_cast<int>(y) );
 	    for(size_t x = 0; x < width; x++)
 		Conv::ext2int( image(x,y), buffer[x] );
 	}
@@ -86,7 +86,7 @@ namespace gil {
 	std::vector<Float4> buffer(width);
 	for(size_t y = 0; y < height; y++){
 	    for(size_t x = 0; x < width; x++)
-		Conv::int2ext( buffer[x], image(x,y) );
+		Conv::int2ext( buffer[static_cast<int>(x)], image(x,y) );
 	    write_scanline(buffer, y);
 	}
 	cleanup();

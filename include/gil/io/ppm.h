@@ -36,7 +36,7 @@ namespace gil {
 			throw FileError("unknown read error");
 		    }
 		    for (size_t w = 0; w < my_width; ++w)
-			I::Converter::ext2int(image(w, h), row[w]);
+			I::Converter::ext2int(image(w, h), row[static_cast<int>(w)]);
 		}
 		delete[] row;
 	    }

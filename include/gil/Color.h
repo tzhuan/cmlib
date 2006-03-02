@@ -167,9 +167,11 @@ namespace gil {
 	    Type my_data[Channel];
     };
 
+    // VC will produce warning if I use struct here.
     template <typename T>
-    struct Color<T, 1> {
-	typedef T ColorType;
+    class Color<T, 1> {
+	public:
+		typedef T ColorType;
     };
 
     // default behavior to print all channels in a pixel

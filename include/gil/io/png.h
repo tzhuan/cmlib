@@ -47,7 +47,7 @@ namespace gil {
 		image.allocate(my_width, my_height);
 		for (size_t h = 0; h < my_height; ++h)
 		    for (size_t w = 0; w < my_width; ++w)
-			I::Converter::ext2int(image(w, h), row_pointers[h][w]);
+			I::Converter::ext2int(image(w, h), row_pointers[(int)h][(int)w]);
 		delete[] row_pointers[0];
 		delete[] row_pointers;
 	    }

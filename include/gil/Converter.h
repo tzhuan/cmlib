@@ -109,7 +109,7 @@ namespace gil {
 	    if(C >= 4) DefaultConverter<T,F>::convert(to[3], from[3]);
 	    
 	    if(C >= 5)
-		for(size_t i = 4; i < C; i++)
+		for(int i = 4; i < static_cast<int>(C); i++)
 		    DefaultConverter<T,F>::convert(to[i], from[i]);
 	}
     };
@@ -122,17 +122,17 @@ namespace gil {
 	typedef Color<T,C2> From;
 	static void convert(To& to, const From& from)
 	{
-	    const size_t cmin = C1 < C2 ? C1 : C2;
+	    const int cmin = C1 < C2 ? (int)C1 : (int)C2;
 	    to[0] = from[0];
 	    if(cmin >= 2) to[1] = from[1];
 	    if(cmin >= 3) to[2] = from[2];
 	    if(cmin >= 4) to[3] = from[3];
 	    
 	    if(cmin >= 5)
-		for(size_t i = 4; i < cmin; i++)
+		for(int i = 4; i < cmin; i++)
 		    to[i] = from[i];
 
-	    for(size_t i = C2; i < C1; i++)
+	    for(int i = (int)C2; i < (int)C1; i++)
 		to[i] = TypeTrait<T>::opaque();
 	}
     };
