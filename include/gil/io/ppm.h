@@ -50,7 +50,6 @@ namespace gil {
 
 	    void check(FILE *f)
 	    {
-		assert(f);
 		char header[2];
 		if (fread(header, 2, 1, f) != 1)
 		    test_and_throw(f);
