@@ -23,6 +23,11 @@
    $Date: 2006/01/21 10:41:56 $
  */
 
+// turn off the turnoff warnings
+#ifdef _MSC_VER
+#pragma warning(disable:4996)
+#endif
+
 #define _GNU_SOURCE
 #define _USE_MATH_DEFINES
 #include <ctype.h>

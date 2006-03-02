@@ -1,0 +1,22 @@
+rule prefix_dir ( dir : sequences * ) {
+        local result ;
+        for local x in $(sequences) {
+                result += $(dir)/$(x) ;
+        }
+        return $(result) ;
+}
+
+lib libgil2 : FileFormat.cpp
+        [ prefix_dir io :
+                crw.cpp
+                dcraw.c
+                exr.cpp
+                hdr.cpp
+                jpeg.cpp
+                png.cpp
+                tiff.cpp
+        ]
+        ..//LIBPNG ..//OPENEXR ..//LIBJPEG ..//LIBTIFF
+        : <include>../include
+        ;
+

@@ -1,0 +1,27 @@
+build-project src ;
+
+project libgil2
+	: source-location src
+	: requirements 
+	  <include>"D:\\Projects\\include"
+	  <include>"D:\\Projects\\include\\OpenEXR"
+	  <linkflags>"/libpath:D:\\Projects\\lib"
+	  <define>BUILD_VC_DLL
+	  <define>WIN32
+	;
+
+alias LIBPNG : : :
+        : <linkflags>"libpng.lib"
+        ;
+
+alias OPENEXR : : :
+        : <linkflags>"Half.lib Iex.lib Imath.lib IlmImf.lib"
+        ;
+
+alias LIBJPEG : : :
+	: <linkflags>"libjpeg.lib"
+        ;
+
+alias LIBTIFF : : :
+        : <linkflags>"libtiff.lib"
+        ;
