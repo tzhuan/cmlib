@@ -7,15 +7,19 @@
 #include <functional>
 
 // set DLLAPI if we're using VC
+
 #ifdef _MSC_VER
-#ifdef BUILD_VC_DLL
-#define DLLAPI __declspec(dllexport)
+	#ifdef BUILD_GIL_DLL
+		#define DLLAPI __declspec(dllexport)
+	#elif defined(LINK_GIL_DLL)
+		#define DLLAPI __declspec(dllimport)
+	#else
+		#define DLLAPI
+	#endif // BUILD_GIL_DLL
 #else
-#define DLLAPI __declspec(dllimport)
-#endif // BUILD_VC_DLL
-#else
-#define DLLAPI
-#endif // WIN32
+	#define DLLAPI
+#endif // _MSC_VER
+
 
 namespace gil {
     // scalar type, may be used later...

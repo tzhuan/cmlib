@@ -5,7 +5,7 @@
 // OpenEXR headers
 // turn off the turnoff warnings if we're using VC
 #ifdef _MSC_VER
-#pragma warning(disable:4290) 
+#pragma warning(disable:4290 4996) 
 #endif
 
 #include <ImfRgbaFile.h>
