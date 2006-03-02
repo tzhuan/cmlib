@@ -1,4 +1,10 @@
-rule prefix_dir ( dir : sequences * ) {
+project libgil2
+	: requirements <include>../include
+	: usage-requirements <include>../include
+	;
+
+# A simple rule that prefix a directory name on all files
+rule prefix ( dir : sequences * ) {
         local result ;
         for local x in $(sequences) {
                 result += $(dir)/$(x) ;
@@ -7,7 +13,7 @@ rule prefix_dir ( dir : sequences * ) {
 }
 
 lib libgil2 : FileFormat.cpp
-        [ prefix_dir io :
+        [ prefix io :
                 crw.cpp
                 dcraw.c
                 exr.cpp
@@ -16,7 +22,6 @@ lib libgil2 : FileFormat.cpp
                 png.cpp
                 tiff.cpp
         ]
-        ..//LIBPNG ..//OPENEXR ..//LIBJPEG ..//LIBTIFF
-        : <include>../include
+        ..//EXTRA_LIBS
         ;
 

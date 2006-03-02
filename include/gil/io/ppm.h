@@ -62,9 +62,9 @@ namespace gil {
 		size_t numbers[3];		
 
 		for(size_t i = 0; i < 3;) {
-		    size_t num;
+		    int num;
 		    if (fscanf(f, " %d", &num) == 1) {
-			numbers[i++] = num;
+			numbers[i++] = (size_t)num;
 			continue;
 		    }
 		    char c;
@@ -101,7 +101,7 @@ namespace gil {
 	    void operator ()(const I& image, FILE* f)
 	    {
 		if (fprintf(f, "P%c\n%d %d %d\n",
-		    Magic, image.width(), image.height(), 255) < 0)
+		    Magic, (int)image.width(), (int)image.height(), 255) < 0)
 		    throw FileError("unknown write error");
 		ColorType *row = new ColorType[image.width()];
 		for (size_t h = 0; h < image.height(); ++h) {
