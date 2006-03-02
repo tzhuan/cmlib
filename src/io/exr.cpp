@@ -8,17 +8,21 @@
 #pragma warning(disable:4290 4996) 
 #endif
 
+#ifndef _WITHOUT_EXR_
 #include <ImfRgbaFile.h>
 #include <ImfIO.h>
 #include <half.h>
+#endif
 
 #include "gil/Exception.h"
 #include "gil/io/exr.h"
 
 using namespace std;
+using namespace gil;
+
+#ifndef _WITHOUT_EXR_
 using namespace Imf;
 using namespace Imath;
-using namespace gil;
 
 class gil::C_IStream : public IStream {
     public:
@@ -110,10 +114,13 @@ void C_OStream::clear()
 {
     clearerr(my_file);
 }
-
+#endif
 
 void ExrReader::init(FILE* f, size_t& w, size_t& h)
 {
+#ifdef _WITHOUT_EXR_
+    throw InvalidFormat("exr");
+#else	
     try{
 	my_istream = new C_IStream(f);
 	my_input_file = new RgbaInputFile( *(C_IStream*)my_istream );
@@ -128,10 +135,12 @@ void ExrReader::init(FILE* f, size_t& w, size_t& h)
 	cleanup();
 	throw;
     }
+#endif
 }
 
 void ExrReader::read_scanline(vector<Float4>& buf_float, int y)
 {
+#ifndef _WITHOUT_EXR_
     try{
 	RgbaInputFile* input_file = (RgbaInputFile*)my_input_file;
 	const size_t width = buf_float.size();
@@ -150,19 +159,25 @@ void ExrReader::read_scanline(vector<Float4>& buf_float, int y)
 	cleanup();
 	throw;
     }
+#endif
 }
 
 void ExrReader::cleanup() throw()
 {
+#ifndef _WITHOUT_EXR_
     delete (RgbaInputFile*)my_input_file;
     delete (C_IStream*)my_istream;
     my_input_file = NULL;
     my_istream = NULL;
+#endif
 }
 
 
 void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
 {
+#ifdef _WITHOUT_EXR_
+    throw InvalidFormat("exr");
+#else
     RgbaChannels ch;
     if(c == 1) ch = WRITE_Y;
     else if(c == 3) ch = WRITE_RGB;
@@ -176,10 +191,12 @@ void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
 	cleanup();
 	throw;
     }
+#endif
 }
 
 void ExrWriter::write_scanline(vector<Float4>& buf_float, int y)
 {
+#ifndef _WITHOUT_EXR_
     try{
 	RgbaOutputFile* output_file = (RgbaOutputFile*)my_output_file;
 	const size_t width = buf_float.size();
@@ -199,13 +216,15 @@ void ExrWriter::write_scanline(vector<Float4>& buf_float, int y)
 	cleanup();
 	throw;
     }
+#endif
 }
 
 void ExrWriter::cleanup() throw()
 {
+#ifndef _WITHOUT_EXR_
     delete (RgbaOutputFile*)my_output_file;
     delete (C_OStream*)my_ostream;
     my_output_file = NULL;
     my_ostream = NULL;
+#endif
 }
-
