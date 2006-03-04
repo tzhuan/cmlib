@@ -49,7 +49,7 @@ bool C_IStream::read(char c[], int n)
 	// between I/O errors and end of file, so we call ferror() to
 	// determine what happened.
 	if( ferror(my_file) )
-	    throw FileError("error reading file");
+	    throw IOError("error reading file");
 	else
 	    throw EndOfFile("unexpected EOF in C_IStream::read()");
     }
@@ -93,7 +93,7 @@ void C_OStream::write(const char c[], int n)
 {
     if( fwrite(c, n, 1, my_file) != 1 ){
 	if( ferror(my_file) )
-	    throw FileError("error writing file");
+	    throw IOError("error writing file");
 	else
 	    throw EndOfFile("unexpected EOF in C_OStream::write()");
     }

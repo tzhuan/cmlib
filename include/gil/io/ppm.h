@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <stdexcept>
+#include <vector>
 
 #include "../Exception.h"
 #include "../Color.h"
@@ -26,26 +27,24 @@ namespace gil {
 
 		image.allocate(my_width, my_height);
 
-		ColorType *row = new ColorType[my_width];
+		std::vector<ColorType> row(my_width);
 		for (size_t h = 0; h < my_height; ++h) {
-		    if (fread((void*)row, 
+		    if (fread((void*)&row[0], 
 			    sizeof(ColorType)*my_width, 1, f) != 1) {
-			delete[] row;
 			if (feof(f))
 			    throw EndOfFile("unexpected end-of-file");
-			throw FileError("unknown read error");
+			throw IOError("unknown read error");
 		    }
 		    for (size_t w = 0; w < my_width; ++w)
 			I::Converter::ext2int(image(w, h), row[w]);
 		}
-		delete[] row;
 	    }
 	protected:
 	    void test_and_throw(FILE *f)
 	    {
 		if (feof(f))
 		    throw EndOfFile("unexpected end-of-file");
-		throw FileError("unknown read error");
+		throw IOError("unknown read error");
 	    }
 
 	    void check(FILE *f)
@@ -102,18 +101,16 @@ namespace gil {
 	    {
 		if (fprintf(f, "P%c\n%d %d %d\n",
 		    Magic, (int)image.width(), (int)image.height(), 255) < 0)
-		    throw FileError("unknown write error");
-		ColorType *row = new ColorType[image.width()];
+		    throw IOError("unknown write error");
+		std::vector<ColorType> row(image.width());
 		for (size_t h = 0; h < image.height(); ++h) {
 		    for (size_t w = 0; w < image.width(); ++w)
 			I::Converter::int2ext(row[w], image(w, h));
-		    if (fwrite((void*)row, 
+		    if (fwrite((void*)&row[0], 
 			    sizeof(ColorType)*image.width(), 1, f) != 1) {
-			delete[] row;
-			throw FileError("unknown write error");
+			throw IOError("unknown write error");
 		    }
 		}
-		delete[] row;
 	    }
     };
 } // namespace gil

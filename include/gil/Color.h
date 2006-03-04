@@ -110,7 +110,6 @@ namespace gil {
 	    ConstRefType operator [](int i) const { return my_data[i]; }
 
 	    Color(){
-		std::fill(begin(), end(), TypeTrait<Type>::zero());
 	    }
 
 	    Color(Type c0){

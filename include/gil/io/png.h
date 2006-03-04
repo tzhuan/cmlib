@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <stdexcept>
+#include <vector>
 
 #include "../Exception.h"
 #include "../Color.h"
@@ -30,26 +31,20 @@ namespace gil {
 	    void init(FILE* f);
 	    void finish();
 	    void read(unsigned char** row_pointers);
-	    template<typename I, typename color_type>
+	    template<typename I, typename ColorType>
 	    void read(I& image)
 	    {
-		color_type **row_pointers = new color_type*[my_height];
-		try {
-		    row_pointers[0] = new color_type[my_height*my_width];
-		} catch (std::exception &e) {
-		    delete[] row_pointers;
-		    throw e;
-		}
+		std::vector<ColorType*> row_pointers(my_height);
+		std::vector<ColorType> row_data(my_height*my_width);
+		row_pointers[0] = &row_data[0];
 		for (size_t i = 1; i < my_height; ++i)
 		    row_pointers[i] = row_pointers[i-1] + my_width;
 
-		read((unsigned char**)row_pointers);
+		read((unsigned char**)&row_pointers[0]);
 		image.allocate(my_width, my_height);
 		for (size_t h = 0; h < my_height; ++h)
 		    for (size_t w = 0; w < my_width; ++w)
-			I::Converter::ext2int( image(w, h), row_pointers[h][w] );
-		delete[] row_pointers[0];
-		delete[] row_pointers;
+			I::Converter::ext2int(image(w, h), row_pointers[h][w]);
 	    }
 	private:
 	    const static size_t MAGIC_NUMBER = 8;
@@ -78,20 +73,16 @@ namespace gil {
 	    void init(FILE* f);
 	    void write(unsigned char** row_pointers);
 	    void finish();
-	    template<typename I, typename color_type>
+	    template<typename I, typename ColorType>
 	    void write(const I& image)
 	    {
 		my_width = image.width();
 		my_height = image.height();
-		my_channels = ColorTrait<color_type>::channels();
+		my_channels = ColorTrait<ColorType>::channels();
 
-		color_type **row_pointers = new color_type*[my_height];
-		try {
-		    row_pointers[0] = new color_type[my_height*my_width];
-		} catch (std::exception &e) {
-		    delete[] row_pointers;
-		    throw e;
-		}
+		std::vector<ColorType*> row_pointers(my_height);
+		std::vector<ColorType> row_data(my_height*my_width);
+		row_pointers[0] = &row_data[0];
 		for (size_t i = 1; i < my_height; ++i)
 		    row_pointers[i] = row_pointers[i-1] + my_width;
 
@@ -99,10 +90,7 @@ namespace gil {
 		    for (size_t w = 0; w < my_width; ++w)
 			I::Converter::int2ext(row_pointers[h][w], image(w, h));
 
-		write((unsigned char**)row_pointers);
-
-		delete[] row_pointers[0];
-		delete[] row_pointers;
+		write((unsigned char**)&row_pointers[0]);
 	    }
 	private:
 	    const static size_t BIT_DEPTH = 8;

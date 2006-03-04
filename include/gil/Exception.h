@@ -27,9 +27,9 @@ namespace gil {
     };
 
     // throw this if you meed an unknow IO error
-    class FileError : std::runtime_error {
+    class IOError : std::runtime_error {
 	public:
-	    FileError(const std::string& msg)
+	    IOError(const std::string& msg)
 		: std::runtime_error(msg)
 	    {
 		// empty

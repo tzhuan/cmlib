@@ -77,7 +77,7 @@ namespace gil {
 	    {
 		if (feof(f))
 		    throw EndOfFile("unexpected end-of-file");
-		throw FileError("unknown read error");
+		throw IOError("unknown read error");
 	    }
 
 	    template<typename I>
@@ -120,7 +120,7 @@ namespace gil {
 		for (size_t h = 0; h < image.height()-1; ++h) {
 		    if (fread((void*)&row[0], 
 			    sizeof(ColorType)*image.width(), 1, f) != 1) {
-			throw FileError("unknown read error");
+			throw IOError("unknown read error");
 		    }
 		    for (size_t w = 0; w < image.width(); ++w) {
 			reverser(row[w]);
@@ -151,7 +151,7 @@ namespace gil {
 	    {
 		if (feof(f))
 		    throw EndOfFile("unexpected end-of-file");
-		throw FileError("unknown read error");
+		throw IOError("unknown read error");
 	    }
 
 
@@ -175,7 +175,7 @@ namespace gil {
 			    int2ext(row[w], image(w, image.height()-h-1));
 		    if (fwrite((void*)&row[0], 
 			    sizeof(ColorType)*image.width(), 1, f) != 1) {
-			throw FileError("unknown write error");
+			throw IOError("unknown write error");
 		    }
 		}
 	    }

@@ -31,14 +31,14 @@ namespace gil {
 	    const size_t file_size(FILE *f) const
 	    {
 		if (fseek(f, 0, SEEK_END) == -1)
-		    throw FileError("unknown fseek error");
+		    throw IOError("unknown fseek error");
 		int size = ftell(f);
 		if (size == -1)
-		    throw FileError("unknown ftell error");
+		    throw IOError("unknown ftell error");
 
 		// rewind, use fseek to check the return value.
 		if (fseek(f, 0, SEEK_SET) == -1)
-		    throw FileError("unknown fseek error");
+		    throw IOError("unknown fseek error");
 		return size;
 	    }
 
@@ -46,7 +46,7 @@ namespace gil {
 	    {
 		if (feof(f))
 		    throw EndOfFile("unexpected end-of-file");
-		throw FileError("unknown read error");
+		throw IOError("unknown read error");
 	    }
 
 	    template<typename I>
@@ -67,17 +67,15 @@ namespace gil {
 	    template<typename I, typename ColorType>
 	    void read(I &image, FILE *f)
 	    {
-		ColorType *row = new ColorType[image.width()];
+		std::vector<ColorType> row(image.width());
 		for (size_t h = 0; h < image.height(); ++h) {
 		    for (size_t w = 0; w < image.width(); ++w)
 			I::Converter::int2ext(row[w], image(w, h));
-		    if (fwrite((void*)row, 
+		    if (fwrite((void*)&row[0], 
 			    sizeof(ColorType)*image.width(), 1, f) != 1) {
-			delete[] row;
-			throw FileError("unknown write error");
+			throw IOError("unknown write error");
 		    }
 		}
-		delete[] row;
 	    }
 
 	private:
@@ -92,9 +90,9 @@ namespace gil {
 		int width = image.width();
 		int height = image.height();
 		if (fwrite(&width, sizeof(int), 1, f) != 1)
-		    throw FileError("unknown write error");
+		    throw IOError("unknown write error");
 		if (fwrite(&height, sizeof(int), 1, f) != 1)
-		    throw FileError("unknown write error");
+		    throw IOError("unknown write error");
 
 		if (image.channels() >= 4)
 		    write<I, Byte4>(image, f);
@@ -107,17 +105,15 @@ namespace gil {
 	    template<typename I, typename ColorType>
 	    void write(const I& image, FILE *f) 
 	    {
-		ColorType *row = new ColorType[image.width()];
+		std::vector<ColorType> row(image.width());
 		for (size_t h = 0; h < image.height(); ++h) {
 		    for (size_t w = 0; w < image.width(); ++w)
 			I::Converter::int2ext(row[w], image(w, h));
-		    if (fwrite((void*)row, 
+		    if (fwrite((void*)&row[0], 
 			    sizeof(ColorType)*image.width(), 1, f) != 1) {
-			delete[] row;
-			throw FileError("unknown write error");
+			throw IOError("unknown write error");
 		    }
 		}
-		delete[] row;
 	    }
     };
 } // namespace gil

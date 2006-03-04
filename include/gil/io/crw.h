@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <stdexcept>
+#include <vector>
 #include "../Color.h"
 
 namespace gil {
@@ -12,14 +13,9 @@ namespace gil {
 	    void operator ()(I& image, FILE* f)
 	    {
 		check(f);
-		Short4 **row_pointers = new Short4*[my_height];
-		try {
-		    row_pointers[0] = 
-			new Short4[my_height*my_width+my_meta_length];
-		} catch (std::exception &e) {
-		    delete[] row_pointers;
-		    throw e;
-		}
+		std::vector<Short4*> row_pointers(my_height);
+		std::vector<Short4> row_data(my_height*my_width+my_meta_length);
+		row_pointers[0] = &row_data[0];
 		for (size_t i = 1; i < my_height; ++i)
 		    row_pointers[i] = row_pointers[i-1] + my_width;
 
@@ -28,8 +24,6 @@ namespace gil {
 		for (size_t h = 0; h < my_height; ++h)
 		    for (size_t w = 0; w < my_width; ++w)
 			I::Converter::ext2int(image(w, h), row_pointers[h][w]);
-		delete[] row_pointers[0];
-		delete[] row_pointers;
 	    }
 	protected:
 	    void check(FILE* f);
