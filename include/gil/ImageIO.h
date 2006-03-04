@@ -85,6 +85,10 @@ namespace gil {
 		read<PpmReader<Byte1, '5'> >(image, f);
 		break;
 
+	    case FF_PFM:
+		read<PfmReader> (image, f);
+		break;
+
 	    default:
 		fclose(f);
 		return false;
@@ -159,6 +163,9 @@ namespace gil {
 
 	    case FF_PGM:
 		return write<PpmWriter<Byte1, '5'> >(image, filename);
+
+	    case FF_PFM:
+		return write<PfmWriter>(image, filename);
 
 	    default:
 		return false;
