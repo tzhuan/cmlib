@@ -25,7 +25,7 @@
 
 // turn off the turnoff warnings
 #ifdef _MSC_VER
-#pragma warning(disable:4996)
+#pragma warning(disable:4018 4244 4305 4996)
 #endif
 
 #define _GNU_SOURCE
