@@ -12,7 +12,7 @@ rule prefix ( dir : sequences * ) {
         return $(result) ;
 }
 
-lib libgil2 : FileFormat.cpp
+lib libgil2 : 
         [ prefix io :
                 crw.cpp
                 dcraw.c

@@ -1,7 +1,7 @@
 INSTALL_DIR = /usr/local/lib
 TARGET = libgil2.so
 HEADERS = -I../include
-CXXFLAGS = $(HEADERS) -I/usr/local/include -fPIC -Wall -O3 -pipe
+CXXFLAGS = -g $(HEADERS) -I/usr/local/include -fPIC -Wall -pipe
 LIBS =    -L/usr/local/lib -lpng -ljpeg -ltiff -lz
 
 CXXFLAGS += $(shell pkg-config --cflags OpenEXR)
@@ -9,13 +9,14 @@ LIBS += $(shell pkg-config --libs OpenEXR)
 
 IO_DIR = io
 UTIL_DIR = $(IO_DIR)/io_utils
-SRCS = FileFormat.cpp
+SRCS = #FileFormat.cpp
 IO_SRCS = $(IO_DIR)/jpeg.cpp $(IO_DIR)/png.cpp $(IO_DIR)/tiff.cpp \
 	  $(IO_DIR)/exr.cpp $(IO_DIR)/hdr.cpp \
-	  $(IO_DIR)/crw.cpp $(IO_DIR)/dcraw.cpp
+	  $(IO_DIR)/crw.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 IO_OBJS = $(IO_SRCS:.cpp=.o)
+IO_OBJS += $(IO_DIR)/dcraw.o
 
 %.o: %.cpp
 	@ echo Compiling $<
@@ -25,9 +26,9 @@ $(TARGET): $(OBJS) $(IO_OBJS)
 	@ echo Building  $@
 	@ $(CXX) -o $@ -shared $(OBJS) $(IO_OBJS) $(UTIL_OBJS) $(LIBS)
 
-$(IO_DIR)/dcraw.o: $(IO_DIR)/dcraw.cpp
+$(IO_DIR)/dcraw.o: $(IO_DIR)/dcraw.c
 	@ echo Compiling $<
-	@ $(CC) -x c -c $< -o $@ $(CXXFLAGS)
+	@ $(CC) -c $< -o $@ $(CXXFLAGS)
 
 install: $(TARGET)
 	@ echo Installing $(TARGET) to $(INSTALL_DIR)

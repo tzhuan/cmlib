@@ -56,7 +56,7 @@ namespace gil {
 	if(f == NULL)
 	    return false;
 
-	switch( get_format(f) ){
+	switch( Formater::get_format(f) ){
 	    case FF_PNG:
 		read<PngReader>(image, f);
 		break;
@@ -138,7 +138,7 @@ namespace gil {
     template <typename I>
     bool write(const I& image, const std::string& filename)
     {
-	switch( get_format(filename) ){
+	switch( Formater::get_format(filename) ){
 	    case FF_PNG:
 		return write<PngWriter>(image, filename);
 		
