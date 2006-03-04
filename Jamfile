@@ -1,5 +1,7 @@
 build-project src ;
 
+project : default-build release ;
+    
 # edit following lines so they'll match the installation
 # of libpng, libjpeg, libtiff and OpenEXR
 PNG_CFLAGS = "`pkg-config --cflags libpng`" ;
@@ -19,3 +21,4 @@ alias EXTRA_LIBS : : : :
 	<cxxflags>"$(PNG_CFLAGS) $(JPEG_CFLAGS) $(TIFF_CFLAGS) $(EXR_CFLAGS)"
 	<linkflags>"$(PNG_LIBS) $(JPEG_LIBS) $(TIFF_LIBS) $(EXR_LIBS)"
 	;
+
