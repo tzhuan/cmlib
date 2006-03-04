@@ -117,14 +117,15 @@ namespace gil {
 		std::vector<ColorType> row(image.width());
 		ByteReverser<ColorType, is_reverse> reverser;
 
-		for (size_t h = 0; h < image.height(); ++h) {
+		for (size_t h = 0; h < image.height()-1; ++h) {
 		    if (fread((void*)&row[0], 
 			    sizeof(ColorType)*image.width(), 1, f) != 1) {
 			throw FileError("unknown read error");
 		    }
 		    for (size_t w = 0; w < image.width(); ++w) {
 			reverser(row[w]);
-			I::Converter::ext2int(image(w, h), row[w]);
+			I::Converter::
+			    ext2int(image(w, image.height()-h-1), row[w]);
 		    }
 		}
 	    }
@@ -170,7 +171,8 @@ namespace gil {
 
 		for (size_t h = 0; h < image.height(); ++h) {
 		    for (size_t w = 0; w < image.width(); ++w)
-			I::Converter::int2ext(row[w], image(w, h));
+			I::Converter::
+			    int2ext(row[w], image(w, image.height()-h-1));
 		    if (fwrite((void*)&row[0], 
 			    sizeof(ColorType)*image.width(), 1, f) != 1) {
 			throw FileError("unknown write error");
