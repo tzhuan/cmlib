@@ -1,1 +1,1 @@
-exe giltest : test.cpp ../src//libgil2 ;
+exe giltest : convert.cpp ../src//libgil2 ;
