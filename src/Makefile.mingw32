@@ -25,25 +25,27 @@ TARGET = libgil2.a
 CXXFLAGS += -I"..\include" $(INCLUDE_DIR)
 
 IO_DIR = io
-SRCS = FileFormat.cpp
+SRCS = 
 IO_SRCS = $(IO_DIR)\jpeg.cpp $(IO_DIR)\png.cpp $(IO_DIR)\tiff.cpp \
 	  $(IO_DIR)\exr.cpp $(IO_DIR)\hdr.cpp \
-	  $(IO_DIR)\crw.cpp $(IO_DIR)\dcraw.cpp
-
-OBJS = $(SRCS:.cpp=.o)
+	  $(IO_DIR)\crw.cpp
 IO_OBJS = $(IO_SRCS:.cpp=.o)
+
+IO_SRCS += $(IO_DIR)\dcraw.c
+IO_OBJS += $(IO_DIR)\dcraw.o
+
 
 %.o: %.cpp
 	@ echo Compiling $<
 	@ $(CXX) -c $< -o $@ $(CXXFLAGS)
 
-$(TARGET): $(OBJS) $(IO_OBJS)
+$(TARGET): $(IO_OBJS)
 	@ echo Building  $@
 	$(AR) $(TARGET) $(OBJS) $(IO_OBJS) $(EXTRA_OBJ_DIR)\\*.o
 
-$(IO_DIR)\dcraw.o: $(IO_DIR)\dcraw.cpp
+$(IO_DIR)\dcraw.o: $(IO_DIR)\dcraw.c
 	@ echo Compiling $<
-	$(CC) -x c -c $< -o $@ $(CXXFLAGS)
+	$(CC) -c $< -o $@ $(CXXFLAGS)
 
 clean:
 	del $(TARGET) $(OBJS) *.gch *.core

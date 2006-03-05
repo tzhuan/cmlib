@@ -52,7 +52,7 @@ namespace gil {
 		const int MAGIC_LENGTH = 12;
 		
 		char buf[MAGIC_LENGTH];
-		int n_read = fread(buf, 1, MAGIC_LENGTH, f);
+		int n_read = (int)fread(buf, 1, MAGIC_LENGTH, f);
 		fseek(f, -n_read, SEEK_CUR);
 		if(n_read < MAGIC_LENGTH){
 		    return FF_UNKNOWN;

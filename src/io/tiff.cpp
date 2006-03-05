@@ -22,7 +22,9 @@ void TiffReader::init(const string& name, size_t& w, size_t& h, size_t& c)
     TIFF* tiff = (TIFF*)my_tiff;
     // don't pass the address of w, h and c directly!
     // it will fail on 64bit machines because sizeof(size_t) = 8
-    int wi, hi, ci;
+    uint32 wi, hi;
+    // SAMPLESPERPIXEL should be uint16!
+    uint16 ci;
     TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &wi);
     TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &hi);
     TIFFGetField(tiff, TIFFTAG_SAMPLESPERPIXEL, &ci);

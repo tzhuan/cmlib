@@ -36,8 +36,7 @@ namespace gil {
     // take need special care of TIFF
     template <typename I>
     inline bool read(I& image, const std::string& filename, TiffReader& reader){
-	reader(image, filename);
-	return true;
+	return reader(image, filename);
     }
     // no implementation, just to make linking error.
     template <typename I>

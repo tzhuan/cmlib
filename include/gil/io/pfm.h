@@ -162,8 +162,8 @@ namespace gil {
 		size_t channels = ColorTrait<ColorType>::channels();
 		char magic = (channels == 3) ? 'F' : 'f';
 		double scale = ByteReverser<char>::is_little_endian() ? -1 : 1;
-		unsigned int width = image.width();
-		unsigned int height = image.height();
+		unsigned int width = static_cast<unsigned int>( image.width() );
+		unsigned int height = static_cast<unsigned int>( image.height() );
 
 		if (fprintf(f, "P%c\n%u %u\n%f\n", 
 			    magic, width, height, scale) < 0)
