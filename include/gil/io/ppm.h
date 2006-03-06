@@ -17,7 +17,7 @@
 
 namespace gil {
     template<typename ColorType, char Magic>
-    class DLLAPI PpmReader {
+    class PpmReader {
 	public:
 	    template <typename I>
 	    void operator ()(I& image, FILE* f)
@@ -94,7 +94,7 @@ namespace gil {
     };
 
     template<typename ColorType, char Magic>
-    class DLLAPI PpmWriter {
+    class PpmWriter {
 	public:
 	    template <typename I>
 	    void operator ()(const I& image, FILE* f)

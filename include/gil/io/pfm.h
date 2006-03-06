@@ -52,7 +52,9 @@ namespace gil {
 	}
     };
 
-    class DLLAPI PfmReader {
+    // because PfmReader is written in header completely,
+    // here we should not use DLLAPI
+    class PfmReader {
 	public:
 	    template <typename I>
 	    void operator ()(I& image, FILE* f)
@@ -135,7 +137,8 @@ namespace gil {
 	    bool my_if_reverse;
     };
 
-    class DLLAPI PfmWriter {
+    // as same as PfmReader, no DLLAPI
+    class PfmWriter {
 	public:
 	    template<typename I>
 	    void operator ()(const I& image, FILE* f)
