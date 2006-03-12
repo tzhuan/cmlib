@@ -40,6 +40,11 @@ namespace gil {
 		allocate(w, h);
 	    }
 
+	    Image(const Image& img)
+	    {
+		*this = img;
+	    }
+
 	    ~Image() { 
 		delete [] my_data; 
 		delete [] my_row; 
@@ -82,8 +87,10 @@ namespace gil {
 	    ConstRefType operator ()(size_t x, size_t y) const { return my_row[y][x]; }
 
 	    Image& operator =(const Image& img){
-		allocate(img.width(), img.height());
-		std::copy(img.begin(), img.end(), begin());
+		if(this != &img){
+		    allocate(img.width(), img.height());
+		    std::copy(img.begin(), img.end(), begin());
+		}
 		return *this;
 	    }
 
