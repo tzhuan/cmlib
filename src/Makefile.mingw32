@@ -9,7 +9,7 @@ INCLUDE_DIR = -I"D:\Projects\include" -I"D:\Projects\include\OpenEXR"
 EXTRA_OBJ_DIR = static
 
 # Compiler options
-CXXFLAGS = -O3 -Wall -pipe
+CXXFLAGS = -O3 -Wall -pipe -DNDEBUG -funroll-loops
 
 # You can choose your favorite tools
 CC = gcc
