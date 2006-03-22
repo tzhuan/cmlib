@@ -41,6 +41,7 @@ namespace gil {
 	    }
 
 	    Image(const Image& img)
+		: my_width(0), my_height(0), my_data(NULL), my_row(NULL)
 	    {
 		*this = img;
 	    }
