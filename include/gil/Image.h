@@ -87,6 +87,9 @@ namespace gil {
 	    RefType operator ()(size_t x, size_t y) { return my_row[y][x]; }
 	    ConstRefType operator ()(size_t x, size_t y) const { return my_row[y][x]; }
 
+	    // bilinear interpolation, quite useful
+	    Type lerp(double x, double y) const;
+
 	    Image& operator =(const Image& img){
 		if(this != &img){
 		    allocate(img.width(), img.height());
@@ -131,6 +134,30 @@ namespace gil {
 	    Type *my_data;
 	    Type **my_row;
     };
+
+    template<typename Type, template<typename,typename> class Conv>
+    Type Image<Type,Conv>::lerp(double x, double y) const
+    {
+	// we assert that  0 <= x <= width-1 and 0 <= y <= height-1
+	int x0 = static_cast<int>(x);
+	int y0 = static_cast<int>(y);
+	double xf = x - x0;
+	double yf = y - y0;
+
+	if(xf == 0 && yf == 0)
+	    return my_row[y0][x0];
+	
+	if(xf == 0){
+	    return mix( my_row[y0][x0], my_row[y0+1][x0], yf );
+	}else if(yf == 0){
+	    return mix( my_row[y0][x0], my_row[y0][x0+1], xf );
+	}else{
+	    return mix(
+		mix( my_row[y0][x0], my_row[y0][x0+1], xf ),
+		mix( my_row[y0+1][x0], my_row[y0+1][x0+1], xf ),
+		yf );
+	}
+    }
 
     template<typename Type, template<typename,typename> class Conv>
     void swap(Image<Type,Conv>& a, Image<Type,Conv>& b)

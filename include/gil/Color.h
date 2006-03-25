@@ -225,6 +225,20 @@ namespace gil {
 	    result[i] = static_cast<T>( ( u * a[i] + w * b[i] ) / opaque );
 	return result;
     }
+
+    template <typename T>
+    T mix(T a, T b, T w)
+    {
+	return TypeTrait<T>::mix(a, b, w);
+    }
+
+    template <typename T, typename W>
+    T mix(T a, T b, W w)
+    {
+	W o = TypeTrait<W>::opaque();
+	W u = o - w;
+	return static_cast<T>( (u * a + w * b) / o );
+    }
     
     template <typename T>
     struct ColorTrait {
