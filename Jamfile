@@ -6,17 +6,10 @@ project : default-build release ;
 # of libpng, libjpeg, libtiff and OpenEXR
 
 alias EXTRA_LIBS : :
-	<toolset>gcc
 	: :
-	<cxxflags>"`pkg-config --cflags libpng OpenEXR`"
-	<linkflags>"`pkg-config --libs libpng OpenEXR` -ljpeg -ltiff"
-	;
-
-alias EXTRA_LIBS : :
-	<toolset>msvc
-	: :
-	<define>WIN32
-	<cxxflags>"/ID:\\Projects\\include /ID:\\Projects\\include\\OpenEXR"
-	<linkflags>"zlib.lib libpng.lib libjpeg.lib libtiff.lib IlmImf.lib"
+	<toolset>gcc:<cxxflags>"`pkg-config --cflags libpng OpenEXR`"
+	<toolset>gcc:<linkflags>"`pkg-config --libs libpng OpenEXR` -ljpeg -ltiff"
+	<toolset>msvc:<cxxflags>"/ID:\\Projects\\include /ID:\\Projects\\include\\OpenEXR"
+	<toolset>msvc:<linkflags>"zlib.lib libpng.lib libjpeg.lib libtiff.lib IlmImf.lib"
 	;
 

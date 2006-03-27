@@ -201,7 +201,7 @@ namespace gil {
 	    ColorType operator -() const
 	    {
 		ColorType r;
-		std::transform( begin(), end(), r.begin(), std::negate<T>() );
+		std::transform( begin(), end(), r.begin(), std::negate<Type>() );
 		return r;
 	    }
 
@@ -213,7 +213,7 @@ namespace gil {
 			end(), 
 			c.begin(), 
 			r.begin(), 
-			std::plus<T>() );
+			std::plus<Type>() );
 		return r;
 	    }
 	    
@@ -225,7 +225,7 @@ namespace gil {
 			end(), 
 			c.begin(), 
 			r.begin(), 
-			std::minus<T>() );
+			std::minus<Type>() );
 		return r;
 	    }
 	    
@@ -236,7 +236,7 @@ namespace gil {
 			begin(), 
 			end(), 
 			r.begin(), 
-			std::binder2nd(std::multiplies<T>(), v) );
+			std::bind2nd(std::multiplies<Type>(), v) );
 		return r;
 	    }
 	    
@@ -247,7 +247,7 @@ namespace gil {
 			begin(), 
 			end(), 
 			r.begin(), 
-			std::binder2nd(std::divides<T>(), v) );
+			std::bind2nd(std::divides<Type>(), v) );
 		return r;
 	    }
 
@@ -268,6 +268,32 @@ namespace gil {
 	public:
 		typedef T ColorType;
     };
+
+    // Scalar * Color
+    template <typename T, size_t C>
+    Color<T,C> operator *(T v, Color<T,C> c)
+    {
+	Color<T,C> r;
+	std::transform( 
+		c.begin(), 
+		c.end(), 
+		r.begin(), 
+		std::bind2nd(std::multiplies<T>(), v) );
+	return r;
+    }
+    
+    // Scalar / Color
+    template <typename T, size_t C>
+    Color<T,C> operator /(T v, Color<T,C> c)
+    {
+	Color<T,C> r;
+	std::transform( 
+		c.begin(), 
+		c.end(), 
+		r.begin(), 
+		std::bind1st(std::divides<T>(), v) );
+	return r;
+    }
 
     // default behavior to print all channels in a pixel
     // to avoid unprintable characters, values are converted
