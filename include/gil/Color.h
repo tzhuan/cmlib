@@ -155,6 +155,102 @@ namespace gil {
 		return *this;
 	    }
 
+	    // some calculations...
+	    ColorType& operator +=(const ColorType& color)
+	    {
+		std::transform( 
+			begin(), 
+			end(), 
+			color.begin(), 
+			begin(), 
+			std::plus<Type>() );
+		return *this;
+	    }
+	    
+	    ColorType& operator -=(const ColorType& color)
+	    {
+		std::transform( 
+			begin(), 
+			end(), 
+			color.begin(), 
+			begin(), 
+			std::minus<Type>() );
+		return *this;
+	    }
+	    
+	    ColorType& operator *=(Type v)
+	    {
+		std::transform( 
+			begin(), 
+			end(), 
+			begin(), 
+			std::bind2nd(std::multiplies<Type>(), v) );
+		return *this;
+	    }
+	    
+	    ColorType& operator /=(Type v)
+	    {
+		std::transform( 
+			begin(), 
+			end(), 
+			begin(), 
+			std::bind2nd(std::divides<Type>(), v) );
+		return *this;
+	    }
+
+	    ColorType operator -() const
+	    {
+		ColorType r;
+		std::transform( begin(), end(), r.begin(), std::negate<T>() );
+		return r;
+	    }
+
+	    ColorType operator +(const ColorType& c) const
+	    {
+		ColorType r;
+		std::transform( 
+			begin(), 
+			end(), 
+			c.begin(), 
+			r.begin(), 
+			std::plus<T>() );
+		return r;
+	    }
+	    
+	    ColorType operator -(const ColorType& c) const
+	    {
+		ColorType r;
+		std::transform( 
+			begin(), 
+			end(), 
+			c.begin(), 
+			r.begin(), 
+			std::minus<T>() );
+		return r;
+	    }
+	    
+	    ColorType operator *(Type v) const
+	    {
+		ColorType r;
+		std::transform( 
+			begin(), 
+			end(), 
+			r.begin(), 
+			std::binder2nd(std::multiplies<T>(), v) );
+		return r;
+	    }
+	    
+	    ColorType operator /(Type v) const
+	    {
+		ColorType r;
+		std::transform( 
+			begin(), 
+			end(), 
+			r.begin(), 
+			std::binder2nd(std::divides<T>(), v) );
+		return r;
+	    }
+
 	    PtrType begin() { return my_data; }
 	    ConstPtrType begin() const { return my_data; }
 	    PtrType end() { return my_data+Channel; }
@@ -202,6 +298,16 @@ namespace gil {
 	Color<T,C> result;
 	for(size_t i = 0; i < C; i++)
 	    result[i] = std::max(a[i], b[i]);
+	return result;
+    }
+
+    template <typename T, size_t C>
+    Color<T,C> clamp(const Color<T,C>& value, const Color<T,C>& lower, const Color<T,C>& upper)
+    {
+	Color<T,C> result;
+	for(size_t i = 0; i < C; i++)
+	    result[i] = clamp(value[i], lower[i], upper[i]);
+
 	return result;
     }
 
