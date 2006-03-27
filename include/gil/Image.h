@@ -87,6 +87,11 @@ namespace gil {
 	    RefType operator ()(size_t x, size_t y) { return my_row[y][x]; }
 	    ConstRefType operator ()(size_t x, size_t y) const { return my_row[y][x]; }
 
+	    // the non-const one is essensial or we'll get ambiguous call. 
+	    Type operator ()(double x, double y) { return lerp(x,y); }
+	    Type operator ()(double x, double y) const { return lerp(x,y); }
+	    Type operator ()(float x, float y) { return lerp(x,y); }
+	    Type operator ()(float x, float y) const { return lerp(x,y); }
 	    // bilinear interpolation, quite useful
 	    Type lerp(double x, double y) const;
 
