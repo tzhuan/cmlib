@@ -14,13 +14,8 @@ rule prefix ( dir : sequences * ) {
 
 lib libgil2 : 
         [ prefix io :
-                crw.cpp
-                dcraw.c
-                exr.cpp
-                hdr.cpp
-                jpeg.cpp
-                png.cpp
-                tiff.cpp
+                crw.cpp dcraw.c exr.cpp hdr.cpp jpeg.cpp
+                png.cpp tiff.cpp bmp.cpp
         ]
         ..//EXTRA_LIBS
         ;

@@ -11,5 +11,6 @@
 #include "io/hdr.h"
 #include "io/ppm.h"
 #include "io/pfm.h"
+#include "io/bmp.h"
 
 #endif // GIL_FORMATTER_H

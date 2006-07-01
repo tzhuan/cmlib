@@ -88,6 +88,9 @@ namespace gil {
 		read<PfmReader> (image, f);
 		break;
 
+	    case FF_BMP:
+	    	read<BmpReader>(image, f);
+
 	    default:
 		fclose(f);
 		return false;
