@@ -11,8 +11,7 @@ IO_DIR = io
 UTIL_DIR = $(IO_DIR)/io_utils
 SRCS = #FileFormat.cpp
 IO_SRCS = $(IO_DIR)/jpeg.cpp $(IO_DIR)/png.cpp $(IO_DIR)/tiff.cpp \
-	  $(IO_DIR)/exr.cpp $(IO_DIR)/hdr.cpp \
-	  $(IO_DIR)/crw.cpp
+	  $(IO_DIR)/exr.cpp $(IO_DIR)/hdr.cpp $(IO_DIR)/crw.cpp $(IO_DIR)/bmp.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 IO_OBJS = $(IO_SRCS:.cpp=.o)
@@ -45,7 +44,6 @@ depend:
 	makedepend -Y $(HEADERS) $(SRCS) $(IO_SRCS) 2>/dev/null
 # DO NOT DELETE
 
-FileFormat.o: ../include/gil/FileFormat.h ../include/gil/Color.h
 io/jpeg.o: ../include/gil/io/jpeg.h ../include/gil/Exception.h
 io/jpeg.o: ../include/gil/Color.h
 io/png.o: ../include/gil/Exception.h ../include/gil/io/png.h
@@ -59,3 +57,5 @@ io/hdr.o: ../include/gil/Exception.h ../include/gil/io/hdr.h
 io/hdr.o: ../include/gil/Color.h
 io/crw.o: ../include/gil/Exception.h ../include/gil/io/crw.h
 io/crw.o: ../include/gil/Color.h
+io/bmp.o: ../include/gil/io/bmp.h ../include/gil/Exception.h
+io/bmp.o: ../include/gil/Color.h ../include/gil/Exception.h

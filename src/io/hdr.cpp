@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <numeric>
 
 #ifdef _MSC_VER
 #pragma warning(disable:4267 4996)
@@ -411,22 +412,25 @@ namespace {
 	    if (max < b) max = b;
 
 	    /* find normalize factor */
-	    factor=1;
-	    exp=0;
+	    factor = 1.0f;
+	    exp = 0;
 
-	    if (max>0) {
-		while ((max > 1.0) || (max < 0.5)) {
-		    if (max>1.0) {
-			max *= 0.5;	
-			factor *= 0.5;
-			exp++;
-		    } else {
-			max *= 2;
-			factor *= 2;
-			exp--;
-		    }
+	    if(max > numeric_limits<float>::max())
+		max = numeric_limits<float>::max();
+
+	    if (max > 0.0f) {
+		while(max > 1.0f){
+		    max *= 0.5;
+		    factor *= 0.5;
+		    exp++;
 		}
-
+		
+		while(max < 0.5f){
+		    max *= 2.0f;
+		    factor *= 2.0f;
+		    exp--;
+		}
+		
 		r *= factor;
 		g *= factor;
 		b *= factor;

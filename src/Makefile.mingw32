@@ -27,8 +27,7 @@ CXXFLAGS += -I"..\include" $(INCLUDE_DIR)
 IO_DIR = io
 SRCS = 
 IO_SRCS = $(IO_DIR)\jpeg.cpp $(IO_DIR)\png.cpp $(IO_DIR)\tiff.cpp \
-	  $(IO_DIR)\exr.cpp $(IO_DIR)\hdr.cpp \
-	  $(IO_DIR)\crw.cpp
+	  $(IO_DIR)\exr.cpp $(IO_DIR)\hdr.cpp $(IO_DIR)\crw.cpp $(IO_DIR)\bmp.cpp
 IO_OBJS = $(IO_SRCS:.cpp=.o)
 
 IO_SRCS += $(IO_DIR)\dcraw.c

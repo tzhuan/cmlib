@@ -169,6 +169,9 @@ namespace gil {
 	    case FF_PFM:
 		return write<PfmWriter>(image, filename);
 
+	    case FF_BMP:
+		return write<BmpWriter>(image, filename);
+
 	    default:
 		return false;
 	}

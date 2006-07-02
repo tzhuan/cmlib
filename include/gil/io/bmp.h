@@ -3,6 +3,7 @@
 #define GIL_BMP_H
 
 #include <stdexcept>
+#include <algorithm>
 #include <cstdio>
 
 #include "../Exception.h"
@@ -42,8 +43,11 @@ namespace gil {
 		for(size_t y = 0; y < h; y++){
 			read_scanline(buffer);
 			// pixels in BMP file is stored upside down.
-			for(size_t x = 0; x < w; x++)
+			for(size_t x = 0; x < w; x++){
+				// change BGR to RGB
+				std::swap(buffer[x][0], buffer[x][2]);
 				Conv::ext2int( image(x, h-y-1), buffer[x] );
+			}
 		}
 	}
 
@@ -59,11 +63,6 @@ namespace gil {
 	class DLLAPI BmpWriter {
 		public:
 			BmpWriter()
-			{
-				// empty
-			}
-
-			~BmpWriter() throw ()
 			{
 				// empty
 			}
@@ -92,7 +91,7 @@ namespace gil {
 		std::vector<T> buffer(w);
 		for(size_t y = 0; y < h; y++){
 			for(size_t x = 0; x < w; x++)
-				Conv::int2ext( buffer[x], image(x, y) );
+				Conv::int2ext( buffer[x], image(x, h-y-1) );
 
 			write_scanline(buffer);
 		}
