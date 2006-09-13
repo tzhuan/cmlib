@@ -11,10 +11,15 @@ namespace gil {
 			typedef typename I::value_type value_type;
 			typedef typename I::reference reference;
 			typedef typename I::const_reference const_reference;
-			typedef typename I::difference_type difference_type ;
+			typedef typename I::difference_type difference_type;
 			typedef typename I::size_type size_type;
 
+			template<typename P> class Iterator;
+			typedef Iterator<value_type> iterator;
+			typedef Iterator<const value_type> const_iterator;
+
 			typedef typename I::Converter Converter;
+
 
 			SubImage(I& i, size_type x, size_type y, size_type w, size_type h)
 				: my_image(i), 
@@ -39,13 +44,91 @@ namespace gil {
 				return my_image(x+my_x_offset, y+my_y_offset);
 			}
 
-			const reference operator ()(size_type x, size_type y) const
+			const_reference operator ()(size_type x, size_type y) const
 			{
 				return my_image(x+my_x_offset, y+my_y_offset);
 			}
 
+			void fill(const_reference pixel)
+			{
+				std::fill(begin(), end(), pixel);
+			}
+
 			template <typename I2>
 			SubImage& operator =(const I2& i);
+
+			// iterator of subimage
+			template<typename P>
+			class Iterator {
+				friend class SubImage<I>;
+				public:
+					typedef Iterator<P> self_type;
+
+					P& operator *() const
+					{
+						return my_subimage(my_x, my_y);
+					}
+
+					P* operator ->() const
+					{
+						return &my_subimage(my_x, my_y);
+					}
+
+					self_type& operator ++()
+					{
+						++my_x;
+						if (my_x == my_subimage->width()) {
+							my_x = 0;
+							++my_y;
+						}
+					}
+
+					self_type operator ++(int)
+					{
+						self_type tmp = *this;
+						++*this;
+						return tmp;
+					}
+
+					bool operator ==(const self_type &rhs) const
+					{
+						return (my_subimage == rhs.my_subimage && 
+								my_x == rhs.my_x && my_y == rhs.my_y);
+					}
+
+					bool operator !=(const self_type &rhs) const
+					{
+						return !(*this == rhs);
+					}
+
+				protected:
+					Iterator(SubImage<I>& subimage, size_type x, size_type y)
+						: my_subimage(subimage), my_x(x), my_y(y)
+					{}
+				private:
+					SubImage<I> *my_subimage;
+					size_type my_x, my_y;
+			};
+
+			iterator begin()
+			{
+				return iterator(my_image, 0, 0);
+			}
+
+			const_iterator begin() const
+			{
+				return const_iterator(my_image, 0, 0);
+			}
+
+			iterator end()
+			{
+				return iterator(my_image, my_height, 0);
+			}
+
+			const_iterator end() const
+			{
+				return const_iterator(my_image, my_height, 0);
+			}
 
 		private:
 			I& my_image;
