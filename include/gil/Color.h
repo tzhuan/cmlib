@@ -21,7 +21,6 @@
 	#define DLLAPI
 #endif // _MSC_VER
 
-
 namespace gil {
 	// scalar type, may be used later...
 	typedef unsigned char Byte1;
@@ -35,25 +34,37 @@ namespace gil {
 		return std::min( std::max(value, lower), upper );
 	}
 
+
 	// type traits
 	template <typename T>
-	struct TypeTrait {
-		typedef T DebugType;
+	class TypeTrait {
+		public:
+			typedef T DebugType;
 
-		static T zero() { return 0; }
+			static T zero() { return 0; }
 
-		// for alpha channel
-		static T transparent() { return 0; } 
-		static T opaque() { return std::numeric_limit<T>::max(); } 
-		static T mix(T a, T b, T w);
-		{
-			return ( a * (opaque()-w) + b * w ) / opaque();
-		}
+			// for alpha channel
+			static T transparent() { return 0; } 
+			static T opaque() { return std::numeric_limits<T>::max(); } 
+			static T mix(T a, T b, T w)
+			{
+				return ( a * (opaque()-w) + b * w ) / opaque();
+			}
+
+		private:
+			template <typename T2> T2 my_opaque(T2) const
+			{
+				return std::numeric_limits<T2>::max();
+			}
+			double my_opaque(double) const { return 1.0; }
+			long double my_opaque(long double) const { return 1.0; }
+			float my_opaque(float) const { return 1.0f; }
 	};
 
+	/*
 	template<> static Float1 TypeTrait<float>::opaque() { return 1.0f; }
 	template<> static Double1 TypeTrait<double>::opaque() { return 1.0; }
-
+	*/
 
 	// Basic features for a pixel
 	template <typename Type, size_t Channel>

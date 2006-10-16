@@ -13,7 +13,7 @@ template<typename ImageType>
 void write_test(const string& type_name, const string& input);
 
 const char*(suffix[]) = {
-    "pgm", "ppm", "png", "jpg", "tiff",
+    "pgm", "ppm", "png", "jpg", "tiff", "bmp",
     "hdr", "exr", "flt", "pfm"};
 const int suffix_size = sizeof(suffix)/sizeof(const char*);
 

@@ -14,7 +14,7 @@ $(IO_TEST): $(IO_TEST).o ../src/libgil2.so
 $(CONVERT): $(CONVERT).o ../src/libgil2.so
 	$(CXX) -o $@ $(CONVERT).o $(LIBS)
 
-test:
+test: $(IO_TEST)
 	./$(IO_TEST)
 
 clean:

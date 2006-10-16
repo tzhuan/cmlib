@@ -243,7 +243,7 @@ namespace gil {
 	}
 
 	template <typename Type, template<typename,typename> class Conv>
-	Type Image<Type,Conv>::swap(Image<Type,Conv>& i)
+	void Image<Type,Conv>::swap(Image<Type,Conv>& i)
 	{
 		if(this == &i) return;
 
