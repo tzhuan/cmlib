@@ -1,5 +1,5 @@
 CXXFLAGS = -I../include 
-LIBS = -L../src -lgil2
+LIBS = -L../src -L../lib -lgil2
 IO_TEST = io-test
 SUBIMAGE_TEST = subimage-test
 CONVERT = convert
@@ -12,7 +12,7 @@ all: $(CONVERT) $(IO_TEST)
 $(IO_TEST): $(IO_TEST).o ../src/libgil2.so
 	$(CXX) -o $@ $(IO_TEST).o $(LIBS)
 
-$(SUBIMAGE_TEST): $(SUBIMAGE_TEST).o ../src/libgil2.so
+$(SUBIMAGE_TEST): $(SUBIMAGE_TEST).o 
 	$(CXX) -o $@ $(SUBIMAGE_TEST).o $(LIBS)
 
 $(CONVERT): $(CONVERT).o ../src/libgil2.so

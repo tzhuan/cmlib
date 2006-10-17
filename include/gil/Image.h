@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdio>
 #include <cstddef>
+#include <cassert>
 
 #include "Color.h"
 #include "Converter.h"
@@ -46,6 +47,12 @@ namespace gil {
 				: my_width(0), my_height(0), my_data(0), my_row(0)
 			{
 				resize(w, h);
+			}
+
+			Image(const Image& img)
+				: my_width(0), my_height(0), my_data(0), my_row(0)
+			{
+				*this = img;
 			}
 
 			template <typename I>
@@ -147,16 +154,10 @@ namespace gil {
 			// bilinear interpolation, quite useful
 			Type lerp(double x, double y) const;
 
-			/*
 			Image& operator =(const Image& img)
 			{
-				if(this != &img){
-					resize(img.width(), img.height());
-					std::copy(img.begin(), img.end(), begin());
-				}
-				return *this;
+				return this->operator=<Image>(img);
 			}
-			*/
 
 			template <typename I>
 			Image& operator =(const I& img)
@@ -164,16 +165,9 @@ namespace gil {
 				if(this != &img){
 					resize(img.width(), img.height());
 					std::copy(img.begin(), img.end(), this->begin());
-					/*
-					Image<Type,Conv>& self = *this;
-					for(size_type y = 0; y < height(); y++)
-						for(size_type x = 0; x < width(); x++)
-							self(x, y) = i(x, y);
-					*/
 				}
 				return *this;
 			}
-
 
 			template <typename I>
 			void replace(const I& img, size_type pos_x = 0, size_type pos_y = 0)

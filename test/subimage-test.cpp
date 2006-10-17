@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 			<< width << ", " << height << ")" << endl;
 
 		ByteImage3 image2 = image;
+		
 		size_t pos_x2 = rand() % (image2.width()-width);
 		size_t pos_y2 = rand() % (image2.height()-height);
 
@@ -45,7 +46,7 @@ int main(int argc, char **argv)
 			pos_y2
 		);
 		// ByteImage3 subimage = sub_image(image, 10, 10, 400, 400);
-		// write(image2, "image2.png");
+		write(image2, "image2.png");
 	} catch (exception &e) {
 		cerr << "error: " << e.what() << endl;
 	}
