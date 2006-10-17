@@ -37,19 +37,20 @@ namespace gil {
 			typedef const Type& ConstRefType;
 
 			Image()
-				: my_width(0), my_height(0), my_data(NULL), my_row(NULL)
+				: my_width(0), my_height(0), my_data(0), my_row(0)
 			{
 				// empty
 			}
 
 			Image(size_t w, size_t h)
-				: my_width(0), my_height(0), my_data(NULL), my_row(NULL)
+				: my_width(0), my_height(0), my_data(0), my_row(0)
 			{
 				resize(w, h);
 			}
 
-			Image(const Image& img)
-				: my_width(0), my_height(0), my_data(NULL), my_row(NULL)
+			template <typename I>
+			Image(const I& img)
+				: my_width(0), my_height(0), my_data(0), my_row(0)
 			{
 				*this = img;
 			}
@@ -57,6 +58,8 @@ namespace gil {
 			~Image() { 
 				delete [] my_data; 
 				delete [] my_row; 
+				my_data = 0;
+				my_row = 0;
 			}
 
 			size_type width() const 
@@ -104,8 +107,8 @@ namespace gil {
 						init_row();
 					}else{
 						my_width = my_height = 0;
-						my_data = NULL;
-						my_row = NULL;
+						my_data = 0;
+						my_row = 0;
 					}
 				}
 			}
@@ -144,6 +147,7 @@ namespace gil {
 			// bilinear interpolation, quite useful
 			Type lerp(double x, double y) const;
 
+			/*
 			Image& operator =(const Image& img)
 			{
 				if(this != &img){
@@ -152,9 +156,40 @@ namespace gil {
 				}
 				return *this;
 			}
+			*/
 
 			template <typename I>
-			Image& operator =(const I& i);
+			Image& operator =(const I& img)
+			{
+				if(this != &img){
+					resize(img.width(), img.height());
+					std::copy(img.begin(), img.end(), this->begin());
+					/*
+					Image<Type,Conv>& self = *this;
+					for(size_type y = 0; y < height(); y++)
+						for(size_type x = 0; x < width(); x++)
+							self(x, y) = i(x, y);
+					*/
+				}
+				return *this;
+			}
+
+
+			template <typename I>
+			void replace(const I& img, size_type pos_x = 0, size_type pos_y = 0)
+			{
+				// FIXME use exception instead of assert.
+				assert( pos_x >= 0 && pos_x < this->width() );
+				assert( pos_y >= 0 && pos_y < this->height() );
+				assert( pos_x + img.width() < this->width() );
+				assert( pos_y + img.height() < this->height() );
+
+				for (size_type y(pos_y), iy(0); iy < img.height(); ++iy, ++y) {
+					for (size_type x(pos_x), ix(0); ix < img.width(); ++ix, ++x) {
+						(*this)(x, y) = img(ix, iy);
+					}
+				}
+			}
 
 			iterator begin()
 			{
@@ -232,17 +267,6 @@ namespace gil {
 	}
 
 	template <typename Type, template<typename,typename> class Conv>
-	template <typename I>
-	Image<Type,Conv>& Image<Type,Conv>::operator =(const I& i)
-	{
-		resize(i.width(), i.height());
-		Image<Type,Conv>& self = *this;
-		for(size_type y = 0; y < height(); y++)
-			for(size_type x = 0; x < width(); x++)
-				self(x, y) = i(x, y);
-	}
-
-	template <typename Type, template<typename,typename> class Conv>
 	void Image<Type,Conv>::swap(Image<Type,Conv>& i)
 	{
 		if(this == &i) return;
@@ -259,7 +283,6 @@ namespace gil {
 	{
 		a.swap(b);
 	}
-
 
 	typedef Image<Byte1> ByteImage1;
 	typedef Image<Byte3> ByteImage3;
