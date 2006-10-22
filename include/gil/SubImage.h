@@ -147,6 +147,11 @@ namespace gil {
 				return const_iterator(my_image, my_height, 0);
 			}
 
+			size_type channels() const
+			{
+				return my_image.channels();
+			}
+
 		private:
 			I& my_image;
 			size_type my_x_offset;
