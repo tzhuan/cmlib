@@ -45,15 +45,15 @@ namespace gil {
 
 			// for alpha channel
 			static T transparent() { return 0; } 
-			static T opaque() { return std::numeric_limits<T>::max(); } 
+			static T opaque() { return std::numeric_limits<T>::max(); }
 			static T mix(T a, T b, T w)
 			{
 				return ( a * (opaque()-w) + b * w ) / opaque();
 			}
 	};
-
-	template<> Float1 TypeTrait<float>::opaque() { return 1.0f; }
-	template<> Double1 TypeTrait<double>::opaque() { return 1.0; }
+	
+	template <> inline Float1 TypeTrait<float>::opaque() { return 1.0f; }
+	template <> inline Double1 TypeTrait<double>::opaque() { return 1.0; }
 
 	// Basic features for a pixel
 	template <typename Type, size_t Channel>
