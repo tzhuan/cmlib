@@ -130,27 +130,6 @@ namespace gil {
 				return my_row[y][x];
 			}
 
-			// the non-const one is essensial or we'll get ambiguous call. 
-			value_type operator ()(double x, double y)
-			{
-				return lerp(x,y);
-			}
-
-			value_type operator ()(double x, double y) const
-			{
-				return lerp(x,y);
-			}
-
-			value_type operator ()(float x, float y)
-			{
-				return lerp(x,y);
-			}
-
-			value_type operator ()(float x, float y) const
-			{
-				return lerp(x,y);
-			}
-
 			// bilinear interpolation, quite useful
 			Type lerp(double x, double y) const;
 

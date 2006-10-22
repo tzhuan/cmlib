@@ -50,21 +50,10 @@ namespace gil {
 			{
 				return ( a * (opaque()-w) + b * w ) / opaque();
 			}
-
-		private:
-			template <typename T2> T2 my_opaque(T2) const
-			{
-				return std::numeric_limits<T2>::max();
-			}
-			double my_opaque(double) const { return 1.0; }
-			long double my_opaque(long double) const { return 1.0; }
-			float my_opaque(float) const { return 1.0f; }
 	};
 
-	/*
-	template<> static Float1 TypeTrait<float>::opaque() { return 1.0f; }
-	template<> static Double1 TypeTrait<double>::opaque() { return 1.0; }
-	*/
+	template<> Float1 TypeTrait<float>::opaque() { return 1.0f; }
+	template<> Double1 TypeTrait<double>::opaque() { return 1.0; }
 
 	// Basic features for a pixel
 	template <typename Type, size_t Channel>
