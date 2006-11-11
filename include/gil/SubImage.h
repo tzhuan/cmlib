@@ -98,6 +98,7 @@ namespace gil {
 							my_x = 0;
 							++my_y;
 						}
+						return *this;
 					}
 
 					self_type operator ++(int)
@@ -159,17 +160,7 @@ namespace gil {
 			size_type my_width;
 			size_type my_height;
 
-			template <typename I2>
-			SubImage<I>& operator =(const I2& i)
-			{
-				const size_type W = std::min(width(),  i.width());
-				const size_type H = std::min(height(), i.height());
-				SubImage<I>& self = *this;
-				for(size_type y = 0; y < H; y++)
-					for(size_type x = 0; x < W; x++)
-						self(x,y) = i(x,y);
-				return self;
-			}
+			void operator =(const SubImage<I> &i);
 	};
 
 
