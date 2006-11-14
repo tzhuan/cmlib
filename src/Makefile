@@ -1,4 +1,5 @@
-INSTALL_DIR = /usr/local/lib
+INSTALL_INCLUDE = /usr/local/include
+INSTALL_LIB = /usr/local/lib
 TARGET = libgil2.so
 HEADERS = -I../include
 CXXFLAGS = -g $(HEADERS) -I/usr/local/include -fPIC -Wall -pipe
@@ -30,8 +31,10 @@ $(IO_DIR)/dcraw.o: $(IO_DIR)/dcraw.c
 	@ $(CC) -c $< -o $@ $(CXXFLAGS)
 
 install: $(TARGET)
-	@ echo Installing $(TARGET) to $(INSTALL_DIR)
-	@ install -m644 $(TARGET) $(INSTALL_DIR)
+	@ echo Export headers to $(INSTALL_INCLUDE)
+	@ svn --force export ../include/gil $(INSTALL_INCLUDE)/gil
+	@ echo Installing $(TARGET) to $(INSTALL_LIB)
+	@ install -m644 $(TARGET) $(INSTALL_LIB)
 	@ echo -n Running ldconfig...
 	@ ldconfig
 	@ echo done
