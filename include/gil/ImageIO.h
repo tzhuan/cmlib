@@ -92,6 +92,10 @@ namespace gil {
 				read<BmpReader>(image, f);
 				break;
 
+			case FF_FLT:
+				read<FltReader>(image, f);
+				break;
+
 			default:
 				fclose(f);
 				return false;
@@ -172,6 +176,9 @@ namespace gil {
 
 			case FF_BMP:
 				return write<BmpWriter>(image, filename);
+
+			case FF_FLT:
+				return write<FltWriter>(image, filename);
 
 			default:
 				return false;

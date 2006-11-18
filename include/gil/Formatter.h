@@ -12,5 +12,6 @@
 #include "io/ppm.h"
 #include "io/pfm.h"
 #include "io/bmp.h"
+#include "io/flt.h"
 
 #endif // GIL_FORMATTER_H
