@@ -1,98 +1,84 @@
 #ifndef GIL_CONVERTER_H
 #define GIL_CONVERTER_H
 
+#include <algorithm>
 #include "Color.h"
 
 namespace gil {
 
-	template <typename T, typename F>
+	template <typename To, typename From>
 	struct DefaultConverter {
-		typedef T To;
-		typedef F From;
-		static void convert(To& to, const From& from)
+		To operator()(const From &from) const
 		{
-			to = static_cast<T>(from);
+			return static_cast<To>(from);
 		}
 	};
 
+	// Float1 -> Byte1
 	template <>
 	struct DefaultConverter<Byte1, Float1> {
-		typedef Byte1 To;
-		typedef Float1 From;
-		static void convert(To& to, From from)
+		Byte1 operator()(Float1 from) const
 		{
-			to = static_cast<Byte1>(from * 255.0f);
+			const Float1 ratio = static_cast<Float1>(TypeTrait<Byte1>::opaque());
+			return static_cast<Byte1>(from * ratio);
 		}
 	};
 
+	// Byte1 -> Float1
 	template <>
 	struct DefaultConverter<Float1, Byte1> {
-		typedef Float1 To;
-		typedef Byte1 From;
-		static void convert(To& to, From from)
+		Float1 operator()(Byte1 from) const
 		{
-			to = static_cast<Float1>(from) / 255.0f;
+			const Float1 ratio = static_cast<Float1>(TypeTrait<Byte1>::opaque());
+			return static_cast<Float1>(from) / ratio;
 		}
 	};
 
+	// Byte1 -> Short1
 	template <>
 	struct DefaultConverter<Short1, Byte1> {
-		typedef Short1 To;
-		typedef Byte1 From;
-		static void convert(To& to, From from)
+		Short1 operator()(Byte1 from) const
 		{
-			to = static_cast<Short1>(from * 255);
+			const Short1 ratio = TypeTrait<Short1>::opaque() / TypeTrait<Byte1>::opaque();
+			return static_cast<Short1>(from * ratio);
 		}
 	};
 
+	// Short1 -> Byte1
 	template <>
 	struct DefaultConverter<Byte1, Short1> {
-		typedef Byte1 To;
-		typedef Short1 From;
-		static void convert(To& to, From from)
+		Byte1 operator()(Short1 from) const
 		{
-			to = static_cast<Byte1>(from / 255);
+			const Short1 ratio = TypeTrait<Short1>::opaque() / TypeTrait<Byte1>::opaque();
+			return static_cast<Byte1>(from / ratio);
 		}
 	};
 
+	// Float1 -> Short1
 	template <>
 	struct DefaultConverter<Short1, Float1> {
-		typedef Short1 To;
-		typedef Float1 From;
-		static void convert(To& to, From from)
+		Short1 operator()(Float1 from) const
 		{
-			to = static_cast<Short1>(from * 65535.0f);
+			const Short1 ratio = TypeTrait<Short1>::opaque();
+			return static_cast<Short1>(from * ratio);
 		}
 	};
 
+	// Short1 -> Float1
 	template <>
 	struct DefaultConverter<Float1, Short1> {
-		typedef Float1 To;
-		typedef Short1 From;
-		static void convert(To& to, From from)
+		Float1 operator()(Short1 from) const
 		{
-			to = static_cast<Float1>(from) / 65535.0f;
+			const Short1 ratio = TypeTrait<Short1>::opaque();
+			return static_cast<Float1>(from) / ratio;
 		}
 	};
 
 	template <typename T>
 	struct DefaultConverter<T, T> {
-		typedef T To;
-		typedef T From;
-		static void convert(T& to, const T& from)
+		T operator()(const T& from) const
 		{
-			to = from;
-		}
-	};
-
-	// exactly same
-	template <typename T, size_t C>
-	struct DefaultConverter< Color<T,C>, Color<T,C> > {
-		typedef Color<T,C> To;
-		typedef Color<T,C> From;
-		static void convert(To& to, const From& from)
-		{
-			to = from;
+			return from;
 		}
 	};
 
@@ -101,39 +87,45 @@ namespace gil {
 	struct DefaultConverter< Color<T,C>, Color<F,C> > {
 		typedef Color<T,C> To;
 		typedef Color<F,C> From;
-		static void convert(To& to, const From& from)
+		To operator()(const From& from) const
 		{
-			DefaultConverter<T,F>::convert(to[0], from[0]);
-			if(C >= 2) DefaultConverter<T,F>::convert(to[1], from[1]);
-			if(C >= 3) DefaultConverter<T,F>::convert(to[2], from[2]);
-			if(C >= 4) DefaultConverter<T,F>::convert(to[3], from[3]);
+			DefaultConverter<T, F> converter;
+			To tmp;
+			tmp[0] = converter(from[0]);
+			if(C >= 2) tmp[1] = converter(from[1]);
+			if(C >= 3) tmp[2] = converter(from[2]);
+			if(C >= 4) tmp[3] = converter(from[3]);
 
 			if(C >= 5)
-				for(int i = 4; i < static_cast<int>(C); i++)
-					DefaultConverter<T,F>::convert(to[i], from[i]);
+				std::transform(&from[4], &from[C], &tmp[4], converter);
+
+			return tmp;
 		}
 	};
 
 	// same type, different channel number
 	// this covers 3 -> 4 and 4 -> 3
-	template <typename T, size_t C1, size_t C2>
-	struct DefaultConverter< Color<T,C1>, Color<T,C2> > {
-		typedef Color<T,C1> To;
-		typedef Color<T,C2> From;
-		static void convert(To& to, const From& from)
+	template <typename T, size_t Ct, size_t Cf>
+	struct DefaultConverter< Color<T,Ct>, Color<T,Cf> > {
+		typedef Color<T,Ct> To;
+		typedef Color<T,Cf> From;
+		To operator()(const From& from) const
 		{
-			const int cmin = C1 < C2 ? (int)C1 : (int)C2;
-			to[0] = from[0];
-			if(cmin >= 2) to[1] = from[1];
-			if(cmin >= 3) to[2] = from[2];
-			if(cmin >= 4) to[3] = from[3];
+			const size_t cmin = std::min(Ct, Cf);
+			To tmp;
+
+			tmp[0] = from[0];
+			if(cmin >= 2) tmp[1] = from[1];
+			if(cmin >= 3) tmp[2] = from[2];
+			if(cmin >= 4) tmp[3] = from[3];
 
 			if(cmin >= 5)
-				for(int i = 4; i < cmin; i++)
-					to[i] = from[i];
+				std::copy(&from[4], &from[cmin], &tmp[4]);
 
-			for(int i = (int)C2; i < (int)C1; i++)
-				to[i] = TypeTrait<T>::opaque();
+			if (Cf < Ct)
+				std::fill(&tmp[Cf], &tmp[Ct]);
+
+			return tmp;
 		}
 	};
 
@@ -142,9 +134,9 @@ namespace gil {
 	struct DefaultConverter< T, Color<T,3> > {
 		typedef T To;
 		typedef Color<T,3> From;
-		static void convert(To& to, const From& from)
+		To operator()(const From& from) const
 		{
-			to = ( from[0]*3 + from[1]*4 + from[2] ) / 8;
+			return ( from[0]*3 + from[1]*4 + from[2] ) / 8;
 		}
 	};
 
@@ -153,9 +145,9 @@ namespace gil {
 	struct DefaultConverter< T, Color<T,4> > {
 		typedef T To;
 		typedef Color<T,4> From;
-		static void convert(To& to, const From& from)
+		To operator()(const From& from) const
 		{
-			to = ( from[0]*3 + from[1]*4 + from[2] ) / 8;
+			return ( from[0]*3 + from[1]*4 + from[2] ) / 8;
 		}
 	};
 
@@ -164,9 +156,9 @@ namespace gil {
 	struct DefaultConverter< Color<T,3>, T> {
 		typedef Color<T,3> To;
 		typedef T From;
-		static void convert(To& to, From from)
+		To operator()(From from) const
 		{
-			to.set(from, from, from);
+			return To(from, from, from);
 		}
 	};
 
@@ -175,52 +167,52 @@ namespace gil {
 	struct DefaultConverter< Color<T,4>, T> {
 		typedef Color<T,4> To;
 		typedef T From;
-		static void convert(To& to, From from)
+		To operator()(From from) const
 		{
-			to.set( from, from, from, TypeTrait<T>::opaque() );
+			return To( from, from, from, TypeTrait<T>::opaque() );
 		}
 	};
 
-	template <typename T1, typename T2, size_t C>
-	struct DefaultConverter< T1, Color<T2,C> > {
-		typedef T1 To;
-		typedef Color<T2,C> From;
-		static void convert(To& to, const From& from){
-			T2 tmp;
-			DefaultConverter<T2, From>::convert(tmp, from);
-			DefaultConverter<To, T2>::convert(to, tmp);
+	template <typename To, typename Tf, size_t Cf>
+	struct DefaultConverter< To, Color<Tf, Cf> > {
+		typedef Color<Tf, Cf> From;
+		To operator()(const From& from) const
+		{
+			const DefaultConverter<Tf, From> channel_converter;
+			const DefaultConverter<To, Tf> type_converter;
+			return type_converter( channel_converter(from) );
 		}
 	};
 
-	template <typename T1, typename T2, size_t C>
-	struct DefaultConverter< Color<T1,C>, T2 > {
-		typedef Color<T1,C> To;
-		typedef T2 From;
-		static void convert(To& to, const From& from){
-			T1 tmp;
-			DefaultConverter<T1, From>::convert(tmp, from);
-			DefaultConverter<To, T1>::convert(to, tmp);
+	template <typename Tt, typename From, size_t Ct>
+	struct DefaultConverter< Color<Tt,Ct>, From > {
+		typedef Color<Tt,Ct> To;
+		To operator()(const From& from) const
+		{
+			const DefaultConverter<Tt, From> type_converter;
+			const DefaultConverter<To, Tt> channel_converter;
+			return channel_converter( type_converter(from) );
 		}
 	};
 
 	// arbitary conversion
-	template <typename T1, size_t C1, typename T2, size_t C2>
-	struct DefaultConverter< Color<T1,C1>, Color<T2,C2> > {
-		typedef Color<T1,C1> To;
-		typedef Color<T2,C2> From;
-		static void convert(To& to, const From& from)
+	template <typename Tt, size_t Ct, typename Tf, size_t Cf>
+	struct DefaultConverter< Color<Tt,Ct>, Color<Tf,Cf> > {
+		typedef Color<Tt,Ct> To;
+		typedef Color<Tf,Cf> From;
+		To operator()(const From& from) const
 		{
-			// choose a smaller type to convert first
-			typedef Color<T1,C2> TMP1;
-			typedef Color<T2,C1> TMP2;
+			// choose a smaller type to operator() first
+			typedef Color<Tt,Cf> TMP1;
+			typedef Color<Tf,Ct> TMP2;
 			if( sizeof(TMP1) < sizeof(TMP2) ){
-				TMP1 tmp;
-				DefaultConverter< TMP1, From >::convert(tmp, from);
-				DefaultConverter< To, TMP1 >::convert(to, tmp);
+				DefaultConverter< TMP1, From > converter1;
+				DefaultConverter< To, TMP1 > converter2;
+				return converter2( converter1(from) );
 			} else {
-				TMP2 tmp;
-				DefaultConverter< TMP2, From >::convert(tmp, from);
-				DefaultConverter< To, TMP2 >::convert(to, tmp);
+				DefaultConverter< TMP2, From > converter1;
+				DefaultConverter< To, TMP2 > converter2;
+				return converter2( converter2(from) );
 			}
 		}
 	};

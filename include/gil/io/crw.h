@@ -5,8 +5,11 @@
 #include <stdexcept>
 #include <vector>
 #include "../Color.h"
+#include "../Converter.h"
 
 namespace gil {
+
+	template<template<typename, typename> class Converter = DefaultConverter>
     class DLLAPI CrwReader {
 	public:
 	    template <typename I>

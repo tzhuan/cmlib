@@ -7,8 +7,10 @@
 
 #include "../Exception.h"
 #include "../Color.h"
+#include "../Converter.h"
 
 namespace gil {
+	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI PngReader {
 		public:
 			template <typename I>
@@ -90,6 +92,7 @@ namespace gil {
 			size_t my_interlace_type;
 	};
 
+	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI PngWriter {
 		public:
 			template <typename I>

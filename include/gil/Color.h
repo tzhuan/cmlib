@@ -345,12 +345,12 @@ namespace gil {
 		static size_t channels() { return C; }
 	};
 
-	typedef Color<Byte1,3> Byte3;
-	typedef Color<Byte1,4> Byte4;
-	typedef Color<Short1,3> Short3;
-	typedef Color<Short1,4> Short4;
-	typedef Color<Float1,3> Float3;
-	typedef Color<Float1,4> Float4;
+	typedef Color<Byte1, 3> Byte3;
+	typedef Color<Byte1, 4> Byte4;
+	typedef Color<Short1, 3> Short3;
+	typedef Color<Short1, 4> Short4;
+	typedef Color<Float1, 3> Float3;
+	typedef Color<Float1, 4> Float4;
 	typedef Color<Double1, 3> Double3;
 	typedef Color<Double1, 4> Double4;
 

@@ -4,12 +4,14 @@
 #include <memory>
 #include <vector>
 #include "../Image.h"
+#include "../Converter.h"
 
 namespace gil {
 
 	//class C_IStream;
 	//class C_OStream;
 
+	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI ExrReader {
 		public:
 			ExrReader() 
@@ -23,7 +25,20 @@ namespace gil {
 			}
 
 			template <typename I>
-			void operator ()(I& image, FILE* f);
+			void operator ()(I& image, FILE* f)
+			{
+				typedef typename I::Converter Conv;
+				size_t width, height;
+				init(f, width, height);
+				image.allocate(width, height);
+				std::vector<Float4> buffer(width); // scanline buffer
+				for(size_t y = 0; y < height; y++){
+					read_scanline(buffer, static_cast<int>(y) );
+					for(size_t x = 0; x < width; x++)
+						Conv::ext2int( image(x, y), buffer[x] );
+				}
+				cleanup();
+			}
 
 		private:
 			void init(FILE* f, size_t& w, size_t& h);
@@ -36,23 +51,7 @@ namespace gil {
 			int my_min_y;
 	};
 
-	template <typename I>
-	void ExrReader::operator ()(I& image, FILE* f)
-	{
-		typedef typename I::Converter Conv;
-		size_t width, height;
-		init(f, width, height);
-		image.allocate(width, height);
-		std::vector<Float4> buffer(width); // scanline buffer
-		for(size_t y = 0; y < height; y++){
-			read_scanline(buffer, static_cast<int>(y) );
-			for(size_t x = 0; x < width; x++)
-				Conv::ext2int( image(x, y), buffer[x] );
-		}
-		cleanup();
-	}
-
-
+	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI ExrWriter {
 		public:
 			ExrWriter() 
@@ -67,7 +66,21 @@ namespace gil {
 			}
 
 			template <typename I>
-			void operator ()(const I& image, FILE* f);
+			void operator ()(const I& image, FILE* f)
+			{
+				typedef typename I::Converter Conv;
+				size_t width = image.width();
+				size_t height = image.height();
+
+				init( f, width, height, image.channels() );
+				std::vector<Float4> buffer(width);
+				for(size_t y = 0; y < height; y++){
+					for(size_t x = 0; x < width; x++)
+						Conv::int2ext( buffer[x], image(x, y) );
+					write_scanline( buffer, static_cast<int>(y) );
+				}
+				cleanup();
+			}
 
 		private:
 			void init(FILE* f, size_t w, size_t h, size_t c);
@@ -77,23 +90,6 @@ namespace gil {
 			void* my_ostream;	  // XXX actual type is C_IStream*
 			void* my_output_file; // XXX actual type is Imf::RgbaInputFile*
 	};
-
-	template <typename I>
-	void ExrWriter::operator ()(const I& image, FILE* f)
-	{
-		typedef typename I::Converter Conv;
-		size_t width = image.width();
-		size_t height = image.height();
-
-		init( f, width, height, image.channels() );
-		std::vector<Float4> buffer(width);
-		for(size_t y = 0; y < height; y++){
-			for(size_t x = 0; x < width; x++)
-				Conv::int2ext( buffer[x], image(x, y) );
-			write_scanline( buffer, static_cast<int>(y) );
-		}
-		cleanup();
-	}
 
 } // namespace gil
 

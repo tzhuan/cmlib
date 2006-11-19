@@ -8,9 +8,11 @@
 
 #include "../Exception.h"
 #include "../Color.h"
+#include "../Converter.h"
 
 namespace gil {
 
+	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI BmpReader {
 		public:
 			BmpReader()
@@ -19,12 +21,33 @@ namespace gil {
 			}
 
 			template <typename I>
-			void operator ()(I& image, FILE* f);
+			void operator ()(I& image, FILE* f)
+			{
+				size_t width, height;
+				init(f, width, height);
+				image.allocate(width, height);
+				read_pixels(image);
+			}
 
 		private:
 			// use type T as scanline buffer
 			template <typename I>
-			void read_pixels(I& image);
+			void read_pixels(I& image)
+			{
+				typedef typename I::Converter Conv;
+				size_t w = image.width(), h = image.height();
+				std::vector<Byte3> buffer(w);
+				for(size_t y = 0; y < h; y++){
+					read_scanline(buffer);
+					// pixels in BMP file is stored upside down.
+					for(size_t x = 0; x < w; x++){
+						// change BGR to RGB
+						std::swap(buffer[x][0], buffer[x][2]);
+						Conv::ext2int( image(x, h-y-1), buffer[x] );
+					}
+				}
+			}
+
 
 			void init(FILE* f, size_t& w, size_t& h);
 			void read_scanline(std::vector<Byte3>& buf);
@@ -34,32 +57,8 @@ namespace gil {
 			FILE* my_file;
 	};
 
-	template <typename I>
-	void BmpReader::read_pixels(I& image)
-	{
-		typedef typename I::Converter Conv;
-		size_t w = image.width(), h = image.height();
-		std::vector<Byte3> buffer(w);
-		for(size_t y = 0; y < h; y++){
-			read_scanline(buffer);
-			// pixels in BMP file is stored upside down.
-			for(size_t x = 0; x < w; x++){
-				// change BGR to RGB
-				std::swap(buffer[x][0], buffer[x][2]);
-				Conv::ext2int( image(x, h-y-1), buffer[x] );
-			}
-		}
-	}
 
-	template <typename I>
-	void BmpReader::operator ()(I& image, FILE* f)
-	{
-		size_t width, height;
-		init(f, width, height);
-		image.allocate(width, height);
-		read_pixels(image);
-	}
-
+	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI BmpWriter {
 		public:
 			BmpWriter()
@@ -68,12 +67,32 @@ namespace gil {
 			}
 
 			template <typename I>
-			void operator ()(const I& image, FILE* f);
+			void operator ()(const I& image, FILE* f)
+			{
+				size_t c = (image.channels()==1) ? 1 : 3;
+				init( f, image.width(), image.height(), c);
+				if(c == 1)
+					write_pixels<Byte1>(image);
+				else
+					write_pixels<Byte3>(image);
+			}
 
 		private:
 			// use type T as scanline buffer
 			template <typename T, typename I>
-			void write_pixels(I& image);
+			void write_pixels(I& image)
+			{
+				typedef typename I::Converter Conv;
+				size_t w = image.width(), h = image.height();
+				std::vector<T> buffer(w);
+				for(size_t y = 0; y < h; y++){
+					for(size_t x = 0; x < w; x++)
+						Conv::int2ext( buffer[x], image(x, h-y-1) );
+
+					write_scanline(buffer);
+				}
+			}
+
 
 			void init(FILE* f, size_t w, size_t h, size_t c);
 			void write_scanline(std::vector<Byte1>& buf);
@@ -83,30 +102,6 @@ namespace gil {
 			FILE* my_file;
 	};
 
-	template <typename T, typename I>
-	void BmpWriter::write_pixels(I& image)
-	{
-		typedef typename I::Converter Conv;
-		size_t w = image.width(), h = image.height();
-		std::vector<T> buffer(w);
-		for(size_t y = 0; y < h; y++){
-			for(size_t x = 0; x < w; x++)
-				Conv::int2ext( buffer[x], image(x, h-y-1) );
-
-			write_scanline(buffer);
-		}
-	}
-
-	template <typename I>
-	void BmpWriter::operator ()(const I& image, FILE* f)
-	{
-		size_t c = (image.channels()==1) ? 1 : 3;
-		init( f, image.width(), image.height(), c);
-		if(c == 1)
-			write_pixels<Byte1>(image);
-		else
-			write_pixels<Byte3>(image);
-	}
 
 } // namespace gil
 

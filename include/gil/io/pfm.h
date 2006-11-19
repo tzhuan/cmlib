@@ -8,6 +8,7 @@
 
 #include "../Exception.h"
 #include "../Color.h"
+#include "../Converter.h"
 
 /* XXX: This code only works when sizeof(char) == 1 */
 
@@ -54,6 +55,7 @@ namespace gil {
 
     // because PfmReader is written in header completely,
     // here we should not use DLLAPI
+	template<template<typename, typename> class Converter = DefaultConverter>
     class PfmReader {
 	public:
 	    template <typename I>
@@ -138,6 +140,7 @@ namespace gil {
     };
 
     // as same as PfmReader, no DLLAPI
+	template<template<typename, typename> class Converter = DefaultConverter>
     class PfmWriter {
 	public:
 	    template<typename I>

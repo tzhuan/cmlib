@@ -10,8 +10,11 @@
 
 #include "../Exception.h"
 #include "../Color.h"
+#include "../Converter.h"
 
 namespace gil {
+
+	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI FltReader {
 		public:
 			template <typename I>
@@ -82,6 +85,7 @@ namespace gil {
 			size_t my_channels;
 	};
 
+	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI FltWriter {
 		public:
 			template<typename I>

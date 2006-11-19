@@ -8,17 +8,15 @@
 #include <cassert>
 
 #include "Color.h"
-#include "Converter.h"
 
 namespace gil {
 
-	template<typename, template<typename,typename> class Conv=DefaultConverter> 
-	class Image;
+	template<typename> class Image;
 
-	template<typename Type, template<typename,typename> class Conv>
-	void swap(Image<Type,Conv>& a, Image<Type,Conv>& b);
+	template<typename Type>
+	void swap(Image<Type>& a, Image<Type>& b);
 
-	template<typename Type, template<typename,typename> class Conv>
+	template<typename Type>
 	class Image {
 		public:
 			// STL-compliance
@@ -101,18 +99,18 @@ namespace gil {
 			}
 
 			void resize(size_t w, size_t h){
-				if(w != my_width || h != my_height){
+				if (w != my_width || h != my_height) {
 					// the delete operator will automatically check for NULL
 					delete [] my_data;
 					delete [] my_row;
 
-					if(w != 0 && h != 0){
+					if (w != 0 && h != 0) {
 						my_data = new Type[w*h];
 						my_row = new Type*[h];
 						my_width = w;
 						my_height = h;
 						init_row();
-					}else{
+					} else {
 						my_width = my_height = 0;
 						my_data = 0;
 						my_row = 0;
@@ -130,8 +128,6 @@ namespace gil {
 				return my_row[y][x];
 			}
 
-			// bilinear interpolation, quite useful
-			Type lerp(double x, double y) const;
 
 			Image& operator =(const Image& img)
 			{
@@ -141,7 +137,7 @@ namespace gil {
 			template <typename I>
 			Image& operator =(const I& img)
 			{
-				if(this != &img){
+				if (this != &img) {
 					resize(img.width(), img.height());
 					std::copy(img.begin(), img.end(), this->begin());
 				}
@@ -152,16 +148,49 @@ namespace gil {
 			void replace(const I& img, size_type pos_x = 0, size_type pos_y = 0)
 			{
 				// FIXME use exception instead of assert.
-				assert( pos_x >= 0 && pos_x < this->width() );
-				assert( pos_y >= 0 && pos_y < this->height() );
+				assert( /*pos_x >= 0*/ && pos_x < this->width() );
+				assert( /*pos_y >= 0*/ && pos_y < this->height() );
 				assert( pos_x + img.width() < this->width() );
 				assert( pos_y + img.height() < this->height() );
 
-				for (size_type y(pos_y), iy(0); iy < img.height(); ++iy, ++y) {
-					for (size_type x(pos_x), ix(0); ix < img.width(); ++ix, ++x) {
+				for (size_type y(pos_y), iy(0); iy < img.height(); ++iy, ++y)
+					for (size_type x(pos_x), ix(0); ix < img.width(); ++ix, ++x)
 						(*this)(x, y) = img(ix, iy);
-					}
+			}
+
+			// bilinear interpolation, quite useful
+			Type lerp(double x, double y) const
+			{
+				// we assert that  0 <= x <= width-1 and 0 <= y <= height-1
+				int x0 = static_cast<int>(x);
+				int y0 = static_cast<int>(y);
+				double xf = x - x0;
+				double yf = y - y0;
+
+				if (xf == 0 && yf == 0)
+					return my_row[y0][x0];
+
+				if (xf == 0) {
+					return mix( my_row[y0][x0], my_row[y0+1][x0], yf );
+				} else if (yf == 0) {
+					return mix( my_row[y0][x0], my_row[y0][x0+1], xf );
+				} else {
+					return mix(
+							mix( my_row[y0][x0], my_row[y0][x0+1], xf ),
+							mix( my_row[y0+1][x0], my_row[y0+1][x0+1], xf ),
+							yf );
 				}
+			}
+
+			void swap(Image& i)
+			{
+				if (this == &i) return;
+
+				using std::swap;
+				swap(my_width, i.my_width);
+				swap(my_height, i.my_height);
+				swap(my_data, i.my_data);
+				swap(my_row, i.my_row);
 			}
 
 			iterator begin()
@@ -184,23 +213,6 @@ namespace gil {
 				return my_data + my_width*my_height;
 			}
 
-			void swap(Image& i);
-
-			// converter
-			struct Converter {
-				typedef Type Internal;
-
-				template <typename External>
-					static void ext2int(Internal& to, const External& from){
-						Conv<Internal,External>::convert(to, from);
-					}
-
-				template <typename External>
-					static void int2ext(External& to, const Internal& from){
-						Conv<External,Internal>::convert(to, from);
-					}
-			};
-
 		protected:
 			void init_row(){
 				my_row[0] = my_data;
@@ -215,44 +227,8 @@ namespace gil {
 			value_type **my_row;
 	};
 
-	template<typename Type, template<typename,typename> class Conv>
-	Type Image<Type,Conv>::lerp(double x, double y) const
-	{
-		// we assert that  0 <= x <= width-1 and 0 <= y <= height-1
-		int x0 = static_cast<int>(x);
-		int y0 = static_cast<int>(y);
-		double xf = x - x0;
-		double yf = y - y0;
-
-		if(xf == 0 && yf == 0)
-			return my_row[y0][x0];
-
-		if(xf == 0){
-			return mix( my_row[y0][x0], my_row[y0+1][x0], yf );
-		}else if(yf == 0){
-			return mix( my_row[y0][x0], my_row[y0][x0+1], xf );
-		}else{
-			return mix(
-					mix( my_row[y0][x0], my_row[y0][x0+1], xf ),
-					mix( my_row[y0+1][x0], my_row[y0+1][x0+1], xf ),
-					yf );
-		}
-	}
-
-	template <typename Type, template<typename,typename> class Conv>
-	void Image<Type,Conv>::swap(Image<Type,Conv>& i)
-	{
-		if(this == &i) return;
-
-		using std::swap;
-		swap(my_width, i.my_width);
-		swap(my_height, i.my_height);
-		swap(my_data, i.my_data);
-		swap(my_row, i.my_row);
-	}
-
-	template<typename Type, template<typename,typename> class Conv>
-	inline void swap(Image<Type,Conv>& a, Image<Type,Conv>& b)
+	template<typename Type>
+	inline void swap(Image<Type>& a, Image<Type>& b)
 	{
 		a.swap(b);
 	}
