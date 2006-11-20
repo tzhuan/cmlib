@@ -116,7 +116,8 @@ namespace {
 
 } // anonymous namespace
 
-void ExrReader::init(FILE* f, size_t& w, size_t& h)
+template<template<typename, typename> class Converter>
+void ExrReader<Converter>::init(FILE* f, size_t& w, size_t& h)
 {
 	try{
 		my_istream = new C_IStream(f);
@@ -134,7 +135,8 @@ void ExrReader::init(FILE* f, size_t& w, size_t& h)
 	}
 }
 
-void ExrReader::read_scanline(vector<Float4>& buf_float, int y)
+template<template<typename, typename> class Converter>
+void ExrReader<Converter>::read_scanline(vector<Float4>& buf_float, int y)
 {
 	try{
 		RgbaInputFile* input_file = (RgbaInputFile*)my_input_file;
@@ -156,7 +158,8 @@ void ExrReader::read_scanline(vector<Float4>& buf_float, int y)
 	}
 }
 
-void ExrReader::cleanup() throw()
+template<template<typename, typename> class Converter>
+void ExrReader<Converter>::cleanup() throw()
 {
 	delete (RgbaInputFile*)my_input_file;
 	delete (C_IStream*)my_istream;
@@ -165,7 +168,8 @@ void ExrReader::cleanup() throw()
 }
 
 
-void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
+template<template<typename, typename> class Converter>
+void ExrWriter<Converter>::init(FILE* f, size_t w, size_t h, size_t c)
 {
 	RgbaChannels ch;
 	if(c == 1) ch = WRITE_Y;
@@ -182,7 +186,8 @@ void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
 	}
 }
 
-void ExrWriter::write_scanline(vector<Float4>& buf_float, int y)
+template<template<typename, typename> class Converter>
+void ExrWriter<Converter>::write_scanline(vector<Float4>& buf_float, int y)
 {
 	try{
 		RgbaOutputFile* output_file = (RgbaOutputFile*)my_output_file;
@@ -205,7 +210,8 @@ void ExrWriter::write_scanline(vector<Float4>& buf_float, int y)
 	}
 }
 
-void ExrWriter::cleanup() throw()
+template<template<typename, typename> class Converter>
+void ExrWriter<Converter>::cleanup() throw()
 {
 	delete (RgbaOutputFile*)my_output_file;
 	delete (C_OStream*)my_ostream;

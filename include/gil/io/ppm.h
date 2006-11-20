@@ -31,6 +31,7 @@ namespace gil {
 				init(f);
 
 				image.allocate(my_width, my_height);
+				Converter<typename I::ColorType, ColorType> converter;
 
 				std::vector<ColorType> row(my_width);
 				for (size_t h = 0; h < my_height; ++h) {
@@ -41,7 +42,8 @@ namespace gil {
 						throw IOError("unknown read error");
 					}
 					for (size_t w = 0; w < my_width; ++w)
-						I::Converter::ext2int(image(w, h), row[w]);
+						image(w, h) = converter(row[w]);
+						//I::Converter::ext2int(image(w, h), row[w]);
 				}
 			}
 		protected:
@@ -112,9 +114,11 @@ namespace gil {
 					Magic, (int)image.width(), (int)image.height(), 255) < 0)
 					throw IOError("unknown write error");
 				std::vector<ColorType> row(image.width());
+				Converter<ColorType, typename I::ColorType> converter;
 				for (size_t h = 0; h < image.height(); ++h) {
 					for (size_t w = 0; w < image.width(); ++w)
-						I::Converter::int2ext(row[w], image(w, h));
+						row[w] = converter( image(w, h) );
+						//I::Converter::int2ext(row[w], image(w, h));
 					if (fwrite((void*)&row[0], 
 								sizeof(ColorType)*image.width(), 1, f) != 1) {
 						throw IOError("unknown write error");

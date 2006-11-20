@@ -146,7 +146,8 @@ namespace {
 	}
 }
 
-void BmpReader::init(FILE* f, size_t& w, size_t& h)
+template<template<typename, typename> class Converter>
+void BmpReader<Converter>::init(FILE* f, size_t& w, size_t& h)
 {
 	my_file = f;
 	my_pixel_offset = read_file_header(f);
@@ -158,7 +159,8 @@ void BmpReader::init(FILE* f, size_t& w, size_t& h)
 		throw InvalidFormat("unexpected bits per pixel in BMP image header");
 }
 
-void BmpReader::read_scanline(vector<Byte3>& buf)
+template<template<typename, typename> class Converter>
+void BmpReader<Converter>::read_scanline(vector<Byte3>& buf)
 {
 	if(my_color_table.size() == 256){ // color indexed
 		size_t scan_size = buf.size();
@@ -182,7 +184,8 @@ void BmpReader::read_scanline(vector<Byte3>& buf)
 	}
 }
 
-void BmpWriter::init(FILE* f, size_t w, size_t h, size_t c)
+template<template<typename, typename> class Converter>
+void BmpWriter<Converter>::init(FILE* f, size_t w, size_t h, size_t c)
 {
 	my_file = f;
 	write_header(f, w, h, c);
@@ -190,7 +193,8 @@ void BmpWriter::init(FILE* f, size_t w, size_t h, size_t c)
 		write_color_table(f);
 }
 
-void BmpWriter::write_scanline(vector<Byte1>& buf)
+template<template<typename, typename> class Converter>
+void BmpWriter<Converter>::write_scanline(vector<Byte1>& buf)
 {
 	const char PADDING[4] = {0,0,0,0};
 	size_t padding_len = 4 - buf.size() % 4;
@@ -202,7 +206,8 @@ void BmpWriter::write_scanline(vector<Byte1>& buf)
 	fwrite(PADDING, padding_len, 1, my_file);
 }
 
-void BmpWriter::write_scanline(vector<Byte3>& buf)
+template<template<typename, typename> class Converter>
+void BmpWriter<Converter>::write_scanline(vector<Byte3>& buf)
 {
 	const char PADDING[4] = {0,0,0,0};
 	size_t padding_len = 4 - ( buf.size()*3 ) % 4;

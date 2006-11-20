@@ -30,12 +30,14 @@ namespace gil {
 				init(f, width, height);
 				image.allocate(width, height);
 
-				typedef typename I::Converter Conv;
+				// typedef typename I::Converter Conv;
+				Converter<typename I::ColorType, Float3> converter;
 				std::vector<Float3> buffer(width);
 				for(size_t y = 0; y < height; y++){
 					read_scanline(buffer);
 					for(size_t x = 0; x < width; x++)
-						Conv::ext2int( image(x, y), buffer[x] );
+						image(x, y) = converter(buffer[x]);
+						//Conv::ext2int( image(x, y), buffer[x] );
 				}
 
 				finish();
@@ -68,11 +70,13 @@ namespace gil {
 				size_t width = image.width(), height = image.height();
 				init(f, width, height);
 
-				typedef typename I::Converter Conv;
+				// typedef typename I::Converter Conv;
+				Converter<Float3, typename I::ColorType> converter;
 				std::vector<Float3> buffer(width);
 				for(size_t y = 0; y < height; y++){
 					for(size_t x = 0; x < width; x++)
-						Conv::int2ext( buffer[x], image(x, y) );
+						buffer[x] = converter( image(x, y) );
+						//Conv::int2ext( buffer[x], image(x, y) );
 					write_scanline(buffer);
 				}
 

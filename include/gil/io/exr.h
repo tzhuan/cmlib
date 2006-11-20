@@ -27,7 +27,8 @@ namespace gil {
 			template <typename I>
 			void operator ()(I& image, FILE* f)
 			{
-				typedef typename I::Converter Conv;
+				//typedef typename I::Converter Conv;
+				Converter<typename I::ColorType, Float4> converter;
 				size_t width, height;
 				init(f, width, height);
 				image.allocate(width, height);
@@ -35,7 +36,8 @@ namespace gil {
 				for(size_t y = 0; y < height; y++){
 					read_scanline(buffer, static_cast<int>(y) );
 					for(size_t x = 0; x < width; x++)
-						Conv::ext2int( image(x, y), buffer[x] );
+						image(x, y) = converter(buffer[x]);
+						//Conv::ext2int( image(x, y), buffer[x] );
 				}
 				cleanup();
 			}
@@ -68,7 +70,8 @@ namespace gil {
 			template <typename I>
 			void operator ()(const I& image, FILE* f)
 			{
-				typedef typename I::Converter Conv;
+				//typedef typename I::Converter Conv;
+				Converter<Float4, typename I::ColorType> converter;
 				size_t width = image.width();
 				size_t height = image.height();
 
@@ -76,7 +79,8 @@ namespace gil {
 				std::vector<Float4> buffer(width);
 				for(size_t y = 0; y < height; y++){
 					for(size_t x = 0; x < width; x++)
-						Conv::int2ext( buffer[x], image(x, y) );
+						buffer[x] = converter( image(x, y) );
+						// Conv::int2ext( buffer[x], image(x, y) );
 					write_scanline( buffer, static_cast<int>(y) );
 				}
 				cleanup();

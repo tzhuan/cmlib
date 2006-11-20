@@ -452,31 +452,34 @@ namespace {
 
 } // end of anonymous namespace
 
-void HdrReader::init(FILE* f, size_t& w, size_t& h)
+template<template<typename, typename> class Converter>
+void HdrReader<Converter>::init(FILE* f, size_t& w, size_t& h)
 {
     my_file = f;
     // don't read resolution into width and height directly
     // or it will failed on 64bit machines.
     int x, y;
     if( checkheader(my_file, COLRFMT, NULL) < 0)
-	throw InvalidFormat("invalid HDR format in HdrReader::init()");
+	throw InvalidFormat("invalid HDR format in HdrReader<Converter>::init()");
 	    
     if(fgetresolu(&x, &y, my_file) < 0)
-	throw InvalidFormat("invalid HDR format in HdrReader::init()");
+	throw InvalidFormat("invalid HDR format in HdrReader<Converter>::init()");
     
     w = x;
     h = y;
     my_enc_buffer.resize(w);
 }
 
-void HdrReader::read_scanline(vector<Float3>& buf)
+template<template<typename, typename> class Converter>
+void HdrReader<Converter>::read_scanline(vector<Float3>& buf)
 {
     read_encoded();
     // now the encoded (RGBE) pixels are stored in my_enc_buffer
     realpixels_2_rgb(my_enc_buffer, buf);
 }
 
-void HdrReader::read_encoded()
+template<template<typename, typename> class Converter>
+void HdrReader<Converter>::read_encoded()
 {
     size_t  i, j;
     int  code, val;
@@ -490,7 +493,7 @@ void HdrReader::read_encoded()
     }
     
     if ((code = getc(my_file)) == EOF)
-	throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
+	throw EndOfFile("unexpected EOF in HdrReader<Converter>::read_encoded()");
     
     if (code != 2) {
 	ungetc(code, my_file);
@@ -502,7 +505,7 @@ void HdrReader::read_encoded()
     my_enc_buffer[0][BLU] = getc(my_file);
     
     if ((code = getc(my_file)) == EOF)
-	throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
+	throw EndOfFile("unexpected EOF in HdrReader<Converter>::read_encoded()");
     
     if (my_enc_buffer[0][GRN] != 2 || my_enc_buffer[0][BLU] & 128) {
 	    my_enc_buffer[0][RED] = 2;
@@ -512,13 +515,13 @@ void HdrReader::read_encoded()
     }
     
     if ( static_cast<size_t>(my_enc_buffer[0][BLU]<<8 | code) != len )
-	    throw InvalidFormat("length mismatch in HdrReader::read_encoded()");
+	    throw InvalidFormat("length mismatch in HdrReader<Converter>::read_encoded()");
     
     // read each component
     for (i = 0; i < 4; i++){
 	for (j = 0; j < len; ) {
 	    if ((code = getc(my_file)) == EOF)
-		throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
+		throw EndOfFile("unexpected EOF in HdrReader<Converter>::read_encoded()");
 		
 	    if (code > 128) {	
 		// run
@@ -535,7 +538,8 @@ void HdrReader::read_encoded()
     }
 }
 
-void HdrReader::read_encoded_old(size_t pos)
+template<template<typename, typename> class Converter>
+void HdrReader<Converter>::read_encoded_old(size_t pos)
 {
     int  rshift;
     register int  i;
@@ -550,9 +554,9 @@ void HdrReader::read_encoded_old(size_t pos)
 	(*p)[BLU] = getc(my_file);
 	(*p)[EXP] = getc(my_file);
 	if(feof(my_file))
-	    throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
+	    throw EndOfFile("unexpected EOF in HdrReader<Converter>::read_encoded_old()");
 	if(ferror(my_file))
-	    throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
+	    throw EndOfFile("unexpected EOF in HdrReader<Converter>::read_encoded_old()");
 	    
 	if ( (*p)[RED] == 1 && (*p)[GRN] == 1 && (*p)[BLU] == 1) {
 	    for (i = (*p)[EXP] << rshift; i > 0; i--) {
@@ -569,14 +573,16 @@ void HdrReader::read_encoded_old(size_t pos)
     }
 }
 
-void HdrReader::finish()
+template<template<typename, typename> class Converter>
+void HdrReader<Converter>::finish()
 {
     // no need to close the file.
     my_file = NULL;
     my_enc_buffer.resize(0);
 }
 
-void HdrWriter::init(FILE* f, size_t w, size_t h)
+template<template<typename, typename> class Converter>
+void HdrWriter<Converter>::init(FILE* f, size_t w, size_t h)
 {
     my_file = f;
     char* argv = new char[128];
@@ -594,13 +600,15 @@ void HdrWriter::init(FILE* f, size_t w, size_t h)
     my_enc_buffer.resize(w);
 }
 
-void HdrWriter::write_scanline(const vector<Float3>& buf)
+template<template<typename, typename> class Converter>
+void HdrWriter<Converter>::write_scanline(const vector<Float3>& buf)
 {
     rgb_2_realpixels(buf, my_enc_buffer);
     write_encoded();
 }
 
-void HdrWriter::write_encoded()
+template<template<typename, typename> class Converter>
+void HdrWriter<Converter>::write_encoded()
 {
     size_t len = my_enc_buffer.size();
     Byte4* scanline = &my_enc_buffer[0];
@@ -656,7 +664,8 @@ void HdrWriter::write_encoded()
     }
 }
 
-void HdrWriter::finish()
+template<template<typename, typename> class Converter>
+void HdrWriter<Converter>::finish()
 {
     my_file = NULL;
     my_enc_buffer.resize(0);

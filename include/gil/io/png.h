@@ -65,6 +65,7 @@ namespace gil {
 			void read(I& image)
 			{
 				typedef typename Color<Type, Channel>::ColorType ColorType;
+				Converter<typename I::ColorType, ColorType> converter;
 				image.allocate(my_width, my_height);
 
 				std::vector<ColorType> row(my_width);
@@ -73,7 +74,8 @@ namespace gil {
 					read_row((Type*)&(row[0]));
 
 					for (size_t w = 0; w < my_width; ++w)
-						I::Converter::ext2int(image(w, h), row[w]);
+						image(w, h) = converter(row[w]);
+						// I::Converter::ext2int(image(w, h), row[w]);
 				}
 			}
 		private:
@@ -118,6 +120,8 @@ namespace gil {
 				my_height = image.height();
 				my_channels = ColorTrait<ColorType>::channels();
 
+				Converter<ColorType, typename I::ColorType> converter;
+
 				std::vector<ColorType*> row_pointers(my_height);
 				std::vector<ColorType> row_data(my_height*my_width);
 				row_pointers[0] = &row_data[0];
@@ -126,7 +130,8 @@ namespace gil {
 
 				for (size_t h = 0; h < my_height; ++h)
 					for (size_t w = 0; w < my_width; ++w)
-						I::Converter::int2ext(row_pointers[h][w], image(w, h));
+						row_pointers[h][w] = image(w, h);
+						//I::Converter::int2ext(row_pointers[h][w], image(w, h));
 
 				write((unsigned char**)&row_pointers[0]);
 			}

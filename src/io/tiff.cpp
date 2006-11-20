@@ -13,7 +13,8 @@
 using namespace std;
 using namespace gil;
 
-void TiffReader::init(const string& name, size_t& w, size_t& h, size_t& c)
+template<template<typename, typename> class Converter>
+void TiffReader<Converter>::init(const string& name, size_t& w, size_t& h, size_t& c)
 {
 	my_tiff = TIFFOpen(name.c_str(), "r");
 	if(my_tiff == NULL)
@@ -31,30 +32,35 @@ void TiffReader::init(const string& name, size_t& w, size_t& h, size_t& c)
 	w = wi; h = hi; c = ci;
 }
 
-void TiffReader::read_scanline(vector<Byte1>& buf, unsigned int y)
+template<template<typename, typename> class Converter>
+void TiffReader<Converter>::read_scanline(vector<Byte1>& buf, unsigned int y)
 {
 
 	TIFFReadScanline( (TIFF*)my_tiff, (char*)&buf[0], y);
 }
 
-void TiffReader::read_scanline(vector<Byte3>& buf, unsigned int y)
+template<template<typename, typename> class Converter>
+void TiffReader<Converter>::read_scanline(vector<Byte3>& buf, unsigned int y)
 {
 	TIFFReadScanline( (TIFF*)my_tiff, (char*)&buf[0][0], y);
 }
 
-void TiffReader::read_scanline(vector<Byte4>& buf, unsigned int y)
+template<template<typename, typename> class Converter>
+void TiffReader<Converter>::read_scanline(vector<Byte4>& buf, unsigned int y)
 {
 	TIFFReadScanline( (TIFF*)my_tiff, (char*)&buf[0][0], y);
 }
 
-void TiffReader::finish()
+template<template<typename, typename> class Converter>
+void TiffReader<Converter>::finish()
 {
 	TIFFClose( (TIFF*)my_tiff );
 	my_tiff = NULL;
 }
 
 
-void TiffWriter::init(const string& name, size_t w, size_t h, size_t c)
+template<template<typename, typename> class Converter>
+void TiffWriter<Converter>::init(const string& name, size_t w, size_t h, size_t c)
 {
 	my_tiff = TIFFOpen(name.c_str(), "w");
 	if(my_tiff == NULL)
@@ -76,22 +82,26 @@ void TiffWriter::init(const string& name, size_t w, size_t h, size_t c)
 	TIFFSetField(tiff, TIFFTAG_COMPRESSION, COMPRESSION_LZW);
 }
 
-void TiffWriter::write_scanline(vector<Byte1>& buf, unsigned int y)
+template<template<typename, typename> class Converter>
+void TiffWriter<Converter>::write_scanline(vector<Byte1>& buf, unsigned int y)
 {
 	TIFFWriteScanline( (TIFF*)my_tiff, (char*)&buf[0], y);
 }
 
-void TiffWriter::write_scanline(vector<Byte3>& buf, unsigned int y)
+template<template<typename, typename> class Converter>
+void TiffWriter<Converter>::write_scanline(vector<Byte3>& buf, unsigned int y)
 {
 	TIFFWriteScanline( (TIFF*)my_tiff, (char*)&buf[0][0], y);
 }
 
-void TiffWriter::write_scanline(vector<Byte4>& buf, unsigned int y)
+template<template<typename, typename> class Converter>
+void TiffWriter<Converter>::write_scanline(vector<Byte4>& buf, unsigned int y)
 {
 	TIFFWriteScanline( (TIFF*)my_tiff, (char*)&buf[0][0], y);
 }
 
-void TiffWriter::finish()
+template<template<typename, typename> class Converter>
+void TiffWriter<Converter>::finish()
 {
 	TIFFClose( (TIFF*)my_tiff );
 	my_tiff = NULL;

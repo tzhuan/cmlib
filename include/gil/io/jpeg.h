@@ -47,13 +47,15 @@ namespace gil {
 			template <typename T, typename I>
 			void read_pixels(I& image)
 			{
-				typedef typename I::Converter Conv;
+				// typedef typename I::Converter Conv;
+				Converter<typename I::ColorType, T> converter;
 				size_t w = image.width(), h = image.height();
 				std::vector<T> buffer(w);
 				for(size_t y = 0; y < h; y++){
 					read_scanline(buffer);
 					for(size_t x = 0; x < w; x++)
-						Conv::ext2int( image(x, y), buffer[x] );
+						image(x, y) = converter(buffer[x]);
+						//Conv::ext2int( image(x, y), buffer[x] );
 				}
 			}
 
@@ -98,12 +100,14 @@ namespace gil {
 			template <typename T, typename I>
 			void JpegWriter::write_pixels(I& image)
 			{
-				typedef typename I::Converter Conv;
+				//typedef typename I::Converter Conv;
+				Converter<T, typename I::ColorType> converter;
 				size_t w = image.width(), h = image.height();
 				std::vector<T> buffer(w);
 				for(size_t y = 0; y < h; y++){
 					for(size_t x = 0; x < w; x++)
-						Conv::int2ext( buffer[x], image(x, y) );
+						buffer[x] = converter( image(x, y) );
+						// Conv::int2ext( buffer[x], image(x, y) );
 
 					write_scanline(buffer);
 				}

@@ -13,7 +13,8 @@ extern "C" {
 using namespace std;
 using namespace gil;
 
-void JpegReader::init(FILE* f, size_t& w, size_t& h, size_t& c)
+template<template<typename, typename> class Converter>
+void JpegReader<Converter>::init(FILE* f, size_t& w, size_t& h, size_t& c)
 {
 	try{
 		my_jerr = new jpeg_error_mgr;
@@ -36,21 +37,24 @@ void JpegReader::init(FILE* f, size_t& w, size_t& h, size_t& c)
 	c = cinfo->output_components;
 }
 
-void JpegReader::read_scanline(vector<Byte1>& buf)
+template<template<typename, typename> class Converter>
+void JpegReader<Converter>::read_scanline(vector<Byte1>& buf)
 {
 	Byte1* bufp = &buf[0];
 	JSAMPARRAY p = &bufp;
 	jpeg_read_scanlines( (jpeg_decompress_struct*)my_cinfo, p, 1);
 }
 
-void JpegReader::read_scanline(vector<Byte3>& buf)
+template<template<typename, typename> class Converter>
+void JpegReader<Converter>::read_scanline(vector<Byte3>& buf)
 {
 	Byte1* bufp = &buf[0][0];
 	JSAMPARRAY p = &bufp;
 	jpeg_read_scanlines( (jpeg_decompress_struct*)my_cinfo, p, 1);
 }
 
-void JpegReader::finish()
+template<template<typename, typename> class Converter>
+void JpegReader<Converter>::finish()
 {
 	jpeg_decompress_struct* cinfo = (jpeg_decompress_struct*)my_cinfo;
 	jpeg_finish_decompress(cinfo);
@@ -58,7 +62,8 @@ void JpegReader::finish()
 	cleanup();
 }
 
-void JpegReader::cleanup() throw ()
+template<template<typename, typename> class Converter>
+void JpegReader<Converter>::cleanup() throw ()
 {
 	delete (jpeg_decompress_struct*)my_cinfo;
 	delete (jpeg_error_mgr*)my_jerr;
@@ -66,7 +71,8 @@ void JpegReader::cleanup() throw ()
 	my_jerr = NULL;
 }
 
-void JpegWriter::init(FILE* f, size_t w, size_t h, size_t c)
+template<template<typename, typename> class Converter>
+void JpegWriter<Converter>::init(FILE* f, size_t w, size_t h, size_t c)
 {
 	try{
 		my_jerr = new jpeg_error_mgr;
@@ -93,28 +99,32 @@ void JpegWriter::init(FILE* f, size_t w, size_t h, size_t c)
 	jpeg_start_compress(cinfo, TRUE);
 }
 
-void JpegWriter::write_scanline(vector<Byte1>& buf)
+template<template<typename, typename> class Converter>
+void JpegWriter<Converter>::write_scanline(vector<Byte1>& buf)
 {
 	Byte1* bufp = &buf[0];
 	JSAMPARRAY p = &bufp;
 	jpeg_write_scanlines( (jpeg_compress_struct*)my_cinfo, p, 1);
 }
 
-void JpegWriter::write_scanline(vector<Byte3>& buf)
+template<template<typename, typename> class Converter>
+void JpegWriter<Converter>::write_scanline(vector<Byte3>& buf)
 {
 	Byte1* bufp = &buf[0][0];
 	JSAMPARRAY p = &bufp;
 	jpeg_write_scanlines( (jpeg_compress_struct*)my_cinfo, p, 1);
 }
 
-void JpegWriter::finish() {
+template<template<typename, typename> class Converter>
+void JpegWriter<Converter>::finish() {
 	jpeg_compress_struct* cinfo = (jpeg_compress_struct*)my_cinfo;
 	jpeg_finish_compress(cinfo);
 	jpeg_destroy_compress(cinfo);
 	cleanup();
 }
 
-void JpegWriter::cleanup() throw()
+template<template<typename, typename> class Converter>
+void JpegWriter<Converter>::cleanup() throw()
 {
 	delete (jpeg_compress_struct*)my_cinfo;
 	delete (jpeg_error_mgr*)my_jerr;

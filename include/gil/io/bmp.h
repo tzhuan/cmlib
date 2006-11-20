@@ -34,7 +34,8 @@ namespace gil {
 			template <typename I>
 			void read_pixels(I& image)
 			{
-				typedef typename I::Converter Conv;
+				// typedef typename I::Converter Conv;
+				Converter<typename I::ColorType, Byte3> converter;
 				size_t w = image.width(), h = image.height();
 				std::vector<Byte3> buffer(w);
 				for(size_t y = 0; y < h; y++){
@@ -43,7 +44,8 @@ namespace gil {
 					for(size_t x = 0; x < w; x++){
 						// change BGR to RGB
 						std::swap(buffer[x][0], buffer[x][2]);
-						Conv::ext2int( image(x, h-y-1), buffer[x] );
+						image(x, h-y-1) = converter(buffer[x]);
+						//Conv::ext2int( image(x, h-y-1), buffer[x] );
 					}
 				}
 			}
@@ -82,12 +84,14 @@ namespace gil {
 			template <typename T, typename I>
 			void write_pixels(I& image)
 			{
-				typedef typename I::Converter Conv;
+				//typedef typename I::Converter Conv;
+				Converter<Byte3, typename I::ColorType> converter;
 				size_t w = image.width(), h = image.height();
 				std::vector<T> buffer(w);
 				for(size_t y = 0; y < h; y++){
 					for(size_t x = 0; x < w; x++)
-						Conv::int2ext( buffer[x], image(x, h-y-1) );
+						buffer[x] = converter( image(x, h-y-1) );
+						//Conv::int2ext( buffer[x], image(x, h-y-1) );
 
 					write_scanline(buffer);
 				}

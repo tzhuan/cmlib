@@ -71,13 +71,19 @@ namespace gil {
 			void read(I &image, FILE *f)
 			{
 				std::vector<ColorType> row(image.width());
+				Converter<typename I::ColorType, ColorType> converter;
 				for (size_t h = 0; h < image.height(); ++h) {
-					for (size_t w = 0; w < image.width(); ++w)
-						I::Converter::int2ext(row[w], image(w, h));
-					if (fwrite((void*)&row[0], 
-								sizeof(ColorType)*image.width(), 1, f) != 1) {
-						throw IOError("unknown write error");
+					if (fread(
+							(void*)&row[0], 
+							sizeof(ColorType)*image.width(),
+							1, 
+							f
+						) != 1) {
+						throw IOError("unknown read error");
 					}
+					for (size_t w = 0; w < image.width(); ++w)
+						image(w, h) = converter(row[w]);
+						//I::Converter::int2ext(row[w], image(w, h));
 				}
 			}
 
@@ -109,12 +115,18 @@ namespace gil {
 			template<typename I, typename ColorType>
 			void write(const I& image, FILE *f) 
 			{
+				Converter<ColorType, typename I::ColorType> converter;
 				std::vector<ColorType> row(image.width());
 				for (size_t h = 0; h < image.height(); ++h) {
 					for (size_t w = 0; w < image.width(); ++w)
-						I::Converter::int2ext(row[w], image(w, h));
-					if (fwrite((void*)&row[0], 
-								sizeof(ColorType)*image.width(), 1, f) != 1) {
+						row[w] = converter( image(w, h) );
+						// I::Converter::int2ext(row[w], image(w, h));
+					if (fwrite(
+							(void*)&row[0], 
+							sizeof(ColorType)*image.width(), 
+							1, 
+							f
+						) != 1) {
 						throw IOError("unknown write error");
 					}
 				}
