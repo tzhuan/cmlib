@@ -8,18 +8,19 @@
 #include "Image.h"
 #include "Formatter.h"
 #include "FileFormat.h"
+#include "Converter.h"
 
 namespace gil {
 
 	// Read functions
 	template <
-		template<typename, typename> class Converter, 
+		template<typename T1, typename T2> class Converter, 
 		typename R, 
 		typename I
 	>
 	inline void read(I& image, FILE* f, R& reader)
 	{
-		reader<Converter>(image, f);
+		reader.template operator()<Converter>(image, f);
 	}
 	template <typename R, typename I>
 	inline void read(I& image, FILE* f, R& reader)
@@ -64,22 +65,32 @@ namespace gil {
 	}
 
 	// take need special care of TIFF
-	template <template<typename, typename> class Converter, typename I>
-	inline bool read(I& image, const std::string& filename, TiffReader& reader)
+	/*
+	template <
+		template<typename, typename> class Converter, 
+		typename I
+	>
+	inline bool read(
+		I& image, const std::string& filename, TiffReader& reader)
 	{
-		return reader<Converter>(image, filename);
+		return reader.operator()<Converter>(image, filename);
 	}
+	*/
+	/*
 	template <typename I>
 	inline bool read(I& image, const std::string& filename, TiffReader& reader)
 	{
 		return read<DefaultConverter>(image, filename, reader);
 	}
+	*/
 
 	// no implementation, just to make linking error.
+	/*
 	template <template<typename, typename> class Converter, typename I>
 	void read(I& image, FILE* f, TiffReader& reader);
 	template <typename I>
 	void read(I& image, FILE* f, TiffReader& reader);
+	*/
 
 
 	template <
@@ -114,9 +125,11 @@ namespace gil {
 				read<Converter, JpegReader>(image, f);
 				break;
 
+				/*
 			case FF_TIFF:
 				fclose(f);
 				return read<Converter, TiffReader>(image, filename);
+				*/
 
 			case FF_EXR:
 				read<Converter, ExrReader>(image, f);
@@ -168,7 +181,7 @@ namespace gil {
 	>
 	inline void write(const I& image, FILE* f, W& writer)
 	{
-		writer<Converter>(image, f);
+		writer.template operator()<Converter>(image, f);
 	}
 	template <typename W, typename I>
 	inline void write(const I& image, FILE* f, W& writer)
@@ -213,23 +226,28 @@ namespace gil {
 	}
 
 	// take care of TiffWriter
+	/*
 	template <template<typename, typename> class Converter, typename I>
 	inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
 	{
 		return writer(image, filename);
 	}
+	*/
+	/*
 	template <typename I>
 	inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
 	{
 		return write<DefaultConverter>(image, filename, writer);
 	}
+	*/
 
 	// no implementation, just to make linking error.
+	/*
 	template <template<typename, typename> class Converter, typename I>
 	bool write(const I& image, FILE* f, TiffWriter& writer);
-
 	template <typename I>
 	bool write(const I& image, FILE* f, TiffWriter& writer);
+	*/
 
 	template <
 		template<typename, typename> class Converter,
@@ -257,8 +275,10 @@ namespace gil {
 			case FF_JPEG:
 				return write<Converter, JpegWriter>(image, filename);
 
+				/*
 			case FF_TIFF:
 				return write<Converter, TiffWriter>(image, filename);
+				*/
 
 			case FF_EXR:
 				return write<Converter, ExrWriter>(image, filename);
