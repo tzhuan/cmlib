@@ -12,7 +12,6 @@
 
 namespace gil {
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI BmpReader {
 		public:
 			BmpReader()
@@ -20,18 +19,23 @@ namespace gil {
 				// empty
 			}
 
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(I& image, FILE* f)
 			{
 				size_t width, height;
 				init(f, width, height);
 				image.allocate(width, height);
-				read_pixels(image);
+				read_pixels<Converter>(image);
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 
 		private:
 			// use type T as scanline buffer
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void read_pixels(I& image)
 			{
 				// typedef typename I::Converter Conv;
@@ -60,7 +64,6 @@ namespace gil {
 	};
 
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI BmpWriter {
 		public:
 			BmpWriter()
@@ -68,20 +71,29 @@ namespace gil {
 				// empty
 			}
 
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(const I& image, FILE* f)
 			{
 				size_t c = (image.channels()==1) ? 1 : 3;
 				init( f, image.width(), image.height(), c);
 				if(c == 1)
-					write_pixels<Byte1>(image);
+					write_pixels<Converter, Byte1>(image);
 				else
-					write_pixels<Byte3>(image);
+					write_pixels<Converter, Byte3>(image);
+			}
+			template <typename I>
+			void operator ()(const I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 
 		private:
 			// use type T as scanline buffer
-			template <typename T, typename I>
+			template <
+				template<typename, typename> class Converter,
+				typename T, 
+				typename I
+			>
 			void write_pixels(I& image)
 			{
 				//typedef typename I::Converter Conv;

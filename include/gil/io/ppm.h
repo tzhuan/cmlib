@@ -17,14 +17,10 @@
 #include "../Converter.h"
 
 namespace gil {
-	template<
-		typename ColorType, 
-		char Magic, 
-		template<typename, typename> class Converter = DefaultConverter
-	>
+	template<typename ColorType, char Magic>
 	class PpmReader {
 		public:
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(I& image, FILE* f)
 			{
 				check(f);
@@ -45,6 +41,11 @@ namespace gil {
 						image(w, h) = converter(row[w]);
 						//I::Converter::ext2int(image(w, h), row[w]);
 				}
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 		protected:
 			void test_and_throw(FILE *f)
@@ -100,14 +101,10 @@ namespace gil {
 			size_t my_max_value;
 	};
 
-	template<
-		typename ColorType, 
-		char Magic, 
-		template<typename, typename> class Converter = DefaultConverter
-	>
+	template<typename ColorType, char Magic>
 	class PpmWriter {
 		public:
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(const I& image, FILE* f)
 			{
 				if (fprintf(f, "P%c\n%d %d %d\n",
@@ -124,6 +121,11 @@ namespace gil {
 						throw IOError("unknown write error");
 					}
 				}
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 	};
 } // namespace gil

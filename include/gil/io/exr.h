@@ -11,7 +11,6 @@ namespace gil {
 	//class C_IStream;
 	//class C_OStream;
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI ExrReader {
 		public:
 			ExrReader() 
@@ -24,7 +23,7 @@ namespace gil {
 				cleanup();
 			}
 
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(I& image, FILE* f)
 			{
 				//typedef typename I::Converter Conv;
@@ -41,6 +40,11 @@ namespace gil {
 				}
 				cleanup();
 			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
+			}
 
 		private:
 			void init(FILE* f, size_t& w, size_t& h);
@@ -53,7 +57,6 @@ namespace gil {
 			int my_min_y;
 	};
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI ExrWriter {
 		public:
 			ExrWriter() 
@@ -67,7 +70,7 @@ namespace gil {
 				cleanup();
 			}
 
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(const I& image, FILE* f)
 			{
 				//typedef typename I::Converter Conv;
@@ -84,6 +87,11 @@ namespace gil {
 					write_scanline( buffer, static_cast<int>(y) );
 				}
 				cleanup();
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 
 		private:

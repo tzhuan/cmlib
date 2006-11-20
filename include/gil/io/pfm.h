@@ -55,26 +55,30 @@ namespace gil {
 
 	// because PfmReader is written in header completely,
 	// here we should not use DLLAPI
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class PfmReader {
 		public:
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(I& image, FILE* f)
 			{
 				check_and_init(image, f);
 
 				if (my_channels == 1) {
 					if (my_if_reverse)
-						read<I, Float1, true>(image, f);
+						read<Converter, I, Float1, true>(image, f);
 					else
-						read<I, Float1, false>(image, f);
+						read<Converter, I, Float1, false>(image, f);
 				} else if (my_channels == 3) {
 					if (my_if_reverse)
-						read<I, Float3, true>(image, f);
+						read<Converter, I, Float3, true>(image, f);
 					else
-						read<I, Float3, false>(image, f);
+						read<Converter, I, Float3, false>(image, f);
 				} else
 					throw InvalidFormat("unexpected number of channels");
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 		protected:
 			void test_and_throw(FILE *f)
@@ -115,7 +119,12 @@ namespace gil {
 				image.allocate(width, height);
 			}
 
-			template<typename I, typename ColorType, bool is_reverse>
+			template<
+				template<typename, typename> class Converter,
+				typename I, 
+				typename ColorType, 
+				bool is_reverse
+			>
 			void read(I &image, FILE *f)
 			{
 				const size_t width = image.width();
@@ -147,19 +156,23 @@ namespace gil {
 	};
 
 	// as same as PfmReader, no DLLAPI
-	template<template<typename, typename> class Converter = DefaultConverter>
-		class PfmWriter {
-			public:
-			template<typename I>
-				void operator ()(const I& image, FILE* f)
-				{
-					size_t c = image.channels();
-					if (c >= 2)
-						write<I, Float3>(image, f);
-					else
-						write<I, Float1>(image, f);
-				}
-			protected:
+	class PfmWriter {
+		public:
+			template<template<typename, typename> class Converter, typename I>
+			void operator ()(const I& image, FILE* f)
+			{
+				size_t c = image.channels();
+				if (c >= 2)
+					write<Converter, I, Float3>(image, f);
+				else
+					write<Converter, I, Float1>(image, f);
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
+			}
+		protected:
 			void test_and_throw(FILE *f)
 			{
 				if (feof(f))
@@ -168,7 +181,11 @@ namespace gil {
 			}
 
 
-			template<typename I, typename ColorType>
+			template<
+				template<typename, typename> class Converter, 
+				typename I, 
+				typename ColorType
+			>
 			void write(const I& image, FILE *f) 
 			{
 				const size_t width = image.width();
@@ -180,26 +197,26 @@ namespace gil {
 				double scale = ByteReverser<char>::is_little_endian() ? -1 : 1;
 
 				if (fprintf(
-					f, "P%c\n%u %u\n%f\n", magic, width, height, scale) < 0)
-					test_and_throw(f);
+						f, "P%c\n%u %u\n%f\n", magic, width, height, scale
+					) < 0) test_and_throw(f);
 
 				Converter<ColorType, typename I::ColorType> converter;
 
 				for (size_t h = 0; h < height; ++h) {
 					for (size_t w = 0; w < width; ++w)
 						row[w] = converter( image(w, height-h-1) );
-						// I::Converter::int2ext(row[w], image(w, image.height()-h-1));
+					// I::Converter::int2ext(row[w], image(w, image.height()-h-1));
 					if (fwrite(
-							(void*)&row[0], 
-							sizeof(ColorType)*width, 
-							1, 
-							f
-						) != 1) {
+								(void*)&row[0], 
+								sizeof(ColorType)*width, 
+								1, 
+								f
+							  ) != 1) {
 						throw IOError("unknown write error");
 					}
 				}
 			}
-		};
+	};
 } // namespace gil
 
 #endif // GIL_PFM_H

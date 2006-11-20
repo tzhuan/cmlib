@@ -10,41 +10,49 @@
 
 namespace gil {
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI JpegReader {
 		public:
 			JpegReader() : my_cinfo(NULL), my_jerr(NULL)
-		{
-			// empty
-		}
-
-		~JpegReader() throw ()
-		{
-			cleanup();
-		}
-
-		template <typename I>
-		void operator ()(I& image, FILE* f)
-		{
-			size_t width, height, channel;
-			init(f, width, height, channel);
-			image.allocate(width, height);
-
-			// template banzai!
-			if(channel == 1) {
-				read_pixels<Byte1>(image);
-			} else if(channel == 3) {
-				read_pixels<Byte3>(image);
-			} else {
-				finish();
-				throw InvalidFormat("unsupported jpeg channel number");
+			{
+				// empty
 			}
-			finish();
-		}
+
+			~JpegReader() throw ()
+			{
+				cleanup();
+			}
+
+			template <template<typename, typename> class Converter, typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				size_t width, height, channel;
+				init(f, width, height, channel);
+				image.allocate(width, height);
+
+				// template banzai!
+				if(channel == 1) {
+					read_pixels<Converter, Byte1>(image);
+				} else if(channel == 3) {
+					read_pixels<Converter, Byte3>(image);
+				} else {
+					finish();
+					throw InvalidFormat("unsupported jpeg channel number");
+				}
+				finish();
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
+			}
 
 		private:
 		// use type T as scanline buffer
-			template <typename T, typename I>
+			template <
+				template<typename, typename> class Converter, 
+				typename T, 
+				typename I
+			>
 			void read_pixels(I& image)
 			{
 				// typedef typename I::Converter Conv;
@@ -70,10 +78,9 @@ namespace gil {
 	};
 
 
-	template<template<typename, typename> class Converter = DefaultConverter>
-		class DLLAPI JpegWriter {
-			public:
-				JpegWriter() : my_cinfo(NULL), my_jerr(NULL)
+	class DLLAPI JpegWriter {
+		public:
+			JpegWriter() : my_cinfo(NULL), my_jerr(NULL)
 			{
 				// empty
 			}
@@ -83,21 +90,30 @@ namespace gil {
 				cleanup();
 			}
 
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(const I& image, FILE* f)
 			{
 				size_t c = (image.channels()==1) ? 1 : 3;
 				init( f, image.width(), image.height(), c);
 				if(c == 1)
-					write_pixels<Byte1>(image);
+					write_pixels<Converter, Byte1>(image);
 				else
-					write_pixels<Byte3>(image);
+					write_pixels<Converter, Byte3>(image);
 				finish();
 			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
+			}
 
-			private:
+		private:
 			// use type T as scanline buffer
-			template <typename T, typename I>
+			template <
+				template<typename, typename> class Converter,
+				typename T, 
+				typename I
+			>
 			void JpegWriter::write_pixels(I& image)
 			{
 				//typedef typename I::Converter Conv;
@@ -107,7 +123,7 @@ namespace gil {
 				for(size_t y = 0; y < h; y++){
 					for(size_t x = 0; x < w; x++)
 						buffer[x] = converter( image(x, y) );
-						// Conv::int2ext( buffer[x], image(x, y) );
+					// Conv::int2ext( buffer[x], image(x, y) );
 
 					write_scanline(buffer);
 				}
@@ -121,7 +137,7 @@ namespace gil {
 
 			void* my_cinfo;
 			void* my_jerr;
-		};
+	};
 
 } // namespace gil
 

@@ -10,10 +10,9 @@
 #include "../Converter.h"
 
 namespace gil {
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI PngReader {
 		public:
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(I& image, FILE* f)
 			{
 				init(f);
@@ -21,13 +20,13 @@ namespace gil {
 				if (my_depth == 8) {
 					switch (my_channels) {
 						case 1:
-							read<I, Byte1, 1>(image);
+							read<Converter, I, Byte1, 1>(image);
 							break;
 						case 3:
-							read<I, Byte1, 3>(image);
+							read<Converter, I, Byte1, 3>(image);
 							break;
 						case 4:
-							read<I, Byte1, 4>(image);
+							read<Converter, I, Byte1, 4>(image);
 							break;
 						default:
 							throw InvalidFormat("Unsupported channels");
@@ -35,13 +34,13 @@ namespace gil {
 				} else if(my_depth == 16) {
 					switch (my_channels) {
 						case 1:
-							read<I, Short1, 1>(image);
+							read<Converter, I, Short1, 1>(image);
 							break;
 						case 3:
-							read<I, Short1, 3>(image);
+							read<Converter, I, Short1, 3>(image);
 							break;
 						case 4:
-							read<I, Short1, 4>(image);
+							read<Converter, I, Short1, 4>(image);
 							break;
 						default:
 							throw InvalidFormat("Unsupported channels");
@@ -52,6 +51,11 @@ namespace gil {
 
 				finish();
 			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
+			}
 		protected:
 			void init(FILE* f);
 			void finish();
@@ -61,7 +65,12 @@ namespace gil {
 			void read_row(unsigned char *row);
 			void read_row(unsigned short *row);
 
-			template<typename I, typename Type, size_t Channel>
+			template<
+				template<typename, typename> class Converter,
+				typename I, 
+				typename Type, 
+				size_t Channel
+			>
 			void read(I& image)
 			{
 				typedef typename Color<Type, Channel>::ColorType ColorType;
@@ -94,26 +103,34 @@ namespace gil {
 			size_t my_interlace_type;
 	};
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI PngWriter {
 		public:
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(const I& image, FILE* f)
 			{
 				init(f);
 				if (image.channels() >= 4)
-					write<I, Color<Byte1, 4>::ColorType>(image);
+					write<Converter, I, Color<Byte1, 4> >(image);
 				else if (image.channels() == 3)
-					write<I, Color<Byte1, 3>::ColorType>(image);
+					write<Converter, I, Color<Byte1, 3> >(image);
 				else
-					write<I, Color<Byte1, 1>::ColorType>(image);
+					write<Converter, I, Color<Byte1, 1> >(image);
 				finish();
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 		protected:
 			void init(FILE* f);
 			void write(unsigned char** row_pointers);
 			void finish();
-			template<typename I, typename ColorType>
+			template<
+				template<typename, typename> class Converter,
+				typename I, 
+				typename ColorType
+			>
 			void write(const I& image)
 			{
 				my_width = image.width();

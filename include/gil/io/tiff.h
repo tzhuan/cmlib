@@ -12,42 +12,50 @@
 
 namespace gil {
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI TiffReader {
 		public:
 			TiffReader() : my_tiff(NULL)
-		{
-			// empty
-		}
-
-		template <typename I>
-		bool operator ()(I& image, const std::string& name)
-		{
-			size_t width, height, channel;
-			init(name, width, height, channel);
-			if(my_tiff == NULL)
-				return false; // unable to read file
-
-			image.allocate(width, height);
-
-			// template banzai!
-			if(channel == 1) {
-				read_pixels<Byte1>(image);
-			} else if(channel == 3) {
-				read_pixels<Byte3>(image);
-			} else if(channel == 4){
-				read_pixels<Byte4>(image);
-			} else {
-				finish();
-				throw InvalidFormat("unsupported tiff channel number");
+			{
+				// empty
 			}
-			finish();
-			return true;
-		}
+
+			template <template<typename, typename> class Converter, typename I>
+			bool operator ()(I& image, const std::string& name)
+			{
+				size_t width, height, channel;
+				init(name, width, height, channel);
+				if(my_tiff == NULL)
+					return false; // unable to read file
+
+				image.allocate(width, height);
+
+				// template banzai!
+				if(channel == 1) {
+					read_pixels<Converter, Byte1>(image);
+				} else if(channel == 3) {
+					read_pixels<Converter, Byte3>(image);
+				} else if(channel == 4){
+					read_pixels<Converter, Byte4>(image);
+				} else {
+					finish();
+					throw InvalidFormat("unsupported tiff channel number");
+				}
+				finish();
+				return true;
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
+			}
 
 		private:
 		// use type T as scanline buffer
-			template <typename T, typename I>
+			template <
+				template<typename, typename> class Converter,
+				typename T, 
+				typename I
+			>
 			void read_pixels(I& image)
 			{
 				//typedef typename I::Converter Conv;
@@ -72,7 +80,6 @@ namespace gil {
 	};
 
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI TiffWriter {
 		public:
 			TiffWriter() : my_tiff(NULL)
@@ -80,7 +87,7 @@ namespace gil {
 				// empty
 			}
 
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			bool operator ()(const I& image, const std::string& name)
 			{
 				size_t c = image.channels();
@@ -96,19 +103,28 @@ namespace gil {
 				if(my_tiff == NULL)
 					return false;
 				if(c == 1)
-					write_pixels<Byte1>(image);
+					write_pixels<Converter, Byte1>(image);
 				else if(c == 3)
-					write_pixels<Byte3>(image);
+					write_pixels<Converter, Byte3>(image);
 				else
-					write_pixels<Byte4>(image);
+					write_pixels<Converter, Byte4>(image);
 
 				finish();
 				return true;
 			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
+			}
 
 		private:
 			// use type T as scanline buffer
-			template <typename T, typename I>
+			template <
+				template<typename, typename> class Converter,
+				typename T, 
+				typename I
+			>
 			void write_pixels(I& image)
 			{
 				//typedef typename I::Converter Conv;

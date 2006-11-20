@@ -12,27 +12,23 @@ extern void ext_read(unsigned short(*row_pointers)[4]);
 
 using namespace gil;
 
-template<template<typename, typename> class Converter>
-void CrwReader<Converter>::check(FILE *f)
+void CrwReader::check(FILE *f)
 {
     assert(f);
     if (!ext_identify(f))
 	throw InvalidFormat("unsupported format in CrwReader::check()");
 }
 
-template<template<typename, typename> class Converter>
-void CrwReader<Converter>::init()
+void CrwReader::init()
 {
     ext_init(&my_width, &my_width, &my_meta_length);
 }
 
-template<template<typename, typename> class Converter>
-void CrwReader<Converter>::read(unsigned short (*row_pointers)[4])
+void CrwReader::read(unsigned short (*row_pointers)[4])
 {
     ext_read(row_pointers);
 }
 
-template<template<typename, typename> class Converter>
-void CrwReader<Converter>::finish()
+void CrwReader::finish()
 {
 }

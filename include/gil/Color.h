@@ -34,7 +34,6 @@ namespace gil {
 		return std::min( std::max(value, lower), upper );
 	}
 
-
 	// type traits
 	template <typename T>
 	class TypeTrait {

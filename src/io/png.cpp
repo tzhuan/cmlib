@@ -6,8 +6,7 @@
 
 using namespace gil;
 
-template<template<typename, typename> class Converter>
-void PngReader<Converter>::read_row(unsigned char *row)
+void PngReader::read_row(unsigned char *row)
 {
 	/*
 	png_structp png_ptr = (png_structp)my_png_ptr;
@@ -29,14 +28,12 @@ void PngReader<Converter>::read_row(unsigned char *row)
 	}
 }
 
-template<template<typename, typename> class Converter>
-void PngReader<Converter>::read_row(unsigned short *row)
+void PngReader::read_row(unsigned short *row)
 {
 	throw InvalidFormat("16-bit depth is not supported yet");
 }
 
-template<template<typename, typename> class Converter>
-void PngReader<Converter>::init(FILE *f)
+void PngReader::init(FILE *f)
 {
 	png_byte header[MAGIC_NUMBER];
 	assert(f);
@@ -127,8 +124,7 @@ void PngReader<Converter>::init(FILE *f)
 	my_depth = bit_depth;
 }
 
-template<template<typename, typename> class Converter>
-void PngReader<Converter>::finish()
+void PngReader::finish()
 {
 	png_structp png_ptr = (png_structp)my_png_ptr;
 	png_infop info_ptr = (png_infop)my_info_ptr;
@@ -138,8 +134,7 @@ void PngReader<Converter>::finish()
 	png_destroy_read_struct(&png_ptr, &info_ptr, &end_info);
 }
 
-template<template<typename, typename> class Converter>
-void PngWriter<Converter>::init(FILE *f)
+void PngWriter::init(FILE *f)
 {
 	my_png_ptr = (void*)png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
 	if (!my_png_ptr)
@@ -165,8 +160,7 @@ void PngWriter<Converter>::init(FILE *f)
 
 }
 
-template<template<typename, typename> class Converter>
-void PngWriter<Converter>::write(unsigned char** row_pointers)
+void PngWriter::write(unsigned char** row_pointers)
 {
 	png_structp png_ptr = (png_structp)my_png_ptr;
 	png_infop info_ptr = (png_infop)my_info_ptr;
@@ -190,8 +184,7 @@ void PngWriter<Converter>::write(unsigned char** row_pointers)
 	png_write_image(png_ptr, row_pointers);
 }
 
-template<template<typename, typename> class Converter>
-void PngWriter<Converter>::finish()
+void PngWriter::finish()
 {
 	png_structp png_ptr = (png_structp)my_png_ptr;
 

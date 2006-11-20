@@ -12,61 +12,90 @@
 namespace gil {
 
 	// Read functions
+	template <
+		template<typename, typename> class Converter, 
+		typename R, 
+		typename I
+	>
+	inline void read(I& image, FILE* f, R& reader)
+	{
+		reader<Converter>(image, f);
+	}
 	template <typename R, typename I>
 	inline void read(I& image, FILE* f, R& reader)
 	{
-		reader(image, f);
+		read<DefaultConverter>(image, f, reader);
 	}
 
-	template <typename R, typename I>
+	template <
+		template<typename, typename> class Converter, 
+		typename R, 
+		typename I
+	>
 	inline void read(I& image, FILE* f)
 	{
 		R reader;
-		read(image, f, reader);
+		read<Converter>(image, f, reader);
+	}
+	template <typename R, typename I>
+	inline void read(I& image, FILE* f)
+	{
+		read<DefaultConverter>(image, f);
 	}
 
-	template <typename R, typename I>
+	template <
+		template<typename, typename> class Converter,
+		typename R, 
+		typename I
+	>
 	bool read(I& image, const std::string& filename, R& reader)
 	{
 		FILE* f = fopen(filename.c_str(), "rb");
 		if(f == NULL)
 			return false;
-		read(image, f, reader);
+		read<Converter>(image, f, reader);
 		fclose(f);
 		return true;
+	}
+	template <typename R, typename I>
+	bool read(I& image, const std::string& filename, R& reader)
+	{
+		return read<DefaultConverter>(image, filename, reader);
 	}
 
 	// take need special care of TIFF
 	template <template<typename, typename> class Converter, typename I>
-	inline bool read(
-		I& image, 
-		const std::string& filename, 
-		TiffReader<Converter>& reader)
+	inline bool read(I& image, const std::string& filename, TiffReader& reader)
 	{
-		return reader(image, filename);
+		return reader<Converter>(image, filename);
 	}
-
 	template <typename I>
-	inline bool read(
-		I& image, 
-		const std::string& filename, 
-		TiffReader<DefaultConverter>& reader)
+	inline bool read(I& image, const std::string& filename, TiffReader& reader)
 	{
-		return reader(image, filename);
+		return read<DefaultConverter>(image, filename, reader);
 	}
 
 	// no implementation, just to make linking error.
 	template <template<typename, typename> class Converter, typename I>
-	void read(I& image, FILE* f, TiffReader<Converter>& reader);
+	void read(I& image, FILE* f, TiffReader& reader);
 	template <typename I>
-	void read(I& image, FILE* f, TiffReader<DefaultConverter>& reader);
+	void read(I& image, FILE* f, TiffReader& reader);
 
 
-	template <typename R, typename I>
+	template <
+		template<typename, typename> class Converter,
+		typename R, 
+		typename I
+	>
 	inline bool read(I& image, const std::string& filename)
 	{
 		R reader;
-		return read(image, filename, reader);
+		return read<Converter>(image, filename, reader);
+	}
+	template <typename R, typename I>
+	inline bool read(I& image, const std::string& filename)
+	{
+		return read<DefaultConverter>(image, filename);
 	}
 
 	template <template<typename, typename> class Converter, typename I>
@@ -78,43 +107,43 @@ namespace gil {
 
 		switch( Formater::get_format(f) ){
 			case FF_PNG:
-				read<PngReader<Converter> >(image, f);
+				read<Converter, PngReader>(image, f);
 				break;
 
 			case FF_JPEG:
-				read<JpegReader<Converter> >(image, f);
+				read<Converter, JpegReader>(image, f);
 				break;
 
 			case FF_TIFF:
 				fclose(f);
-				return read<TiffReader<Converter> >(image, filename);
+				return read<Converter, TiffReader>(image, filename);
 
 			case FF_EXR:
-				read<ExrReader<Converter> >(image, f);
+				read<Converter, ExrReader>(image, f);
 				break;
 
 			case FF_HDR:
-				read<HdrReader<Converter> >(image, f);
+				read<Converter, HdrReader>(image, f);
 				break;
 
 			case FF_PPM:
-				read<PpmReader<Byte3, '6', Converter> >(image, f);
+				read<Converter, PpmReader<Byte3, '6'> >(image, f);
 				break;
 
 			case FF_PGM:
-				read<PpmReader<Byte1, '5', Converter> >(image, f);
+				read<Converter, PpmReader<Byte1, '5'> >(image, f);
 				break;
 
 			case FF_PFM:
-				read<PfmReader<Converter> > (image, f);
+				read<Converter, PfmReader>(image, f);
 				break;
 
 			case FF_BMP:
-				read<BmpReader<Converter> >(image, f);
+				read<Converter, BmpReader>(image, f);
 				break;
 
 			case FF_FLT:
-				read<FltReader<Converter> >(image, f);
+				read<Converter, FltReader>(image, f);
 				break;
 
 			default:
@@ -132,20 +161,42 @@ namespace gil {
 	}
 
 	// Write functions
+	template <
+		template<typename, typename> class Converter,
+		typename W, 
+		typename I
+	>
+	inline void write(const I& image, FILE* f, W& writer)
+	{
+		writer<Converter>(image, f);
+	}
 	template <typename W, typename I>
 	inline void write(const I& image, FILE* f, W& writer)
 	{
-		writer(image, f);
+		write<DefaultConverter>(image, f, writer);
 	}
 
-	template <typename W, typename I>
+	template <
+		template<typename, typename> class Converter,
+		typename W, 
+		typename I
+	>
 	inline void write(const I& image, FILE* f)
 	{
 		W writer;
 		writer(image, f);
 	}
-
 	template <typename W, typename I>
+	inline void write(const I& image, FILE* f)
+	{
+		write<DefaultConverter>(image, f);
+	}
+
+	template <
+		template<typename, typename> class Converter,
+		typename W, 
+		typename I
+	>
 	bool write(const I& image, const std::string& filename, W& writer)
 	{
 		FILE* f = fopen(filename.c_str(), "wb");
@@ -155,38 +206,45 @@ namespace gil {
 		fclose(f);
 		return true;
 	}
+	template <typename W, typename I>
+	bool write(const I& image, const std::string& filename, W& writer)
+	{
+		return write<DefaultConverter>(image, filename, writer);
+	}
 
 	// take care of TiffWriter
 	template <template<typename, typename> class Converter, typename I>
-	inline bool write(
-		const I& image, 
-		const std::string& filename, 
-		TiffWriter<Converter>& writer)
+	inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
 	{
 		return writer(image, filename);
 	}
-
 	template <typename I>
-	inline bool write(
-		const I& image, 
-		const std::string& filename, 
-		TiffWriter<DefaultConverter>& writer)
+	inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
 	{
-		return writer(image, filename);
+		return write<DefaultConverter>(image, filename, writer);
 	}
 
 	// no implementation, just to make linking error.
 	template <template<typename, typename> class Converter, typename I>
-	bool write(const I& image, FILE* f, TiffWriter<Converter>& writer);
+	bool write(const I& image, FILE* f, TiffWriter& writer);
 
 	template <typename I>
-	bool write(const I& image, FILE* f, TiffWriter<DefaultConverter>& writer);
+	bool write(const I& image, FILE* f, TiffWriter& writer);
 
-	template <typename W, typename I>
+	template <
+		template<typename, typename> class Converter,
+		typename W,
+		typename I
+	>
 	inline bool write(const I& image, const std::string& filename)
 	{
 		W writer; 
 		return write(image, filename, writer);
+	}
+	template <typename W, typename I>
+	inline bool write(const I& image, const std::string& filename)
+	{
+		return write<DefaultConverter>(image, filename);
 	}
 
 	template <template<typename, typename> class Converter, typename I>
@@ -194,40 +252,39 @@ namespace gil {
 	{
 		switch( Formater::get_format(filename) ){
 			case FF_PNG:
-				return write<PngWriter<Converter> >(image, filename);
+				return write<Converter, PngWriter>(image, filename);
 
 			case FF_JPEG:
-				return write<JpegWriter<Converter> >(image, filename);
+				return write<Converter, JpegWriter>(image, filename);
 
 			case FF_TIFF:
-				return write<TiffWriter<Converter> >(image, filename);
+				return write<Converter, TiffWriter>(image, filename);
 
 			case FF_EXR:
-				return write<ExrWriter<Converter> >(image, filename);
+				return write<Converter, ExrWriter>(image, filename);
 
 			case FF_HDR:
-				return write<HdrWriter<Converter> >(image, filename);
+				return write<Converter, HdrWriter>(image, filename);
 
 			case FF_PPM:
-				return write<PpmWriter<Byte3, '6', Converter> >(image, filename);
+				return write<Converter, PpmWriter<Byte3, '6'> >(image, filename);
 
 			case FF_PGM:
-				return write<PpmWriter<Byte1, '5', Converter> >(image, filename);
+				return write<Converter, PpmWriter<Byte1, '5'> >(image, filename);
 
 			case FF_PFM:
-				return write<PfmWriter<Converter> >(image, filename);
+				return write<Converter, PfmWriter>(image, filename);
 
 			case FF_BMP:
-				return write<BmpWriter<Converter> >(image, filename);
+				return write<Converter, BmpWriter>(image, filename);
 
 			case FF_FLT:
-				return write<FltWriter<Converter> >(image, filename);
+				return write<Converter, FltWriter>(image, filename);
 
 			default:
 				return false;
 		}
 	}
-
 	template <typename I>
 	bool write(const I& image, const std::string& filename)
 	{

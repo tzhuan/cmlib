@@ -14,21 +14,25 @@
 
 namespace gil {
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI FltReader {
 		public:
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(I& image, FILE* f)
 			{
 				check_and_init(image, f);
 				if (my_channels == 1)
-					read<I, Byte1>(image, f);
+					read<Converter, Byte1>(image, f);
 				else if (my_channels == 3)
-					read<I, Byte3>(image, f);
+					read<Converter, Byte3>(image, f);
 				else if (my_channels == 4)
-					read<I, Byte4>(image, f);
+					read<Converter, Byte4>(image, f);
 				else
 					throw InvalidFormat("unexpected number of channels");
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 		protected:
 			const size_t file_size(FILE *f) const
@@ -67,7 +71,11 @@ namespace gil {
 				image.allocate(width, height);
 			}
 
-			template<typename I, typename ColorType>
+			template<
+				template<typename, typename> class Converter, 
+				typename ColorType,
+				typename I
+			>
 			void read(I &image, FILE *f)
 			{
 				std::vector<ColorType> row(image.width());
@@ -91,10 +99,9 @@ namespace gil {
 			size_t my_channels;
 	};
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI FltWriter {
 		public:
-			template<typename I>
+			template<template<typename, typename> class Converter, typename I>
 			void operator ()(const I& image, FILE* f)
 			{
 				int width = image.width();
@@ -105,14 +112,24 @@ namespace gil {
 					throw IOError("unknown write error");
 
 				if (image.channels() >= 4)
-					write<I, Byte4>(image, f);
+					write<Converter, Byte4>(image, f);
 				else if (image.channels() == 3)
-					write<I, Byte3>(image, f);
+					write<Converter, Byte3>(image, f);
 				else 
-					write<I, Byte1>(image, f);
+					write<Converter, Byte1>(image, f);
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 
-			template<typename I, typename ColorType>
+		protected:
+			template<
+				template<typename, typename> class Converter,
+				typename ColorType,
+				typename I
+			>
 			void write(const I& image, FILE *f) 
 			{
 				Converter<ColorType, typename I::ColorType> converter;

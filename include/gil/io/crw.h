@@ -9,10 +9,9 @@
 
 namespace gil {
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI CrwReader {
 		public:
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(I& image, FILE* f)
 			{
 				check(f);
@@ -30,6 +29,11 @@ namespace gil {
 					for (size_t w = 0; w < my_width; ++w)
 						image(w, h) = converter(row_pointers[h][w]);
 						//I::Converter::ext2int(image(w, h), row_pointers[h][w]);
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 		protected:
 			void check(FILE* f);

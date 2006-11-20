@@ -15,15 +15,14 @@
 
 namespace gil {
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI HdrReader {
 		public:
 			HdrReader() : my_file(NULL)
-		{
-			// empty
-		}
+			{
+				// empty
+			}
 
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(I& image, FILE* f)
 			{
 				size_t width, height;
@@ -42,6 +41,11 @@ namespace gil {
 
 				finish();
 			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
+			}
 
 		private:
 			void init(FILE* f, size_t& w, size_t& h);
@@ -56,7 +60,6 @@ namespace gil {
 	};
 
 
-	template<template<typename, typename> class Converter = DefaultConverter>
 	class DLLAPI HdrWriter {
 		public:
 			HdrWriter() : my_file(NULL)
@@ -64,7 +67,7 @@ namespace gil {
 				// empty
 			}
 
-			template <typename I>
+			template <template<typename, typename> class Converter, typename I>
 			void operator ()(const I& image, FILE* f)
 			{
 				size_t width = image.width(), height = image.height();
@@ -81,6 +84,11 @@ namespace gil {
 				}
 
 				finish();
+			}
+			template <typename I>
+			void operator ()(I& image, FILE* f)
+			{
+				this->operator()<DefaultConverter, I>(image, f);
 			}
 
 		private:
