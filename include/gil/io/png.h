@@ -110,11 +110,11 @@ namespace gil {
 			{
 				init(f);
 				if (image.channels() >= 4)
-					write<Converter, I, Color<Byte1, 4> >(image);
+					write<Converter, I, Byte4>(image);
 				else if (image.channels() == 3)
-					write<Converter, I, Color<Byte1, 3> >(image);
+					write<Converter, I, Byte3>(image);
 				else
-					write<Converter, I, Color<Byte1, 1> >(image);
+					write<Converter, I, Byte1>(image);
 				finish();
 			}
 			template <typename I>

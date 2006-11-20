@@ -65,7 +65,6 @@ namespace gil {
 	}
 
 	// take need special care of TIFF
-	/*
 	template <
 		template<typename, typename> class Converter, 
 		typename I
@@ -75,7 +74,6 @@ namespace gil {
 	{
 		return reader.operator()<Converter>(image, filename);
 	}
-	*/
 	/*
 	template <typename I>
 	inline bool read(I& image, const std::string& filename, TiffReader& reader)
@@ -85,12 +83,10 @@ namespace gil {
 	*/
 
 	// no implementation, just to make linking error.
-	/*
 	template <template<typename, typename> class Converter, typename I>
 	void read(I& image, FILE* f, TiffReader& reader);
 	template <typename I>
 	void read(I& image, FILE* f, TiffReader& reader);
-	*/
 
 
 	template <
@@ -106,7 +102,7 @@ namespace gil {
 	template <typename R, typename I>
 	inline bool read(I& image, const std::string& filename)
 	{
-		return read<DefaultConverter>(image, filename);
+		return read<DefaultConverter, R>(image, filename);
 	}
 
 	template <template<typename, typename> class Converter, typename I>
@@ -125,11 +121,9 @@ namespace gil {
 				read<Converter, JpegReader>(image, f);
 				break;
 
-				/*
 			case FF_TIFF:
 				fclose(f);
 				return read<Converter, TiffReader>(image, filename);
-				*/
 
 			case FF_EXR:
 				read<Converter, ExrReader>(image, f);
@@ -219,20 +213,20 @@ namespace gil {
 		fclose(f);
 		return true;
 	}
+
+	// take care of TiffWriter
+	template <template<typename, typename> class Converter, typename I>
+	inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
+	{
+		return writer.template operator()<Converter>(image, filename);
+	}
+
 	template <typename W, typename I>
 	bool write(const I& image, const std::string& filename, W& writer)
 	{
 		return write<DefaultConverter>(image, filename, writer);
 	}
 
-	// take care of TiffWriter
-	/*
-	template <template<typename, typename> class Converter, typename I>
-	inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
-	{
-		return writer(image, filename);
-	}
-	*/
 	/*
 	template <typename I>
 	inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
@@ -242,12 +236,10 @@ namespace gil {
 	*/
 
 	// no implementation, just to make linking error.
-	/*
 	template <template<typename, typename> class Converter, typename I>
 	bool write(const I& image, FILE* f, TiffWriter& writer);
 	template <typename I>
 	bool write(const I& image, FILE* f, TiffWriter& writer);
-	*/
 
 	template <
 		template<typename, typename> class Converter,
@@ -262,7 +254,7 @@ namespace gil {
 	template <typename W, typename I>
 	inline bool write(const I& image, const std::string& filename)
 	{
-		return write<DefaultConverter>(image, filename);
+		return write<DefaultConverter, W>(image, filename);
 	}
 
 	template <template<typename, typename> class Converter, typename I>
@@ -275,10 +267,8 @@ namespace gil {
 			case FF_JPEG:
 				return write<Converter, JpegWriter>(image, filename);
 
-				/*
 			case FF_TIFF:
 				return write<Converter, TiffWriter>(image, filename);
-				*/
 
 			case FF_EXR:
 				return write<Converter, ExrWriter>(image, filename);

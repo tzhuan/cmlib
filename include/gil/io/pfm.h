@@ -197,7 +197,7 @@ namespace gil {
 				double scale = ByteReverser<char>::is_little_endian() ? -1 : 1;
 
 				if (fprintf(
-						f, "P%c\n%u %u\n%f\n", magic, width, height, scale
+						f, "P%c\n%u %u\n%f\n", magic, (unsigned int)width, (unsigned int)height, scale
 					) < 0) test_and_throw(f);
 
 				Converter<ColorType, typename I::ColorType> converter;
