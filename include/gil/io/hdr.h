@@ -31,7 +31,7 @@ namespace gil {
 				image.allocate(width, height);
 
 				// typedef typename I::Converter Conv;
-				Converter<typename I::ColorType, Float3> converter;
+				Converter<typename I::ColorType, Color<Float1, 3> > converter;
 				std::vector<Float3> buffer(width);
 				for(size_t y = 0; y < height; y++){
 					read_scanline(buffer);

@@ -28,7 +28,7 @@ namespace gil {
 			void operator ()(I& image, FILE* f)
 			{
 				//typedef typename I::Converter Conv;
-				Converter<typename I::ColorType, Float4> converter;
+				Converter<typename I::ColorType, Color<Float1, 4> > converter;
 				size_t width, height;
 				init(f, width, height);
 				image.allocate(width, height);

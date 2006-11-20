@@ -191,7 +191,7 @@ namespace gil {
 						// I::Converter::int2ext(row[w], image(w, image.height()-h-1));
 					if (fwrite(
 							(void*)&row[0], 
-							sizeof(ColorType)*image.width, 
+							sizeof(ColorType)*width, 
 							1, 
 							f
 						) != 1) {

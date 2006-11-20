@@ -130,7 +130,7 @@ namespace gil {
 
 				for (size_t h = 0; h < my_height; ++h)
 					for (size_t w = 0; w < my_width; ++w)
-						row_pointers[h][w] = image(w, h);
+						row_pointers[h][w] = converter( image(w, h) );
 						//I::Converter::int2ext(row_pointers[h][w], image(w, h));
 
 				write((unsigned char**)&row_pointers[0]);

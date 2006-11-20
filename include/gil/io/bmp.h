@@ -85,7 +85,7 @@ namespace gil {
 			void write_pixels(I& image)
 			{
 				//typedef typename I::Converter Conv;
-				Converter<Byte3, typename I::ColorType> converter;
+				Converter<T, typename I::ColorType> converter;
 				size_t w = image.width(), h = image.height();
 				std::vector<T> buffer(w);
 				for(size_t y = 0; y < h; y++){

@@ -74,6 +74,17 @@ namespace gil {
 		}
 	};
 
+    // exactly same 
+    template <typename T, size_t C>
+    struct DefaultConverter< Color<T,C>, Color<T,C> > {
+        typedef Color<T,C> To;
+        typedef Color<T,C> From;
+        To operator()(const From& from) const
+        {
+			return from;
+        }
+    };  
+
 	template <typename T>
 	struct DefaultConverter<T, T> {
 		T operator()(const T& from) const
@@ -123,7 +134,7 @@ namespace gil {
 				std::copy(&from[4], &from[cmin], &tmp[4]);
 
 			if (Cf < Ct)
-				std::fill(&tmp[Cf], &tmp[Ct]);
+				std::fill( &tmp[Cf], &tmp[Ct], TypeTrait<T>::opaque() );
 
 			return tmp;
 		}
@@ -178,8 +189,8 @@ namespace gil {
 		typedef Color<Tf, Cf> From;
 		To operator()(const From& from) const
 		{
-			const DefaultConverter<Tf, From> channel_converter;
-			const DefaultConverter<To, Tf> type_converter;
+			DefaultConverter<Tf, From> channel_converter;
+			DefaultConverter<To, Tf> type_converter;
 			return type_converter( channel_converter(from) );
 		}
 	};
@@ -189,8 +200,8 @@ namespace gil {
 		typedef Color<Tt,Ct> To;
 		To operator()(const From& from) const
 		{
-			const DefaultConverter<Tt, From> type_converter;
-			const DefaultConverter<To, Tt> channel_converter;
+			DefaultConverter<Tt, From> type_converter;
+			DefaultConverter<To, Tt> channel_converter;
 			return channel_converter( type_converter(from) );
 		}
 	};
@@ -212,7 +223,7 @@ namespace gil {
 			} else {
 				DefaultConverter< TMP2, From > converter1;
 				DefaultConverter< To, TMP2 > converter2;
-				return converter2( converter2(from) );
+				return converter2( converter1(from) );
 			}
 		}
 	};
