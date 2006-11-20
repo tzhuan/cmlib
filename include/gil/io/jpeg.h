@@ -114,7 +114,7 @@ namespace gil {
 				typename T, 
 				typename I
 			>
-			void JpegWriter::write_pixels(I& image)
+			void write_pixels(I& image)
 			{
 				//typedef typename I::Converter Conv;
 				Converter<T, typename I::ColorType> converter;
