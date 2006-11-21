@@ -1,5 +1,5 @@
-#ifndef __COLORSPACE_H__
-#define __COLORSPACE_H__
+#ifndef COLORSPACE_H
+#define COLORSPACE_H
 
 /* 
  * reference: 

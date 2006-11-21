@@ -1,5 +1,5 @@
-#ifndef __CONVOLUTION_H__
-#define __CONVOLUTION_H__
+#ifndef CONVOLUTION_H
+#define CONVOLUTION_H
 
 namespace gil {
 	template<typename I, typename K>

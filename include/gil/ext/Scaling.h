@@ -1,5 +1,5 @@
-#ifndef __SCALING_H__
-#define __SCALING_H__
+#ifndef SCALING_H
+#define SCALING_H
 
 namespace std {
 	template<typename I, typename F>
