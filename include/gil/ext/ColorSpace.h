@@ -22,12 +22,13 @@
 #include "../Color.h"
 
 namespace gil {
-	template<typename R, typename I, typename C>
-	void convert(R &dst, const I &src, const C &converter)
+	template<typename To, typename From, typename Converter>
+	void convert(To &dst, const From &src, const Converter &converter)
 	{
 		transform(src.begin(), src.end(), dst.begin(), converter);
 	}
 
+	/*
 	template<typename R, typename I, typename C>
 	R convert(const I &src, const C &converter)
 	{
@@ -35,6 +36,7 @@ namespace gil {
 		convert(dst, src, converter);
 		return dst;
 	}
+	*/
 
 	template<typename To, typename From> struct RGB2Gray;
 	template<typename T, size_t C> 
@@ -45,7 +47,9 @@ namespace gil {
 		{
 			// FIXME: use compile-time assert instead of assert
 			assert(C >= 3);
-			return 0.299*from[0] + 0.587*from[1] + 0.114*from[2];
+			return static_cast<T>(
+				0.299*from[0] + 0.587*from[1] + 0.114*from[2]
+			);
 		}
 	};
 
