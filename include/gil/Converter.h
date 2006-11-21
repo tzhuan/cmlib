@@ -6,8 +6,10 @@
 
 namespace gil {
 
-	template <typename To, typename From>
+	template <typename Tt, typename Tf>
 	struct DefaultConverter {
+		typedef Tt To;
+		typedef Tf From;
 		To operator()(const From &from) const
 		{
 			return static_cast<To>(from);
@@ -17,6 +19,8 @@ namespace gil {
 	// Float1 -> Byte1
 	template <>
 	struct DefaultConverter<Byte1, Float1> {
+		typedef Byte1 To;
+		typedef Float1 From;
 		Byte1 operator()(Float1 from) const
 		{
 			const Float1 ratio = static_cast<Float1>(TypeTrait<Byte1>::opaque());
@@ -27,6 +31,8 @@ namespace gil {
 	// Byte1 -> Float1
 	template <>
 	struct DefaultConverter<Float1, Byte1> {
+		typedef Float1 To;
+		typedef Byte1 From;
 		Float1 operator()(Byte1 from) const
 		{
 			const Float1 ratio = static_cast<Float1>(TypeTrait<Byte1>::opaque());
@@ -37,6 +43,8 @@ namespace gil {
 	// Byte1 -> Short1
 	template <>
 	struct DefaultConverter<Short1, Byte1> {
+		typedef Short1 To;
+		typedef Byte1 From;
 		Short1 operator()(Byte1 from) const
 		{
 			const Short1 ratio = TypeTrait<Short1>::opaque() / TypeTrait<Byte1>::opaque();
@@ -47,6 +55,8 @@ namespace gil {
 	// Short1 -> Byte1
 	template <>
 	struct DefaultConverter<Byte1, Short1> {
+		typedef Byte1 To;
+		typedef Short1 From;
 		Byte1 operator()(Short1 from) const
 		{
 			const Short1 ratio = TypeTrait<Short1>::opaque() / TypeTrait<Byte1>::opaque();
@@ -57,6 +67,8 @@ namespace gil {
 	// Float1 -> Short1
 	template <>
 	struct DefaultConverter<Short1, Float1> {
+		typedef Short1 To;
+		typedef Float1 From;
 		Short1 operator()(Float1 from) const
 		{
 			const Short1 ratio = TypeTrait<Short1>::opaque();
@@ -67,6 +79,8 @@ namespace gil {
 	// Short1 -> Float1
 	template <>
 	struct DefaultConverter<Float1, Short1> {
+		typedef Float1 To;
+		typedef Short1 From;
 		Float1 operator()(Short1 from) const
 		{
 			const Short1 ratio = TypeTrait<Short1>::opaque();
@@ -87,6 +101,8 @@ namespace gil {
 
 	template <typename T>
 	struct DefaultConverter<T, T> {
+		typedef T To;
+		typedef T From;
 		T operator()(const T& from) const
 		{
 			return from;
@@ -184,8 +200,9 @@ namespace gil {
 		}
 	};
 
-	template <typename To, typename Tf, size_t Cf>
-	struct DefaultConverter< To, Color<Tf, Cf> > {
+	template <typename Tt, typename Tf, size_t Cf>
+	struct DefaultConverter< Tt, Color<Tf, Cf> > {
+		typedef Tt To;
 		typedef Color<Tf, Cf> From;
 		To operator()(const From& from) const
 		{
@@ -195,9 +212,10 @@ namespace gil {
 		}
 	};
 
-	template <typename Tt, typename From, size_t Ct>
-	struct DefaultConverter< Color<Tt,Ct>, From > {
+	template <typename Tt, typename Tf, size_t Ct>
+	struct DefaultConverter< Color<Tt,Ct>, Tf > {
 		typedef Color<Tt,Ct> To;
+		typedef Tf From;
 		To operator()(const From& from) const
 		{
 			DefaultConverter<Tt, From> type_converter;
