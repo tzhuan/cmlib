@@ -12,12 +12,12 @@
 
 namespace gil {
 
-	template<typename> class Image;
+	template<typename, template<typename> class> class Image;
 
-	template<typename Type>
-	void swap(Image<Type>& a, Image<Type>& b);
+	template<typename Type, template<typename> class Allocator>
+	void swap(Image<Type, Allocator>& a, Image<Type, Allocator>& b);
 
-	template<typename Type>
+	template<typename Type, template<typename> class Allocator=std::allocator >
 	class Image {
 		public:
 			// STL-compliance
@@ -231,9 +231,9 @@ namespace gil {
 			size_type my_width;
 			size_type my_height;
 			// value_type *my_data;
-			std::vector<value_type> my_data;
+			std::vector<value_type, Allocator<value_type> > my_data;
 			// value_type **my_row;
-			std::vector<value_type*> my_row;
+			std::vector<iterator, Allocator<iterator> > my_row;
 	};
 
 	template<typename Type>
