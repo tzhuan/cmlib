@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstddef>
 #include <cassert>
+#include <vector>
 
 #include "Color.h"
 
@@ -61,10 +62,14 @@ namespace gil {
 			}
 
 			~Image() { 
+				/*
 				delete [] my_data; 
 				delete [] my_row; 
 				my_data = 0;
 				my_row = 0;
+				*/
+				my_data.resize(0);
+				my_row.resize(0);
 			}
 
 			size_type width() const 
@@ -101,19 +106,21 @@ namespace gil {
 			void resize(size_t w, size_t h){
 				if (w != my_width || h != my_height) {
 					// the delete operator will automatically check for NULL
-					delete [] my_data;
-					delete [] my_row;
+					// delete [] my_data;
+					// delete [] my_row;
 
 					if (w != 0 && h != 0) {
-						my_data = new Type[w*h];
-						my_row = new Type*[h];
+						// my_data = new Type[w*h];
+						my_data.resize(w*h);
+						// my_row = new Type*[h];
+						my_row.resize(h);
 						my_width = w;
 						my_height = h;
 						init_row();
 					} else {
 						my_width = my_height = 0;
-						my_data = 0;
-						my_row = 0;
+						my_data.resize(0);
+						my_row.resize(0);
 					}
 				}
 			}
@@ -189,33 +196,33 @@ namespace gil {
 				using std::swap;
 				swap(my_width, i.my_width);
 				swap(my_height, i.my_height);
-				swap(my_data, i.my_data);
-				swap(my_row, i.my_row);
+				my_data.swap(i.my_data);
+				my_row.swap(i.my_row);
 			}
 
 			iterator begin()
 			{
-				return my_data;
+				return &my_data[0];
 			}
 
 			const_iterator begin() const
 			{
-				return my_data;
+				return &my_data[0];
 			}
 
 			iterator end()
 			{
-				return my_data + my_width*my_height;
+				return &my_data[0] + my_width*my_height;
 			}
 
 			const_iterator end() const
 			{
-				return my_data + my_width*my_height;
+				return &my_data[0] + my_width*my_height;
 			}
 
 		protected:
 			void init_row(){
-				my_row[0] = my_data;
+				my_row[0] = &my_data[0];
 				for (size_t i = 1; i < my_height; ++i)
 					my_row[i] = my_row[i-1] + my_width;
 			}
@@ -223,8 +230,10 @@ namespace gil {
 		private:
 			size_type my_width;
 			size_type my_height;
-			value_type *my_data;
-			value_type **my_row;
+			// value_type *my_data;
+			std::vector<value_type> my_data;
+			// value_type **my_row;
+			std::vector<value_type*> my_row;
 	};
 
 	template<typename Type>
