@@ -2,6 +2,7 @@
 #define GIL_SUBIMAGE_H
 
 #include <algorithm>
+#include <iterator>
 
 namespace gil {
 	
@@ -18,7 +19,7 @@ namespace gil {
 			typedef Iterator<value_type> iterator;
 			typedef Iterator<const value_type> const_iterator;
 
-			typedef typename I::Converter Converter;
+			typedef value_type ColorType;
 
 			SubImage(I& i, size_type x, size_type y, size_type w, size_type h)
 				: my_image(i), 
@@ -76,19 +77,19 @@ namespace gil {
 
 			// iterator of subimage
 			template<typename P>
-			class Iterator {
+			class Iterator : public std::iterator<std::forward_iterator_tag, P> {
 				friend class SubImage<I>;
 				public:
 					typedef Iterator<P> self_type;
 
 					P& operator *() const
 					{
-						return my_subimage(my_x, my_y);
+						return (*my_subimage)(my_x, my_y);
 					}
 
 					P* operator ->() const
 					{
-						return &my_subimage(my_x, my_y);
+						return &( (*my_subimage)(my_x, my_y) );
 					}
 
 					self_type& operator ++()
@@ -119,33 +120,51 @@ namespace gil {
 						return !(*this == rhs);
 					}
 
-				protected:
-					Iterator(SubImage<I>& subimage, size_type x, size_type y)
+				private:
+
+					// when P has const modifier, we should also add
+					// const modifier to my_subimage.
+					// This helper class is doing this dirty work.
+					template <typename T> class ResolveConst {
+						// T is assumed to be a color type, 
+						// either const or not.
+						public:
+							typedef SubImage<I> result;
+					};
+					// partial specialize the const one
+					template <typename T> class ResolveConst<const T> {
+						public:
+							typedef const SubImage<I> result;
+					};
+
+					typedef typename ResolveConst<P>::result SubImageType;
+
+					SubImageType *my_subimage;
+					size_type my_x, my_y;
+
+					Iterator(SubImageType *subimage, size_type x, size_type y)
 						: my_subimage(subimage), my_x(x), my_y(y)
 					{}
-				private:
-					SubImage<I> *my_subimage;
-					size_type my_x, my_y;
 			};
 
 			iterator begin()
 			{
-				return iterator(my_image, 0, 0);
+				return iterator(this, 0, 0);
 			}
 
 			const_iterator begin() const
 			{
-				return const_iterator(my_image, 0, 0);
+				return const_iterator(this, 0, 0);
 			}
 
 			iterator end()
 			{
-				return iterator(my_image, my_height, 0);
+				return iterator(this, 0, my_height);
 			}
 
 			const_iterator end() const
 			{
-				return const_iterator(my_image, my_height, 0);
+				return const_iterator(this, 0, my_height);
 			}
 
 			size_type channels() const

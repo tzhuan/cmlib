@@ -144,7 +144,7 @@ namespace gil {
 			template <typename I>
 			Image& operator =(const I& img)
 			{
-				if (this != &img) {
+				if (this != reinterpret_cast<const Image*>(&img)) {
 					resize(img.width(), img.height());
 					std::copy(img.begin(), img.end(), this->begin());
 				}
