@@ -5,5 +5,6 @@
 #include "ext/ColorSpace.h"
 #include "ext/Convolution.h"
 #include "ext/Scaling.h"
+#include "ext/Pyramid.h"
 
 #endif
