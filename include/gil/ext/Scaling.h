@@ -11,7 +11,7 @@ namespace std {
 	}
 
 	template<typename I, typename F>
-	I scale(const I &src, const F &filter, int width, int height)
+	I scale(const I &src, const F &filter, size_t width, size_t height)
 	{
 		I dst(width, height);
 		scale(dst, src, filter);

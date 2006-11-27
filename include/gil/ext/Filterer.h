@@ -59,7 +59,7 @@ namespace gil {
 	};
 
 	template<typename I, typename F>
-	void filter(I &dst, const I &src, const F filterer, int)
+	void filter(I &dst, const I &src, const F filterer, bool)
 	{
 		for (size_t h = 0; h < dst.height(); ++h)
 			for (size_t w = 0; w < dst.width(); ++w)
@@ -69,20 +69,28 @@ namespace gil {
 	template<typename I, typename F>
 	void filter(I &dst, const I &src, const F filterer, const TrueType&)
 	{
-		filter(dst, src, filterer.x(), 0);
-		filter(dst, src, filterer.y(), 0);
+		filter(dst, src, filterer.x(), true);
+		filter(dst, src, filterer.y(), true);
 	}
 
 	template<typename I, typename F>
 	void filter(I &dst, const I &src, const F filterer, const FalseType&)
 	{
-		filter(dst, src, filterer, 0);
+		filter(dst, src, filterer, true);
 	}
 
 	template<typename I, typename F>
 	void filter(I &dst, const I &src, const F filterer)
 	{
 		filter(dst, src, filterer, typename FiltererTrait<F>::Separable () );
+	}
+
+	template<typename I, typename F>
+	I filter(const I &src, const F filterer, size_t width, size_t height)
+	{
+		I dst(width, height);
+		filter(dst, src, filterer, typename FiltererTrait<F>::Separable () );
+		return dst;
 	}
 }
 
