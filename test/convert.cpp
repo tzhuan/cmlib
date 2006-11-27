@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 #include "gil/gil.h"
 
 using namespace std;
@@ -28,6 +29,9 @@ int main(int argc, char **argv)
 	} catch (exception &e) {
 		cerr << e.what() << endl;
 		return 1;
+	} catch ( ... ) {
+		cerr << "unkown error " << endl;
+		return 2;
 	}
 
 	return 0;

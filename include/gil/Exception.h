@@ -7,7 +7,7 @@
 namespace gil {
 
 	// this exception will be thrown when the image file is corrupt
-	class InvalidFormat : std::runtime_error {
+	class InvalidFormat : public std::runtime_error {
 		public:
 			InvalidFormat(const std::string& msg)
 				: std::runtime_error(msg)	
@@ -17,7 +17,7 @@ namespace gil {
 	};
 
 	// throw this if you meet an unexpected end of file
-	class EndOfFile : std::runtime_error {
+	class EndOfFile : public std::runtime_error {
 		public:
 			EndOfFile(const std::string& msg)
 				: std::runtime_error(msg)
@@ -27,7 +27,7 @@ namespace gil {
 	};
 
 	// throw this if you meed an unknow IO error
-	class IOError : std::runtime_error {
+	class IOError : public std::runtime_error {
 		public:
 			IOError(const std::string& msg)
 				: std::runtime_error(msg)
