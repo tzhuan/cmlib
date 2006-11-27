@@ -1,7 +1,7 @@
 #ifndef SCALING_H
 #define SCALING_H
 
-#include <Filterer.h>
+#include "Filterer.h"
 
 namespace std {
 	template<typename I, typename F>

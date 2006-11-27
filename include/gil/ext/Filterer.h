@@ -1,6 +1,8 @@
 #ifndef FILTERER_H 
 #define FILTERER_H 
 
+#include <cstddef>
+
 namespace gil {
 
 	struct TrueType {};
@@ -10,14 +12,50 @@ namespace gil {
 	struct FiltererTrait
 	{
 		typedef FalseType Separable;
-	}
+	};
 
-	template<typename T, typename R>
-	struct Filterer {
-		T operator()(const Image<T> &image, int x, int y) const ;
-		R x();
-		R y();
-		bool separable() const;
+	template<typename I>
+	struct NullFilterer1 {
+		typename I::value_type operator()(const I &image, int x, int y) const 
+		{
+			return image(x, y);
+		}
+	};
+
+	template<typename I>
+	struct NullFilterer2 {
+		template<typename T>
+		struct NullFilterX {
+			typename T::value_type
+			operator()(const T &image, size_t x, size_t y) const
+			{
+				return image(x, y);
+			}
+		};
+
+		template<typename T>
+		struct NullFilterY {
+			typename T::value_type 
+			operator()(const T &image, size_t x, size_t y) const
+			{
+				return image(x, y);
+			}
+		};
+
+		NullFilterX<I> x() const
+		{
+			return NullFilterX<I>();
+		}
+
+		NullFilterY<I> y() const
+		{
+			return NullFilterY<I>();
+		}
+	};
+	template<typename I>
+	struct FiltererTrait< NullFilterer2<I> >
+	{
+		typedef TrueType Separable;
 	};
 
 	template<typename I, typename F>
@@ -44,9 +82,8 @@ namespace gil {
 	template<typename I, typename F>
 	void filter(I &dst, const I &src, const F filterer)
 	{
-		filter(dst, src, filterer, FilterTrait<F>::Separable() );
+		filter(dst, src, filterer, typename FiltererTrait<F>::Separable () );
 	}
-
 }
 
 #endif

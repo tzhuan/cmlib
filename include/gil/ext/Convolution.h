@@ -1,7 +1,7 @@
 #ifndef CONVOLUTION_H
 #define CONVOLUTION_H
 
-#include <Filterer.h>
+#include "Filterer.h"
 
 namespace gil {
 
