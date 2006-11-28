@@ -155,8 +155,8 @@ namespace gil {
 			void replace(const I& img, size_type pos_x = 0, size_type pos_y = 0)
 			{
 				// FIXME use exception instead of assert.
-				assert( /*pos_x >= 0*/ && pos_x < this->width() );
-				assert( /*pos_y >= 0*/ && pos_y < this->height() );
+				assert( /*pos_x >= 0 &&*/ pos_x < this->width() );
+				assert( /*pos_y >= 0 &&*/ pos_y < this->height() );
 				assert( pos_x + img.width() < this->width() );
 				assert( pos_y + img.height() < this->height() );
 
