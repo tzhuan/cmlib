@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <vector>
 #include <cassert>
+#include <cmath>
+
+#include <iostream>
 
 #include "Filterer.h"
 #include "../Color.h"
@@ -178,6 +181,8 @@ namespace gil {
 			{
 				const int r = my_table.size() / 2;
 
+				// std::cerr << "(" << x << ", " << y << "): " << std::endl;
+
 				typename T::value_type num = 0;
 				typename I::value_type sum = 0;
 
@@ -190,9 +195,22 @@ namespace gil {
 
 					sum += my_table(i) * B::color(image, x, y, cur);
 					num += my_table(i);
+
+					/*
+					std::cerr << "  " << cur << ": " << my_table(i) << " x " <<
+						B::color(image, x, y, cur) << std::endl;
+					*/
 				}
 
 				assert(num);
+
+				/*
+				std::cerr << "num: " << num << std::endl;
+				std::cerr << "sum: " << sum << std::endl;
+				std::cerr << "return: " << (sum/num) << std::endl;
+				std::cerr << std::endl;
+				*/
+
 				return sum / num;
 			}
 		protected:
@@ -255,8 +273,8 @@ namespace gil {
 					  NullSubKernel<I, BindX<I> >, 
 					  NullSubKernel<I, BindY<I> >
 				>(
-						NullSubKernel< I, BindX<I> > (),
-						NullSubKernel< I, BindY<I> > ()
+					NullSubKernel< I, BindX<I> > (),
+					NullSubKernel< I, BindY<I> > ()
 				)
 			{
 			}
@@ -357,6 +375,72 @@ namespace gil {
 						this->my_table(w, h) = weight;
 				}
 			}
+	};
+
+	template<typename I, typename B, typename T = double>
+	class GaussianSubKernel: 
+		public WeightedSeparableSubKernel<
+			I, B,
+			WeightedVector< 
+				typename ColorTrait<typename I::value_type>::BaseType 
+			> 
+		> 
+	{
+		public:
+			typedef 
+				typename ColorTrait<typename I::value_type>::BaseType 
+				value_type;
+
+			GaussianSubKernel(T sigma)
+				: WeightedSeparableSubKernel< I, B, WeightedVector<value_type> >
+					( WeightedVector<value_type>( round_to_odd(sigma) ) )
+			{
+				const size_t size = round_to_odd(sigma);
+				const int radius = size / 2;
+
+				for (int i = -radius; i <= radius; ++i) {
+					this->my_table(i) = std::exp( -(i*i) / sigma );
+				}
+
+				std::cerr << "(";
+				for (int i = -radius; i < radius; ++i)
+					std::cerr << this->my_table(i) << ", ";
+				std::cerr << this->my_table(radius) << ")" << std::endl;
+			}
+		protected:
+			static size_t round_to_odd(T sigma)
+			{
+				size_t size = static_cast<size_t>( std::floor(sigma * 6) );
+				if (size % 2 == 0)
+					++size;
+				return size;
+			}
+		private:
+	};
+
+	template<typename I, typename T = double>
+	class GaussianKernel: public WeightedSeparableKernel<
+				 I, 
+				 GaussianSubKernel<I, BindX<I> >, 
+				 GaussianSubKernel<I, BindY<I> > 
+			> {
+		public:
+			GaussianKernel(T sigma_x, T sigma_y)
+				: WeightedSeparableKernel<
+					  I, 
+					  GaussianSubKernel<I, BindX<I>, T >, 
+					  GaussianSubKernel<I, BindY<I>, T >
+				>(
+						GaussianSubKernel< I, BindX<I>, T >(sigma_x),
+						GaussianSubKernel< I, BindY<I>, T >(sigma_y) 
+				)
+			{
+			}
+	};
+	template<typename I>
+	struct FiltererTrait< GaussianKernel<I> >
+	{
+		typedef TrueType Separable;
 	};
 }
 

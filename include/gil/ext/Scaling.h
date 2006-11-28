@@ -49,6 +49,32 @@ namespace std {
 			T my_ratio_x;
 			T my_ratio_y;
 	};
+
+	template<typename I, typename T = double>
+	class BilinearScaler {
+		public:
+			typedef typename I::value_type value_type;
+			BilinearScaler(T x, T y): my_ratio_x(x), my_ratio_y(y)
+			{
+			}
+
+			value_type operator ()(const I &image, int x, int y) const
+			{
+				T _x = x/my_ratio_x;
+				T _y = y/my_ratio_y;
+
+				_x = std::min( _x, static_cast<T>( image.width()-1 ) );
+				_x = std::max( _x, static_cast<T>(0) );
+
+				_y = std::min( _y, static_cast<T>( image.height()-1 ) );
+				_y = std::max( _y, static_cast<T>(0) );
+
+				return image.lerp(_x, _y);
+			}
+		private:
+			T my_ratio_x;
+			T my_ratio_y;
+	};
 }
 
 #endif
