@@ -335,12 +335,16 @@ namespace gil {
 	template <typename T>
 	struct ColorTrait {
 		typedef T BaseType;
+		typedef double ExtendedType;
+		typedef double MathType;
 		static size_t channels() { return 1; }
 	};
 
 	template <typename T, size_t C>
 	struct ColorTrait< Color<T,C> > {
 		typedef T BaseType;
+		typedef double ExtendedType;
+		typedef double MathType;
 		static size_t channels() { return C; }
 	};
 
