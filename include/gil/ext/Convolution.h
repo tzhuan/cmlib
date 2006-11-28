@@ -285,7 +285,6 @@ namespace gil {
 		typedef TrueType Separable;
 	};
 
-	/*
 	template<typename I, typename B>
 	class BoxSubKernel: 
 		public WeightedSeparableSubKernel<
@@ -341,8 +340,8 @@ namespace gil {
 	{
 		typedef TrueType Separable;
 	};
-	*/
 
+	/*
 	template<typename I>
 	class BoxKernel: public WeightedKernel<
 				I, 
@@ -376,6 +375,7 @@ namespace gil {
 				}
 			}
 	};
+	*/
 
 	template<typename I, typename B, typename T = double>
 	class GaussianSubKernel: 
@@ -402,10 +402,12 @@ namespace gil {
 					this->my_table(i) = std::exp( -(i*i) / sigma );
 				}
 
+				/*
 				std::cerr << "(";
 				for (int i = -radius; i < radius; ++i)
 					std::cerr << this->my_table(i) << ", ";
 				std::cerr << this->my_table(radius) << ")" << std::endl;
+				*/
 			}
 		protected:
 			static size_t round_to_odd(T sigma)
@@ -437,6 +439,7 @@ namespace gil {
 			{
 			}
 	};
+
 	template<typename I>
 	struct FiltererTrait< GaussianKernel<I> >
 	{

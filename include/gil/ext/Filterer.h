@@ -69,8 +69,9 @@ namespace gil {
 	template<typename I, typename F>
 	void filter(I &dst, const I &src, const F &filterer, const TrueType&)
 	{
-		filter(dst, src, filterer.x(), true);
-		filter(dst, src, filterer.y(), true);
+		I tmp(dst);
+		filter(tmp, src, filterer.x(), true);
+		filter(dst, tmp, filterer.y(), true);
 	}
 
 	template<typename I, typename F>
