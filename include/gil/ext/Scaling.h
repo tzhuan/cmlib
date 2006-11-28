@@ -1,9 +1,6 @@
 #ifndef SCALING_H
 #define SCALING_H
 
-#include <iostream>
-using namespace std;
-
 #include <algorithm>
 
 #include "Filterer.h"
@@ -24,11 +21,11 @@ namespace std {
 	}
 
 	template<typename I, typename T = double>
-	class TrivialScaler {
+	class NearestFilterer {
 		public:
 			typedef typename I::value_type value_type;
 
-			TrivialScaler(T x, T y): my_ratio_x(x), my_ratio_y(y)
+			NearestFilterer(T x, T y): my_ratio_x(x), my_ratio_y(y)
 			{
 			}
 
@@ -51,10 +48,10 @@ namespace std {
 	};
 
 	template<typename I, typename T = double>
-	class BilinearScaler {
+	class BilinearFilterer {
 		public:
 			typedef typename I::value_type value_type;
-			BilinearScaler(T x, T y): my_ratio_x(x), my_ratio_y(y)
+			BilinearFilterer(T x, T y): my_ratio_x(x), my_ratio_y(y)
 			{
 			}
 

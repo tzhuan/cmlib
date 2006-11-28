@@ -10,7 +10,7 @@
 #include "Scaling.h"
 
 namespace gil {
-	template<typename I, typename T = double, typename S = TrivialScaler<I, T> >
+	template<typename I, typename S, typename T = double>
 	class Pyramid {
 		public:
 			typedef typename I::value_type value_type;
@@ -38,14 +38,6 @@ namespace gil {
 						)
 					);
 				}
-
-				/*
-				string name = "p";
-				for (size_t i = 0; i < my_pyramids.size(); ++i) {
-					write(my_pyramids[i], name + ".png");					
-					name += "p";
-				}
-				*/
 			}
 
 			I operator ()(T layer) const
