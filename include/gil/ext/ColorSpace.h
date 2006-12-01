@@ -160,6 +160,7 @@ namespace gil {
 			// OpenCV:
 			// R <- Y + 1.403*(Cr - delta)
 			// G <- Y - 0.344*(Cr - delta) - 0.714*(Cb - delta)
+			//   XXX must be G <- Y - 0.714*(Cb - delta) - 0.344*(Cr - delta)
 			// B <- Y + 1.773*(Cb - delta),
 			//
 			//		  / 128 for 8-bit images,
@@ -173,7 +174,7 @@ namespace gil {
 			const value_type delta = ColorTrait<T>::opaque() / 2;
 
 			value_type R = static_cast<value_type>( Y + 1.403 * (Cr-delta) );
-			value_type G = static_cast<value_type>( Y - 0.344 * (Cr-delta) - 0.714 * (Cb-delta) );
+			value_type G = static_cast<value_type>( Y - 0.714* (Cr-delta) - 0.344 * (Cb-delta) );
 			value_type B = static_cast<value_type>( Y + 1.773 * (Cb-delta) );
 
 			return To(R, G, B);

@@ -337,6 +337,7 @@ namespace gil {
 		typedef T BaseType;
 		typedef double ExtendedType;
 		typedef double MathType;
+		typedef ExtendedType ExtendedColor;
 		static size_t channels() { return 1; }
 	};
 
@@ -345,6 +346,7 @@ namespace gil {
 		typedef T BaseType;
 		typedef double ExtendedType;
 		typedef double MathType;
+		typedef Color<ExtendedType, C> ExtendedColor;
 		static size_t channels() { return C; }
 	};
 
