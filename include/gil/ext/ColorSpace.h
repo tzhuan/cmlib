@@ -135,11 +135,11 @@ namespace gil {
 			//		  \ 0.5 for floating-point images
 
 			const value_type &R = from[0];
-			const value_type &G = from[0];
-			const value_type &B = from[0];
+			const value_type &G = from[1];
+			const value_type &B = from[2];
 			const value_type delta = ColorTrait<T>::opaque() / 2;
-
-			value_type Y = RgbToGray<value_type, value_type>(from);
+                        //printf("%g \n",delta);
+			value_type Y = RgbToGray<value_type, From>()(from);
 			value_type Cr = static_cast<value_type>( (R-Y) * 0.713 + delta );
 			value_type Cb = static_cast<value_type>( (B-Y) * 0.564 + delta );
 

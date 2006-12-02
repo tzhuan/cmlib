@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
+#include <typeinfo>
 
 // set DLLAPI if we're using VC
 
@@ -338,6 +339,7 @@ namespace gil {
 		typedef double ExtendedType;
 		typedef double MathType;
 		typedef ExtendedType ExtendedColor;
+                static T opaque() { return std::numeric_limits<T>::max(); }
 		static size_t channels() { return 1; }
 	};
 
@@ -347,8 +349,18 @@ namespace gil {
 		typedef double ExtendedType;
 		typedef double MathType;
 		typedef Color<ExtendedType, C> ExtendedColor;
+		static T opaque() {
+		  //printf("%s \n", typeid(T).name());
+		  if(strcmp(typeid(T).name(),"f") == 0)
+	            return static_cast<T>(1.f);
+		  else if(strcmp(typeid(T).name(),"d") == 0)
+	            return static_cast<T>(1.0);
+		  
+		    return std::numeric_limits<T>::max(); 
+		}
 		static size_t channels() { return C; }
 	};
+
 
 	typedef Color<Byte1, 3> Byte3;
 	typedef Color<Byte1, 4> Byte4;
