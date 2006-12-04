@@ -137,7 +137,7 @@ namespace gil {
 			const value_type &R = from[0];
 			const value_type &G = from[1];
 			const value_type &B = from[2];
-			const value_type delta = ColorTrait<T>::opaque() / 2;
+			const value_type delta = TypeTrait<value_type>::opaque() / 2;
                         //printf("%g \n",delta);
 			value_type Y = RgbToGray<value_type, From>()(from);
 			value_type Cr = static_cast<value_type>( (R-Y) * 0.713 + delta );
@@ -171,7 +171,7 @@ namespace gil {
 			const value_type &Cr = from[1];
 			const value_type &Cb = from[2];
 
-			const value_type delta = ColorTrait<T>::opaque() / 2;
+			const value_type delta = TypeTrait<value_type>::opaque() / 2;
 
 			value_type R = static_cast<value_type>( Y + 1.403 * (Cr-delta) );
 			value_type G = static_cast<value_type>( Y - 0.714* (Cr-delta) - 0.344 * (Cb-delta) );
@@ -189,7 +189,7 @@ namespace gil {
 		typedef T From;
 
 		typedef typename ColorTrait<T>::BaseType value_type;
-		typedef typename ColorTrait<T>::ExtendedType tmp_type;
+		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;
 
 		To operator()(const From &from) const 
@@ -237,7 +237,7 @@ namespace gil {
 			// FIXME
 			assert(0);
 			/*
-			const value_type opaque = ColorTrait<T>::opaque();
+			const value_type opaque = TypeTrait<value_type>::opaque();
 			const tmp_type factor = FactorTrait<value_type>::factor();
 
 			return To(
@@ -287,7 +287,7 @@ namespace gil {
 		typedef T From;
 
 		typedef typename ColorTrait<T>::BaseType value_type;
-		typedef typename ColorTrait<T>::ExtendedType tmp_type;
+		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;
 
 		To operator()(const From &from) const 
@@ -345,7 +345,7 @@ namespace gil {
 			// FIXME
 			assert(0);
 			/*
-			const value_type opaque = ColorTrait<T>::opaque();
+			const value_type opaque = TypeTrait<value_type>::opaque();
 			const tmp_type factor = FactorTrait<value_type>::factor();
 
 			return To(
@@ -394,7 +394,7 @@ namespace gil {
 		typedef T To;
 		typedef T From;
 		typedef typename ColorTrait<T>::BaseType value_type;
-		typedef typename ColorTrait<T>::ExtendedType tmp_type;
+		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;;
 
 		To operator()(const From &from) const 
@@ -482,7 +482,7 @@ namespace gil {
 		typedef T From;
 
 		typedef typename ColorTrait<T>::BaseType value_type;
-		typedef typename ColorTrait<T>::ExtendedType tmp_type;
+		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;;
 
 		To operator()(const From &from) const 
@@ -543,7 +543,7 @@ namespace gil {
 		typedef T From;
 
 		typedef typename ColorTrait<T>::BaseType value_type;
-		typedef typename ColorTrait<T>::ExtendedType tmp_type;
+		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;;
 
 		To operator()(const From &from) const 

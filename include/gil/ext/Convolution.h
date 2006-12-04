@@ -65,8 +65,11 @@ namespace gil {
 	class Kernel { 
 		public:
 			typedef 
-				typename ColorTrait<typename I::value_type>::MathType 
-				value_type;
+				typename TypeTrait<
+					typename ColorTrait<
+						typename I::value_type
+					>::BaseType
+				>::MathType value_type;
 
 			Kernel(size_t x, size_t y)
 				: my_radius_x(x/2), my_radius_y(y/2), my_kernel(y), my_data(x*y)
@@ -133,8 +136,11 @@ namespace gil {
 	class SubKernel { 
 		public:
 			typedef 
-				typename ColorTrait<typename I::value_type>::MathType
-				value_type;
+				typename TypeTrait<
+					typename ColorTrait<
+						typename I::value_type
+					>::BaseType
+				>::MathType value_type;
 
 			SubKernel (size_t size)
 				: my_radius(size/2), my_kernel(size)
@@ -208,8 +214,11 @@ namespace gil {
 	class NullSubKernel: public SubKernel<I, B> {
 		public:
 			typedef 
-				typename ColorTrait<typename I::value_type>::MathType
-				value_type;
+				typename TypeTrait<
+					typename ColorTrait<
+						typename I::value_type
+					>::BaseType
+				>::MathType value_type;
 
 			NullSubKernel(): SubKernel<I, B>( static_cast<value_type>(1) )
 			{
@@ -245,8 +254,11 @@ namespace gil {
 	class BoxSubKernel: public SubKernel<I, B> {
 		public:
 			typedef 
-				typename ColorTrait<typename I::value_type>::MathType 
-				value_type;
+				typename TypeTrait<
+					typename ColorTrait<
+						typename I::value_type
+					>::BaseType
+				>::MathType value_type;
 
 			BoxSubKernel(size_t size): SubKernel<I, B>(size)
 			{
@@ -294,8 +306,11 @@ namespace gil {
 	class GaussianSubKernel: public SubKernel<I, B> {
 		public:
 			typedef 
-				typename ColorTrait<typename I::value_type>::MathType 
-				value_type;
+				typename TypeTrait<
+					typename ColorTrait<
+						typename I::value_type
+					>::BaseType
+				>::MathType value_type;
 
 			GaussianSubKernel(value_type sigma)
 				: SubKernel<I, B>( our_round_to_odd(sigma) )
@@ -327,8 +342,11 @@ namespace gil {
 			typedef GaussianSubKernel<I, BindY<I> > SubKernelY;
 
 			typedef 
-				typename ColorTrait<typename I::value_type>::MathType 
-				value_type;
+				typename TypeTrait<
+					typename ColorTrait<
+						typename I::value_type
+					>::BaseType
+				>::MathType value_type;
 
 			GaussianFilterer(value_type sigma_x, value_type sigma_y)
 				: Kernel2<I, SubKernelX, SubKernelY>
