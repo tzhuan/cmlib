@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
-#include <typeinfo>
 
 // set DLLAPI if we're using VC
 
@@ -40,6 +39,8 @@ namespace gil {
 	class TypeTrait {
 		public:
 			typedef T DebugType;
+			typedef double ExtendedType;
+			typedef double MathType;
 
 			static T zero() { return 0; }
 
@@ -336,28 +337,14 @@ namespace gil {
 	template <typename T>
 	struct ColorTrait {
 		typedef T BaseType;
-		typedef double ExtendedType;
-		typedef double MathType;
-		typedef ExtendedType ExtendedColor;
-                static T opaque() { return std::numeric_limits<T>::max(); }
+		typedef typename TypeTrait<T>::ExtendedType ExtendedColor;
 		static size_t channels() { return 1; }
 	};
 
 	template <typename T, size_t C>
 	struct ColorTrait< Color<T,C> > {
 		typedef T BaseType;
-		typedef double ExtendedType;
-		typedef double MathType;
-		typedef Color<ExtendedType, C> ExtendedColor;
-		static T opaque() {
-		  //printf("%s \n", typeid(T).name());
-		  if(strcmp(typeid(T).name(),"f") == 0)
-	            return static_cast<T>(1.f);
-		  else if(strcmp(typeid(T).name(),"d") == 0)
-	            return static_cast<T>(1.0);
-		  
-		    return std::numeric_limits<T>::max(); 
-		}
+		typedef Color<typename TypeTrait<T>::ExtendedType, C> ExtendedColor;
 		static size_t channels() { return C; }
 	};
 
