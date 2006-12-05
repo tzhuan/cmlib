@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <cmath>
 
-#include "../Color.h"
 #include "Scaling.h"
 #include "Convolution.h"
 

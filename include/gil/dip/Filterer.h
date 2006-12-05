@@ -3,6 +3,8 @@
 
 #include <cstddef>
 
+#include "../gil.h"
+
 namespace gil {
 
 	struct TrueType {};

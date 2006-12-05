@@ -21,9 +21,7 @@
 #include <complex>
 #include <iostream>
 
-#include "../Color.h"
-#include "../Converter.h"
-#include "../Image.h"
+#include "../gil.h"
 
 namespace gil {
 

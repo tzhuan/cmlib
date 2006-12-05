@@ -1,10 +1,10 @@
 #ifndef GILX_H
 #define GILX_H
 
-#include "ext/Filterer.h"
-#include "ext/ColorSpace.h"
-#include "ext/Convolution.h"
-#include "ext/Scaling.h"
-#include "ext/Pyramid.h"
+#include "dip/Filterer.h"
+#include "dip/ColorSpace.h"
+#include "dip/Convolution.h"
+#include "dip/Scaling.h"
+#include "dip/Pyramid.h"
 
 #endif

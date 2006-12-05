@@ -7,7 +7,7 @@
 #include <cmath>
 
 #include "Filterer.h"
-#include "../Color.h"
+#include "../dip.h"
 
 namespace gil {
 
