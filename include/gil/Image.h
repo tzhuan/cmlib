@@ -166,7 +166,7 @@ namespace gil {
 			}
 
 			// bilinear interpolation, quite useful
-			Type lerp(double x, double y) const
+			const value_type lerp(double x, double y) const
 			{
 				// we assert that  0 <= x <= width-1 and 0 <= y <= height-1
 				int x0 = static_cast<int>(x);

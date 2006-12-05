@@ -10,7 +10,7 @@ namespace gil {
 	struct DefaultConverter {
 		typedef Tt To;
 		typedef Tf From;
-		To operator()(const From &from) const
+		const To operator()(const From &from) const
 		{
 			return static_cast<To>(from);
 		}
@@ -21,9 +21,10 @@ namespace gil {
 	struct DefaultConverter<Byte1, Float1> {
 		typedef Byte1 To;
 		typedef Float1 From;
-		Byte1 operator()(Float1 from) const
+		const Byte1 operator()(Float1 from) const
 		{
-			const Float1 ratio = static_cast<Float1>(TypeTrait<Byte1>::opaque());
+			const Float1 ratio = 
+				static_cast<Float1>(TypeTrait<Byte1>::opaque());
 			return static_cast<Byte1>(from * ratio);
 		}
 	};
@@ -33,9 +34,10 @@ namespace gil {
 	struct DefaultConverter<Float1, Byte1> {
 		typedef Float1 To;
 		typedef Byte1 From;
-		Float1 operator()(Byte1 from) const
+		const Float1 operator()(Byte1 from) const
 		{
-			const Float1 ratio = static_cast<Float1>(TypeTrait<Byte1>::opaque());
+			const Float1 ratio = 
+				static_cast<Float1>(TypeTrait<Byte1>::opaque());
 			return static_cast<Float1>(from) / ratio;
 		}
 	};
@@ -45,9 +47,10 @@ namespace gil {
 	struct DefaultConverter<Short1, Byte1> {
 		typedef Short1 To;
 		typedef Byte1 From;
-		Short1 operator()(Byte1 from) const
+		const Short1 operator()(Byte1 from) const
 		{
-			const Short1 ratio = TypeTrait<Short1>::opaque() / TypeTrait<Byte1>::opaque();
+			const Short1 ratio = 
+				TypeTrait<Short1>::opaque() / TypeTrait<Byte1>::opaque();
 			return static_cast<Short1>(from * ratio);
 		}
 	};
@@ -57,9 +60,10 @@ namespace gil {
 	struct DefaultConverter<Byte1, Short1> {
 		typedef Byte1 To;
 		typedef Short1 From;
-		Byte1 operator()(Short1 from) const
+		const Byte1 operator()(Short1 from) const
 		{
-			const Short1 ratio = TypeTrait<Short1>::opaque() / TypeTrait<Byte1>::opaque();
+			const Short1 ratio = 
+				TypeTrait<Short1>::opaque() / TypeTrait<Byte1>::opaque();
 			return static_cast<Byte1>(from / ratio);
 		}
 	};
@@ -69,7 +73,7 @@ namespace gil {
 	struct DefaultConverter<Short1, Float1> {
 		typedef Short1 To;
 		typedef Float1 From;
-		Short1 operator()(Float1 from) const
+		const Short1 operator()(Float1 from) const
 		{
 			const Short1 ratio = TypeTrait<Short1>::opaque();
 			return static_cast<Short1>(from * ratio);
@@ -81,7 +85,7 @@ namespace gil {
 	struct DefaultConverter<Float1, Short1> {
 		typedef Float1 To;
 		typedef Short1 From;
-		Float1 operator()(Short1 from) const
+		const Float1 operator()(Short1 from) const
 		{
 			const Short1 ratio = TypeTrait<Short1>::opaque();
 			return static_cast<Float1>(from) / ratio;
@@ -93,7 +97,7 @@ namespace gil {
     struct DefaultConverter< Color<T,C>, Color<T,C> > {
         typedef Color<T,C> To;
         typedef Color<T,C> From;
-        To operator()(const From& from) const
+        const To operator()(const From& from) const
         {
 			return from;
         }
@@ -103,7 +107,7 @@ namespace gil {
 	struct DefaultConverter<T, T> {
 		typedef T To;
 		typedef T From;
-		T operator()(const T& from) const
+		const T operator()(const T& from) const
 		{
 			return from;
 		}
@@ -114,7 +118,7 @@ namespace gil {
 	struct DefaultConverter< Color<T,C>, Color<F,C> > {
 		typedef Color<T,C> To;
 		typedef Color<F,C> From;
-		To operator()(const From& from) const
+		const To operator()(const From& from) const
 		{
 			DefaultConverter<T, F> converter;
 			To tmp;
@@ -136,7 +140,7 @@ namespace gil {
 	struct DefaultConverter< Color<T,Ct>, Color<T,Cf> > {
 		typedef Color<T,Ct> To;
 		typedef Color<T,Cf> From;
-		To operator()(const From& from) const
+		const To operator()(const From& from) const
 		{
 			const size_t cmin = std::min(Ct, Cf);
 			To tmp;
@@ -161,7 +165,7 @@ namespace gil {
 	struct DefaultConverter< T, Color<T,3> > {
 		typedef T To;
 		typedef Color<T,3> From;
-		To operator()(const From& from) const
+		const To operator()(const From& from) const
 		{
 			return ( from[0]*3 + from[1]*4 + from[2] ) / 8;
 		}
@@ -172,7 +176,7 @@ namespace gil {
 	struct DefaultConverter< T, Color<T,4> > {
 		typedef T To;
 		typedef Color<T,4> From;
-		To operator()(const From& from) const
+		const To operator()(const From& from) const
 		{
 			return ( from[0]*3 + from[1]*4 + from[2] ) / 8;
 		}
@@ -183,7 +187,7 @@ namespace gil {
 	struct DefaultConverter< Color<T,3>, T> {
 		typedef Color<T,3> To;
 		typedef T From;
-		To operator()(From from) const
+		const To operator()(From from) const
 		{
 			return To(from, from, from);
 		}
@@ -194,7 +198,7 @@ namespace gil {
 	struct DefaultConverter< Color<T,4>, T> {
 		typedef Color<T,4> To;
 		typedef T From;
-		To operator()(From from) const
+		const To operator()(From from) const
 		{
 			return To( from, from, from, TypeTrait<T>::opaque() );
 		}
@@ -204,7 +208,7 @@ namespace gil {
 	struct DefaultConverter< Tt, Color<Tf, Cf> > {
 		typedef Tt To;
 		typedef Color<Tf, Cf> From;
-		To operator()(const From& from) const
+		const To operator()(const From& from) const
 		{
 			DefaultConverter<Tf, From> channel_converter;
 			DefaultConverter<To, Tf> type_converter;
@@ -216,7 +220,7 @@ namespace gil {
 	struct DefaultConverter< Color<Tt,Ct>, Tf > {
 		typedef Color<Tt,Ct> To;
 		typedef Tf From;
-		To operator()(const From& from) const
+		const To operator()(const From& from) const
 		{
 			DefaultConverter<Tt, From> type_converter;
 			DefaultConverter<To, Tt> channel_converter;
@@ -229,7 +233,7 @@ namespace gil {
 	struct DefaultConverter< Color<Tt,Ct>, Color<Tf,Cf> > {
 		typedef Color<Tt,Ct> To;
 		typedef Color<Tf,Cf> From;
-		To operator()(const From& from) const
+		const To operator()(const From& from) const
 		{
 			// choose a smaller type to operator() first
 			typedef Color<Tt,Cf> TMP1;

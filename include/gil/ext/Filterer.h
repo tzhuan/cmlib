@@ -16,7 +16,8 @@ namespace gil {
 
 	template<typename I>
 	struct NullFilterer1 {
-		typename I::value_type operator()(const I &image, int x, int y) const 
+		const typename I::value_type 
+		operator()(const I &image, int x, int y) const 
 		{
 			return image(x, y);
 		}
@@ -26,7 +27,7 @@ namespace gil {
 	struct NullFilterer2 {
 		template<typename T>
 		struct NullFilterX {
-			typename T::value_type
+			const typename T::value_type
 			operator()(const T &image, size_t x, size_t y) const
 			{
 				return image(x, y);
@@ -35,19 +36,19 @@ namespace gil {
 
 		template<typename T>
 		struct NullFilterY {
-			typename T::value_type 
+			const typename T::value_type 
 			operator()(const T &image, size_t x, size_t y) const
 			{
 				return image(x, y);
 			}
 		};
 
-		NullFilterX<I> x() const
+		const NullFilterX<I> x() const
 		{
 			return NullFilterX<I>();
 		}
 
-		NullFilterY<I> y() const
+		const NullFilterY<I> y() const
 		{
 			return NullFilterY<I>();
 		}
@@ -87,7 +88,7 @@ namespace gil {
 	}
 
 	template<typename I, typename F>
-	I filter(const I &src, const F &filterer, size_t width, size_t height)
+	const I filter(const I &src, const F &filterer, size_t width, size_t height)
 	{
 		I dst(width, height);
 		filter(dst, src, filterer, typename FiltererTrait<F>::Separable () );

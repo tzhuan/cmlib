@@ -44,7 +44,7 @@ namespace gil {
 				}
 			}
 
-			I operator ()(T layer) const
+			const I operator ()(T layer) const
 			{
 				I tmp;
 				(*this)(tmp, layer);
@@ -73,7 +73,7 @@ namespace gil {
 						);
 			}
 
-			value_type pixel(T layer, T x, T y) const
+			const value_type pixel(T layer, T x, T y) const
 			{
 				my_check_layer(layer);
 
@@ -91,7 +91,7 @@ namespace gil {
 				return texel(layer, x/(width-1), y/(height-1));
 			}
 
-			value_type texel(T layer, T x, T y) const
+			const value_type texel(T layer, T x, T y) const
 			{
 				my_check_layer(layer);
 				my_check_texel(x);
@@ -133,14 +133,14 @@ namespace gil {
 					static_cast<size_t>(my_pyramids[integer].height()/ratio);
 			}
 
-			value_type my_texel(size_t layer, T x, T y) const
+			const value_type my_texel(size_t layer, T x, T y) const
 			{
 				const size_t width = my_pyramids[layer].width();
 				const size_t height = my_pyramids[layer].height();
 				return my_pyramids[layer].lerp(x * (width-1), y * (height-1));
 			}
 
-			value_type my_texel(T layer, T x, T y) const
+			const value_type my_texel(T layer, T x, T y) const
 			{
 				size_t prev = static_cast<size_t>(floor(layer));
 				size_t next = static_cast<size_t>(ceil(layer));

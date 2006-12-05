@@ -36,7 +36,7 @@ namespace gil {
 			return image.width();
 		}
 
-		static typename I::value_type 
+		static const typename I::value_type 
 		color(const I &image, size_t, size_t y, size_t i)
 		{
 			return image(i, y);
@@ -54,7 +54,7 @@ namespace gil {
 			return image.height();
 		}
 
-		static typename I::value_type 
+		static const typename I::value_type 
 		color(const I &image, size_t x, size_t, size_t i)
 		{
 			return image(x, i);
@@ -79,7 +79,7 @@ namespace gil {
 					my_kernel[i] = my_kernel[i-1] + x;
 			}
 
-			typename I::value_type 
+			const typename I::value_type 
 			operator()(const I &image, size_t x, size_t y) const
 			{
 				value_type num = 0;
@@ -147,7 +147,7 @@ namespace gil {
 			{
 			}
 
-			typename I::value_type 
+			const typename I::value_type 
 			operator()(const I &image, size_t x, size_t y) const
 			{
 				value_type num = 0;

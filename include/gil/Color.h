@@ -179,7 +179,7 @@ namespace gil {
 			ConstColorType operator -() const
 			{
 				ColorType r;
-				std::transform( begin(), end(), r.begin(), std::negate<Type>() );
+				std::transform(begin(), end(), r.begin(), std::negate<Type>());
 				return r;
 			}
 
@@ -326,7 +326,7 @@ namespace gil {
 	// other utilities
 	// minimal and maximal
 	template <typename T, size_t C>
-	Color<T,C> min(const Color<T,C>& a, const Color<T,C>& b)
+	const Color<T,C> min(const Color<T,C>& a, const Color<T,C>& b)
 	{
 		Color<T,C> result;
 		for(size_t i = 0; i < C; i++)
@@ -335,7 +335,7 @@ namespace gil {
 	}
 
 	template <typename T, size_t C>
-	Color<T,C> max(const Color<T,C>& a, const Color<T,C>& b)
+	const Color<T,C> max(const Color<T,C>& a, const Color<T,C>& b)
 	{
 		Color<T,C> result;
 		for(size_t i = 0; i < C; i++)
@@ -344,7 +344,10 @@ namespace gil {
 	}
 
 	template <typename T, size_t C>
-	Color<T,C> clamp(const Color<T,C>& value, const Color<T,C>& lower, const Color<T,C>& upper)
+	const Color<T,C> clamp(
+		const Color<T,C>& value, 
+		const Color<T,C>& lower, 
+		const Color<T,C>& upper)
 	{
 		Color<T,C> result;
 		for(size_t i = 0; i < C; i++)
@@ -355,7 +358,7 @@ namespace gil {
 
 	// linear interpolation
 	template <typename T, size_t C>
-	Color<T,C> mix(const Color<T,C>& a, const Color<T,C>& b, T w)
+	const Color<T,C> mix(const Color<T,C>& a, const Color<T,C>& b, T w)
 	{
 		Color<T,C> result;
 		for(size_t i = 0; i < C; i++)

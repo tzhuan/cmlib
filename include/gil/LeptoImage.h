@@ -4,11 +4,19 @@
 #include <algorithm>
 #include <cassert>
 
+#include "Color.h"
+
+// FIXME: Now LeptoImage can only be used when image with more than 1 channel.
+
 namespace gil {
 	
-	template <typename I>
-	class LeptoImage {
+	template<typename T> 
+	class LeptoImage;
+
+	template <typename T, size_t C>
+	class LeptoImage< Color<T, C> > {
 		public:
+			typedef Color<T, C> I;
 			typedef typename I::value_type value_type;
 			typedef typename I::reference reference;
 			typedef typename I::const_reference const_reference;

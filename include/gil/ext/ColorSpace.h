@@ -28,13 +28,13 @@
 namespace gil {
 
 	template<typename T>
-	T max(const T &a, const T &b, const T &c)
+	const T max(const T &a, const T &b, const T &c)
 	{
 		return max( max(a, b), max(b, c) );
 	}
 
 	template<typename T>
-	T min (const T &a, const T &b, const T &c)
+	const T min (const T &a, const T &b, const T &c)
 	{
 		return min( min(a, b), min(b, c) );
 	}
@@ -49,7 +49,7 @@ namespace gil {
 	}
 
 	template<typename Converter>
-	Image<typename Converter::To> 
+	const Image<typename Converter::To> 
 	convert(const Image<typename Converter::From> &src, 
 			const Converter &converter)
 	{
@@ -64,7 +64,7 @@ namespace gil {
 	{
 		typedef T To;
 		typedef Color<T, C> From;
-		T operator()(const From &from) const
+		const T operator()(const From &from) const
 		{
 			// OpenCV:
 			// RGB[A]->Gray: Y<-0.299*R + 0.587*G + 0.114*B
@@ -80,7 +80,7 @@ namespace gil {
 	struct RgbToXyz {
 		typedef T To;
 		typedef T From;
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// OpenCV:
 			// |X|    |0.412453  0.357580  0.180423| |R|
@@ -100,7 +100,7 @@ namespace gil {
 	struct XyzToRgb {
 		typedef T To;
 		typedef T From;
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// OpenCV:
 			// |R|    | 3.240479  -1.53715  -0.498535| |X|
@@ -123,7 +123,7 @@ namespace gil {
 
 		typedef typename ColorTrait<T>::BaseType value_type;
 
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// OpenCV:
 			// Y <- 0.299*R + 0.587*G + 0.114*B
@@ -155,7 +155,7 @@ namespace gil {
 
 		typedef typename ColorTrait<T>::BaseType value_type;
 
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// OpenCV:
 			// R <- Y + 1.403*(Cr - delta)
@@ -192,7 +192,7 @@ namespace gil {
 		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;
 
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// OpenCV: 
 			// R, G and B are converted to floating-point format and 
@@ -273,7 +273,7 @@ namespace gil {
 		typedef T To;
 		typedef T From;
 
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// TODO
 			assert(0);
@@ -290,7 +290,7 @@ namespace gil {
 		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;
 
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// OpenCV:
 			// R, G and B are converted to floating-point format and 
@@ -381,7 +381,7 @@ namespace gil {
 		typedef T To;
 		typedef T From;
 		
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// TODO
 			assert(0);
@@ -397,7 +397,7 @@ namespace gil {
 		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;;
 
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// R, G and B are converted to floating-point format and
 			// scaled to fit 0..1 range
@@ -468,7 +468,7 @@ namespace gil {
 	struct LabToRgb {
 		typedef T To;
 		typedef T From;
-		To operator()(const From &from) const
+		const To operator()(const From &from) const
 		{
 			// TODO
 			assert(0);
@@ -485,7 +485,7 @@ namespace gil {
 		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;;
 
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// R, G and B are converted to floating-point format and 
 			// scaled to fit 0..1 range
@@ -546,7 +546,7 @@ namespace gil {
 		typedef typename TypeTrait<value_type>::ExtendedType tmp_type;
 		typedef typename ColorTrait<T>::ExtendedColor tmp_color;;
 
-		To operator()(const From &from) const 
+		const To operator()(const From &from) const 
 		{
 			// TODO
 			assert(0);

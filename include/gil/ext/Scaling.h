@@ -13,7 +13,7 @@ namespace gil {
 	}
 
 	template<typename I, typename F>
-	I scale(const I &src, const F &filterer, size_t width, size_t height)
+	const I scale(const I &src, const F &filterer, size_t width, size_t height)
 	{
 		I dst(width, height);
 		scale(dst, src, filterer);
@@ -29,7 +29,7 @@ namespace gil {
 			{
 			}
 
-			value_type operator()(const I &image, int x, int y) const 
+			const value_type operator()(const I &image, int x, int y) const 
 			{
 				int _x = static_cast<int>( x/my_ratio_x + 0.5 );
 				int _y = static_cast<int>( y/my_ratio_y + 0.5 );
@@ -55,7 +55,7 @@ namespace gil {
 			{
 			}
 
-			value_type operator ()(const I &image, int x, int y) const
+			const value_type operator ()(const I &image, int x, int y) const
 			{
 				T _x = x/my_ratio_x;
 				T _y = y/my_ratio_y;
