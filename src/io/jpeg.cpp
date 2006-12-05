@@ -8,7 +8,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-#include "gil/io/jpeg.h"
+#include "gil/core/io/jpeg.h"
 
 using namespace std;
 using namespace gil;

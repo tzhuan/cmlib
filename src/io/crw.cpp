@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <cassert>
 
-#include "gil/Exception.h"
-#include "gil/io/crw.h"
+#include "gil/core/Exception.h"
+#include "gil/core/io/crw.h"
 
 extern "C" {
 extern int ext_identify(FILE *f);

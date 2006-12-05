@@ -12,8 +12,8 @@
 #include <ImfIO.h>
 #include <half.h>
 
-#include "gil/Exception.h"
-#include "gil/io/exr.h"
+#include "gil/core/Exception.h"
+#include "gil/core/io/exr.h"
 
 using namespace std;
 using namespace gil;

@@ -1,8 +1,8 @@
 #include <cassert>
 #include <png.h>
 
-#include "gil/Exception.h"
-#include "gil/io/png.h"
+#include "gil/core/Exception.h"
+#include "gil/core/io/png.h"
 
 using namespace gil;
 

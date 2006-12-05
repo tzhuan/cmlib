@@ -10,8 +10,8 @@
 #include <cstring>
 #include <cmath>
 
-#include "gil/Exception.h"
-#include "gil/io/hdr.h"
+#include "gil/core/Exception.h"
+#include "gil/core/io/hdr.h"
 
 using namespace std;
 using namespace gil;

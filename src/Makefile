@@ -47,18 +47,24 @@ depend:
 	makedepend -Y $(HEADERS) $(SRCS) $(IO_SRCS) 2>/dev/null
 # DO NOT DELETE
 
-io/jpeg.o: ../include/gil/io/jpeg.h ../include/gil/Exception.h
-io/jpeg.o: ../include/gil/Color.h
-io/png.o: ../include/gil/Exception.h ../include/gil/io/png.h
-io/png.o: ../include/gil/Exception.h ../include/gil/Color.h
-io/tiff.o: ../include/gil/io/tiff.h ../include/gil/Exception.h
-io/tiff.o: ../include/gil/Color.h
-io/exr.o: ../include/gil/Exception.h ../include/gil/io/exr.h
-io/exr.o: ../include/gil/Image.h ../include/gil/Color.h
-io/exr.o: ../include/gil/Converter.h
-io/hdr.o: ../include/gil/Exception.h ../include/gil/io/hdr.h
-io/hdr.o: ../include/gil/Color.h
-io/crw.o: ../include/gil/Exception.h ../include/gil/io/crw.h
-io/crw.o: ../include/gil/Color.h
-io/bmp.o: ../include/gil/io/bmp.h ../include/gil/Exception.h
-io/bmp.o: ../include/gil/Color.h ../include/gil/Exception.h
+io/jpeg.o: ../include/gil/core/io/jpeg.h ../include/gil/core/Exception.h
+io/jpeg.o: ../include/gil/core/Color.h ../include/gil/core/Converter.h
+io/jpeg.o: ../include/gil/core/Color.h
+io/png.o: ../include/gil/core/Exception.h ../include/gil/core/io/png.h
+io/png.o: ../include/gil/core/Exception.h ../include/gil/core/Color.h
+io/png.o: ../include/gil/core/Converter.h ../include/gil/core/Color.h
+io/tiff.o: ../include/gil/core/io/tiff.h ../include/gil/core/Exception.h
+io/tiff.o: ../include/gil/core/Color.h ../include/gil/core/Converter.h
+io/tiff.o: ../include/gil/core/Color.h
+io/exr.o: ../include/gil/core/Exception.h ../include/gil/core/io/exr.h
+io/exr.o: ../include/gil/core/Image.h ../include/gil/core/Color.h
+io/exr.o: ../include/gil/core/Converter.h
+io/hdr.o: ../include/gil/core/Exception.h ../include/gil/core/io/hdr.h
+io/hdr.o: ../include/gil/core/Color.h ../include/gil/core/Converter.h
+io/hdr.o: ../include/gil/core/Color.h
+io/crw.o: ../include/gil/core/Exception.h ../include/gil/core/io/crw.h
+io/crw.o: ../include/gil/core/Color.h ../include/gil/core/Converter.h
+io/crw.o: ../include/gil/core/Color.h
+io/bmp.o: ../include/gil/core/io/bmp.h ../include/gil/core/Exception.h
+io/bmp.o: ../include/gil/core/Color.h ../include/gil/core/Converter.h
+io/bmp.o: ../include/gil/core/Color.h ../include/gil/core/Exception.h

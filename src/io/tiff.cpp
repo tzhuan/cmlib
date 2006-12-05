@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "gil/io/tiff.h"
+#include "gil/core/io/tiff.h"
 
 // must include tiffio.h after gil/io/tiff.h
 // or you will failed to compile under VC++

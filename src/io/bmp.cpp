@@ -1,8 +1,9 @@
 #include <algorithm>
 #include <vector>
 #include <cstdio>
-#include "gil/io/bmp.h"
-#include "gil/Exception.h"
+
+#include "gil/core/io/bmp.h"
+#include "gil/core/Exception.h"
 
 using namespace std;
 using namespace gil;
