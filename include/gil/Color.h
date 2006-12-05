@@ -67,6 +67,8 @@ namespace gil {
 			typedef Type& RefType;
 			typedef const Type& ConstRefType;
 
+			typedef typename TypeTrait<Type>::MathType MathType;
+
 			RefType operator [](int i){ return my_data[i]; }
 
 			ConstRefType operator [](int i) const { return my_data[i]; }
@@ -150,6 +152,13 @@ namespace gil {
 				return *this;
 			}
 
+			ColorType& operator *=(MathType v)
+			{
+				for (size_t i = 0; i < Channel; ++i)
+					my_data[i] *= v;
+				return *this;
+			}
+
 			ColorType& operator /=(Type v)
 			{
 				std::transform( 
@@ -160,14 +169,21 @@ namespace gil {
 				return *this;
 			}
 
-			ColorType operator -() const
+			ColorType& operator /=(MathType v)
+			{
+				for (size_t i = 0; i < Channel; ++i)
+					my_data[i] /= v;
+				return *this;
+			}
+
+			ConstColorType operator -() const
 			{
 				ColorType r;
 				std::transform( begin(), end(), r.begin(), std::negate<Type>() );
 				return r;
 			}
 
-			ColorType operator +(const ColorType& c) const
+			ConstColorType operator +(const ColorType& c) const
 			{
 				ColorType r;
 				std::transform( 
@@ -179,7 +195,7 @@ namespace gil {
 				return r;
 			}
 
-			ColorType operator -(const ColorType& c) const
+			ConstColorType operator -(const ColorType& c) const
 			{
 				ColorType r;
 				std::transform( 
@@ -191,7 +207,7 @@ namespace gil {
 				return r;
 			}
 
-			ColorType operator *(Type v) const
+			ConstColorType operator *(Type v) const
 			{
 				ColorType r;
 				std::transform( 
@@ -202,7 +218,15 @@ namespace gil {
 				return r;
 			}
 
-			ColorType operator /(Type v) const
+			ConstColorType operator *(MathType v) const
+			{
+				ColorType r;
+				for (size_t i = 0; i < Channel; ++i)
+					r[i] = my_data[i] * v;
+				return r;
+			}
+
+			ConstColorType operator /(Type v) const
 			{
 				ColorType r;
 				std::transform( 
@@ -210,6 +234,14 @@ namespace gil {
 						end(), 
 						r.begin(), 
 						std::bind2nd(std::divides<Type>(), v) );
+				return r;
+			}
+
+			ConstColorType operator /(MathType v) const
+			{
+				ColorType r;
+				for (size_t i = 0; i < Channel; ++i)
+					r[i] = my_data[i] / v;
 				return r;
 			}
 
@@ -233,20 +265,21 @@ namespace gil {
 
 	// Scalar * Color
 	template <typename T, size_t C>
-	Color<T,C> operator *(T v, Color<T,C> c)
+	const Color<T,C> operator *(T v, const Color<T,C>& c)
 	{
-		Color<T,C> r;
-		std::transform( 
-				c.begin(), 
-				c.end(), 
-				r.begin(), 
-				std::bind2nd(std::multiplies<T>(), v) );
-		return r;
+		return (c * v);
+	}
+
+	template <typename T, size_t C>
+	const Color<T,C> operator *(
+		typename TypeTrait<T>::MathType v, const Color<T,C>& c)
+	{
+		return (c * v);
 	}
 
 	// Scalar / Color
 	template <typename T, size_t C>
-	Color<T,C> operator /(T v, Color<T,C> c)
+	const Color<T,C> operator /(T v, const Color<T,C>& c)
 	{
 		Color<T,C> r;
 		std::transform( 
@@ -257,11 +290,32 @@ namespace gil {
 		return r;
 	}
 
+	template <typename T, size_t C>
+	const Color<T,C> operator /(
+		typename TypeTrait<T>::MathType v, const Color<T,C>& c)
+	{
+		Color<T, C> r;
+		for (size_t i = 0; i < C; ++i)
+			r[i] = v / c[i];
+		return r;
+	}
+
 	// default behavior to print all channels in a pixel
 	// to avoid unprintable characters, values are converted
 	// to DebugType defined in TypeTrait.
+	/*
+	template <typename T>
+	std::ostream& operator <<(std::ostream& out, const T& color)
+	{
+		typedef typename TypeTrait<T>::DebugType DebugType;
+		out << static_cast<DebugType>(color);
+		return out;
+	}
+	*/
+
 	template <typename T, size_t C>
-	std::ostream& operator <<(std::ostream& out, Color<T, C> color){
+	std::ostream& operator <<(std::ostream& out, const Color<T, C>& color)
+	{
 		typedef typename TypeTrait<T>::DebugType DebugType;
 		std::copy(color.begin(),
 				color.end(),

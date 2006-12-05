@@ -8,9 +8,10 @@
 
 #include "../Color.h"
 #include "Scaling.h"
+#include "Convolution.h"
 
 namespace gil {
-	template<typename I, typename S, typename T = double>
+	template<typename I, typename S = NearestFilterer<I>, typename T = double>
 	class Pyramid {
 		public:
 			typedef typename I::value_type value_type;
@@ -28,7 +29,10 @@ namespace gil {
 					const I &img = my_pyramids[ my_pyramids.size()-1 ];
 					my_pyramids.push_back(
 						scale(
-							img, 
+							convolute(
+								img, 
+								GaussianFilterer<I>(1, 1)
+							),
 							S(
 								static_cast<T>(width)/img.width(), 
 								static_cast<T>(height)/img.height()
@@ -84,7 +88,7 @@ namespace gil {
 
 				size_t width, height;
 				my_get_size(layer, width, height);
-				return texel(layer, x/width, y/height);
+				return texel(layer, x/(width-1), y/(height-1));
 			}
 
 			value_type texel(T layer, T x, T y) const
@@ -133,7 +137,7 @@ namespace gil {
 			{
 				const size_t width = my_pyramids[layer].width();
 				const size_t height = my_pyramids[layer].height();
-				return my_pyramids[layer].lerp(x * width, y * height);
+				return my_pyramids[layer].lerp(x * (width-1), y * (height-1));
 			}
 
 			value_type my_texel(T layer, T x, T y) const

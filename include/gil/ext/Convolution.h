@@ -18,7 +18,7 @@ namespace gil {
 	}
 
 	template<typename I, typename K>
-	I convolute(const I &src, const K kernel)
+	const I convolute(const I &src, const K kernel)
 	{
 		I dst(src.width(), src.height());
 		convolute(dst, src, kernel);

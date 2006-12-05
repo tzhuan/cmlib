@@ -5,7 +5,7 @@
 
 #include "Filterer.h"
 
-namespace std {
+namespace gil {
 	template<typename I, typename F>
 	void scale(I &dst, const I &src, const F &filterer)
 	{
