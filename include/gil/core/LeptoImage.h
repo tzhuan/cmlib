@@ -3,37 +3,36 @@
 
 #include <algorithm>
 #include <cassert>
+#include <stdexcept>
 
 #include "Color.h"
 
-// FIXME: Now LeptoImage can only be used when image with more than 1 channel.
-
 namespace gil {
-	
-	template<typename T> 
-	class LeptoImage;
 
-	template <typename T, size_t C>
-	class LeptoImage< Color<T, C> > {
+	template <typename ImageType>
+	class LeptoImage {
 		public:
-			typedef Color<T, C> I;
-			typedef typename I::value_type value_type;
-			typedef typename I::reference reference;
-			typedef typename I::const_reference const_reference;
-			typedef typename I::difference_type difference_type;
-			typedef typename I::size_type size_type;
+			typedef typename ImageType::value_type color_type;
+
+			typedef typename ColorTrait<color_type>::BaseType value_type;
+			typedef value_type& reference;
+			typedef const value_type& const_reference;
+			typedef typename ImageType::difference_type difference_type;
+			typedef typename ImageType::size_type size_type;
 
 			template<typename P> class Iterator;
 			typedef Iterator<value_type> iterator;
 			typedef Iterator<const value_type> const_iterator;
 
-			typedef typename I::Converter Converter;
+			template <typename ColorType, size_t C> struct ChannelSelector;
 
-			LeptoImage(I& i, size_type c)
-				: my_image(i), my_channel(c)
+			typedef 
+				ChannelSelector< color_type, ColorTrait<color_type>::Channels > 
+				selector_type;
+
+			LeptoImage(ImageType& i, size_type c): my_image(i), my_channel(c)
 			{
-				// FIXME: throw exception instead of assert
-				assert(c < my_image.channels());
+				// empty
 			}
 
 			~LeptoImage()
@@ -53,14 +52,12 @@ namespace gil {
 
 			reference operator ()(size_type x, size_type y)
 			{
-				if (my_image.channels() == 1) return my_image(x, y);
-				return my_image(x, y)[my_channel];
+				return selector_type()(my_image(x, y), my_channel);
 			}
 
 			const_reference operator ()(size_type x, size_type y) const
 			{
-				if (my_image.channels() == 1) return my_image(x, y);
-				return my_image(x, y)[my_channel];
+				return selector_type()(my_image(x, y), my_channel);
 			}
 
 			void fill(const_reference pixel)
@@ -68,32 +65,36 @@ namespace gil {
 				std::fill(begin(), end(), pixel);
 			}
 
-			template <typename I2>
-			void replace(const I2& img)
+			template <typename I>
+			void replace(const I& img, size_type pos_x = 0, size_type pos_y = 0)
 			{
 				// FIXME use exception instead of assert.
-				assert( img.width() ==  this->width() );
-				assert( img.height() ==  this->height() );
-				assert( img.channels() == 1 );
+				assert( pos_x < this->width() );
+				assert( pos_y < this->height() );
+				assert( pos_x + img.width() < this->width() );
+				assert( pos_y + img.height() < this->height() );
 
-				std::copy(img.begin(), img.end(), begin());
+				for (size_type y(pos_y), iy(0); iy < img.height(); ++iy, ++y)
+					for (size_type x(pos_x), ix(0); ix < img.width(); ++ix, ++x)
+						(*this)(x, y) = img(ix, iy);
 			}
 
-			// iterator of subimage
+			// iterator of LeptoImage
 			template<typename P>
-			class Iterator {
-				friend class LeptoImage<I>;
+			class Iterator: public std::iterator<std::forward_iterator_tag, P> {
+				friend class LeptoImage<ImageType>;
+
 				public:
 					typedef Iterator<P> self_type;
 
 					P& operator *() const
 					{
-						return (*my_iterator)[my_channel];
+						return selector_type()(*my_iterator, my_channel);
 					}
 
 					P* operator ->() const
 					{
-						return (*my_iterator)[my_channel];
+						return selector_type()(*my_iterator, my_channel);
 					}
 
 					self_type& operator ++()
@@ -116,16 +117,33 @@ namespace gil {
 
 					bool operator !=(const self_type &rhs) const
 					{
-						return !(*this == rhs);
+						return (my_iterator != rhs.my_iterator);
 					}
 
-				protected:
-					Iterator(typename P::iterator i, size_type c)
-						: my_iterator(i), my_channel(c)
-					{}
 				private:
-					typename P::iterator *my_iterator;
+
+					template <typename T> class ResolveConst {
+						// T is assumed to be a color type, 
+						// either const or not.
+						public:
+							typedef typename ImageType::iterator result;
+					};
+					// partial specialize the const one
+					template <typename T> class ResolveConst<const T> {
+						public:
+							typedef typename ImageType::const_iterator result;
+					};
+
+					typedef typename ResolveConst<P>::result IteratorType;
+
+					IteratorType my_iterator;
 					size_type my_channel;
+
+					Iterator(IteratorType i, size_type c)
+						: my_iterator(i), my_channel(c)
+					{
+						// empty
+					}
 			};
 
 			iterator begin()
@@ -153,17 +171,53 @@ namespace gil {
 				return 1;
 			}
 
+			template <typename ColorType, size_t C>
+			struct ChannelSelector {
+
+				inline
+				value_type&
+				operator ()(ColorType& color, size_t c)
+				{
+					return color[c];
+				}
+
+				inline
+				const value_type& 
+				operator ()(const ColorType& color, size_t c) const
+				{
+					return color[c];
+				}
+			};
+
+			template<typename ColorType>
+			struct ChannelSelector<ColorType, 1> {
+
+				inline
+				value_type&
+				operator ()(ColorType& color, size_t c)
+				{
+					return color;
+				}
+
+				inline
+				const value_type&
+				operator ()(const ColorType& color, size_t c) const
+				{
+					return color;
+				}
+			};
+
 		private:
-			I& my_image;
+
+			ImageType& my_image;
 			size_type my_channel;
-			void operator =(const LeptoImage<I> &i);
+			void operator =(const LeptoImage<ImageType> &i);
 	};
 
-
-	template <typename I>
-	LeptoImage<I> lepto_image(I& img, size_t c)
+	template <typename ImageType>
+	LeptoImage<ImageType> lepto_image(ImageType& img, size_t c)
 	{
-		return LeptoImage<I>(img, c);
+		return LeptoImage<ImageType>(img, c);
 	}
 	
 } // namespace gil

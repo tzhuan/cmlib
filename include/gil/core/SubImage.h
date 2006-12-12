@@ -60,24 +60,22 @@ namespace gil {
 			}
 
 			template <typename I2>
-			void replace(const I2& img, int pos_x = 0, int pos_y = 0)
+			void replace(const I2& img, size_type pos_x=0, size_type pos_y=0)
 			{
 				// FIXME use exception instead of assert.
-				assert( pos_x >= 0 && pos_x < this->width() );
-				assert( pos_y >= 0 && pos_y < this->height() );
+				assert( pos_x < this->width() );
+				assert( pos_y < this->height() );
 				assert( pos_x + img.width() < this->width() );
 				assert( pos_y + img.height() < this->height() );
 
-				for (size_t y(pos_y), iy(0); iy < img.height(); ++iy, ++y) {
-					for (size_t x(pos_x), ix(0); ix < img.width(); ++ix, ++x) {
+				for (size_type y(pos_y), iy(0); iy < img.height(); ++iy, ++y)
+					for (size_type x(pos_x), ix(0); ix < img.width(); ++ix, ++x)
 						(*this)(x, y) = img(ix, iy);
-					}
-				}
 			}
 
 			// iterator of subimage
 			template<typename P>
-			class Iterator : public std::iterator<std::forward_iterator_tag, P> {
+			class Iterator: public std::iterator<std::forward_iterator_tag, P> {
 				friend class SubImage<I>;
 				public:
 					typedef Iterator<P> self_type;

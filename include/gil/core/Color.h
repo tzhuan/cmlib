@@ -73,48 +73,59 @@ namespace gil {
 
 			ConstRefType operator [](int i) const { return my_data[i]; }
 
-			Color(){
+			Color()
+			{
+				// empty
 			}
 
-			Color(Type c0){
+			Color(Type c0)
+			{
 				set(c0);
 			}
 
-			Color(Type c0, Type c1, Type c2){
+			Color(Type c0, Type c1, Type c2)
+			{
 				set(c0, c1, c2);
 			}
 
-			Color(Type c0, Type c1, Type c2, Type c3){
+			Color(Type c0, Type c1, Type c2, Type c3)
+			{
 				set(c0, c1, c2, c3);
 			}
 
-			void fill(Type c0){
+			void fill(Type c0)
+			{
 				std::fill(begin(), end(), c0);
 			}
 
-			void set(Type c0){
+			void set(Type c0)
+			{
 				fill(c0);
 			}
 
-			void set(Type c0, Type c1, Type c2){
+			void set(Type c0, Type c1, Type c2)
+			{
 				my_data[0] = c0;
 				if(Channel >= 2) my_data[1] = c1;
 				if(Channel >= 3) my_data[2] = c2;
 			}
 
-			void set(Type c0, Type c1, Type c2, Type c3){
+			void set(Type c0, Type c1, Type c2, Type c3)
+			{
 				my_data[0] = c0;
 				if(Channel >= 2) my_data[1] = c1;
 				if(Channel >= 3) my_data[2] = c2;
 				if(Channel >= 4) my_data[3] = c3;
 			}
 
-			ColorType& operator =(const Color<Type,3>& color){
+			ColorType& operator =(const Color<Type,3>& color)
+			{
 				set(color[0], color[1], color[2]);
 				return *this;
 			}
 
-			ColorType& operator =(const Color<Type,4>& color){
+			ColorType& operator =(const Color<Type,4>& color)
+			{
 				set(color[0], color[1], color[2], color[3]);
 				return *this;
 			}
@@ -396,6 +407,7 @@ namespace gil {
 		typedef T BaseType;
 		typedef typename TypeTrait<T>::ExtendedType ExtendedColor;
 		static size_t channels() { return 1; }
+		enum { Channels = 1 };
 	};
 
 	template <typename T, size_t C>
@@ -403,8 +415,8 @@ namespace gil {
 		typedef T BaseType;
 		typedef Color<typename TypeTrait<T>::ExtendedType, C> ExtendedColor;
 		static size_t channels() { return C; }
+		enum { Channels = C };
 	};
-
 
 	typedef Color<Byte1, 3> Byte3;
 	typedef Color<Byte1, 4> Byte4;
