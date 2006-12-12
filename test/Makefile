@@ -1,11 +1,10 @@
-CXXFLAGS = -I../include 
-LIBS = -L../src -L../lib -lgil2
-IO_TEST = io-test
-SUBIMAGE_TEST = subimage-test
-CONVERT = convert
+CXXFLAGS = -I../include -I /usr/local/include
+GIL_LIBS = -L../src -L../lib -lgil2
+BOOST_LIBS = -L /usr/local/lib -lboost_unit_test_framework-gcc
+LD_FLAGS = $(GIL_LIBS) $(BOOST_LIBS)
 
 %.o: %.cpp
-	$(CXX) -c $< $(CXXFLAGS) 
+	$(CXX) -o $@ $< $(CXXFLAGS) $(LD_FLAGS)
 
 all: $(CONVERT) $(IO_TEST)
 
