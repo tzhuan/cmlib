@@ -1,5 +1,5 @@
-#ifndef GIL_LEPTOTIMAGE_H
-#define GIL_LEPTOTIMAGE_H
+#ifndef GIL_SLICETIMAGE_H
+#define GIL_SLICETIMAGE_H
 
 #include <algorithm>
 #include <cassert>
@@ -10,7 +10,7 @@
 namespace gil {
 
 	template <typename ImageType>
-	class LeptoImage {
+	class SliceImage {
 		public:
 			typedef typename ImageType::value_type color_type;
 
@@ -24,18 +24,12 @@ namespace gil {
 			typedef Iterator<value_type> iterator;
 			typedef Iterator<const value_type> const_iterator;
 
-			template <typename ColorType, size_t C> struct ChannelSelector;
-
-			typedef 
-				ChannelSelector< color_type, ColorTrait<color_type>::Channels > 
-				selector_type;
-
-			LeptoImage(ImageType& i, size_type c): my_image(i), my_channel(c)
+			SliceImage(ImageType& i, size_type c): my_image(i), my_channel(c)
 			{
 				// empty
 			}
 
-			~LeptoImage()
+			~SliceImage()
 			{
 				// empty
 			}
@@ -52,12 +46,18 @@ namespace gil {
 
 			reference operator ()(size_type x, size_type y)
 			{
-				return selector_type()(my_image(x, y), my_channel);
+				return 
+					ColorTrait<color_type>::select_channel(
+						my_image(x, y), my_channel
+					);
 			}
 
 			const_reference operator ()(size_type x, size_type y) const
 			{
-				return selector_type()(my_image(x, y), my_channel);
+				return 
+					ColorTrait<color_type>::select_channel(
+						my_image(x, y), my_channel
+					);
 			}
 
 			void fill(const_reference pixel)
@@ -79,22 +79,28 @@ namespace gil {
 						(*this)(x, y) = img(ix, iy);
 			}
 
-			// iterator of LeptoImage
+			// iterator of SliceImage
 			template<typename P>
 			class Iterator: public std::iterator<std::forward_iterator_tag, P> {
-				friend class LeptoImage<ImageType>;
+				friend class SliceImage<ImageType>;
 
 				public:
 					typedef Iterator<P> self_type;
 
 					P& operator *() const
 					{
-						return selector_type()(*my_iterator, my_channel);
+						return 
+							ColorTrait<color_type>::select_channel(
+								*my_iterator, my_channel
+							);
 					}
 
 					P* operator ->() const
 					{
-						return selector_type()(*my_iterator, my_channel);
+						return 
+							ColorTrait<color_type>::select_channel(
+								*my_iterator, my_channel
+							);
 					}
 
 					self_type& operator ++()
@@ -171,55 +177,19 @@ namespace gil {
 				return 1;
 			}
 
-			template <typename ColorType, size_t C>
-			struct ChannelSelector {
-
-				inline
-				value_type&
-				operator ()(ColorType& color, size_t c)
-				{
-					return color[c];
-				}
-
-				inline
-				const value_type& 
-				operator ()(const ColorType& color, size_t c) const
-				{
-					return color[c];
-				}
-			};
-
-			template<typename ColorType>
-			struct ChannelSelector<ColorType, 1> {
-
-				inline
-				value_type&
-				operator ()(ColorType& color, size_t c)
-				{
-					return color;
-				}
-
-				inline
-				const value_type&
-				operator ()(const ColorType& color, size_t c) const
-				{
-					return color;
-				}
-			};
-
 		private:
 
 			ImageType& my_image;
 			size_type my_channel;
-			void operator =(const LeptoImage<ImageType> &i);
+			void operator =(const SliceImage<ImageType> &i);
 	};
 
 	template <typename ImageType>
-	LeptoImage<ImageType> lepto_image(ImageType& img, size_t c)
+	SliceImage<ImageType> slice_image(ImageType& img, size_t c)
 	{
-		return LeptoImage<ImageType>(img, c);
+		return SliceImage<ImageType>(img, c);
 	}
 	
 } // namespace gil
 
-#endif // GIL_LEPTOIMAGE_H
+#endif // GIL_SLICEIMAGE_H

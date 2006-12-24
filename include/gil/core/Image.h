@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "Color.h"
+#include "ImageProxy.h"
 
 namespace gil {
 
@@ -135,6 +136,11 @@ namespace gil {
 				return my_row[y][x];
 			}
 
+			template<class Filter, class To, class From>
+			Image& operator =(const ImageProxy<Filter, To, From>& image_proxy)
+			{
+				return image_proxy(*this);
+			}
 
 			Image& operator =(const Image& img)
 			{

@@ -6,7 +6,7 @@
 #include "../gil.h"
 
 namespace gil {
-
+	/*
 	struct TrueType {};
 	struct FalseType {};
 
@@ -16,85 +16,146 @@ namespace gil {
 		typedef FalseType Separable;
 	};
 
-	template<typename I>
-	struct NullFilterer1 {
-		const typename I::value_type 
-		operator()(const I &image, int x, int y) const 
-		{
-			return image(x, y);
-		}
-	};
 
-	template<typename I>
-	struct NullFilterer2 {
-		template<typename T>
-		struct NullFilterX {
-			const typename T::value_type
-			operator()(const T &image, size_t x, size_t y) const
-			{
-				return image(x, y);
-			}
-		};
-
-		template<typename T>
-		struct NullFilterY {
-			const typename T::value_type 
-			operator()(const T &image, size_t x, size_t y) const
-			{
-				return image(x, y);
-			}
-		};
-
-		const NullFilterX<I> x() const
-		{
-			return NullFilterX<I>();
-		}
-
-		const NullFilterY<I> y() const
-		{
-			return NullFilterY<I>();
-		}
-	};
-	template<typename I>
-	struct FiltererTrait< NullFilterer2<I> >
+	template<typename To, typename From, typename F>
+	inline 
+	void 
+	filter(To &dst, const From &src, const F &filterer, const TrueType&)
 	{
-		typedef TrueType Separable;
-	};
+		To tmp(dst);
+		filter(tmp, src, filterer.x(), true);
+		filter(dst, tmp, filterer.y(), true);
+	}
 
-	template<typename I, typename F>
-	void filter(I &dst, const I &src, const F &filterer, bool)
+	template<typename To, typename From, typename F>
+	inline 
+	void 
+	filter(To &dst, const From &src, const F &filterer, const FalseType&)
+	{
+		filter(dst, src, filterer, true);
+	}
+	*/
+
+	template<typename To, typename From, typename F>
+	inline void filter_impl(To &dst, const From &src, const F &filterer)
 	{
 		for (size_t h = 0; h < dst.height(); ++h)
 			for (size_t w = 0; w < dst.width(); ++w)
 				dst(w, h) = filterer(src, w, h);
 	}
 
-	template<typename I, typename F>
-	void filter(I &dst, const I &src, const F &filterer, const TrueType&)
+	template<typename To, typename From, typename F>
+	inline 
+	void 
+	filter_(To &dst, const From &src, const F &filterer)
 	{
-		I tmp(dst);
-		filter(tmp, src, filterer.x(), true);
-		filter(dst, tmp, filterer.y(), true);
+		if (F::separable()) {
+			To tmp(dst);
+			filter_impl(tmp, src, filterer.x());
+			filter_impl(dst, tmp, filterer.y());
+		} else {
+			filter_impl(dst, src, filterer);
+		}
+	}
+
+	template<typename To, typename From, typename F>
+	inline 
+	void 
+	filter(To &dst, const From &src, const F &filterer)
+	{
+		filter_(dst, src, filterer);
+	}
+
+	template<typename To, typename From, typename F>
+	inline
+	const 
+	ImageProxy<
+		void (*)(To&, const From&, const F&, size_t, size_t),
+		To,
+		From,
+		F,
+		size_t,
+		size_t
+	>
+	filter(const From &src, const F &filterer, size_t width, size_t height)
+	{
+		return 
+			ImageProxy<
+				void (*)(To&, const From&, const F&, size_t, size_t),
+				To,
+				From,
+				F,
+				size_t,
+				size_t
+			>(
+				&(filter_<To, From, F>),
+				src, 
+				filterer, 
+				width, 
+				height
+			);
 	}
 
 	template<typename I, typename F>
-	void filter(I &dst, const I &src, const F &filterer, const FalseType&)
+	inline
+	const 
+	ImageProxy<
+		void (*)(I&, const I&, const F&, size_t, size_t),
+		I,
+		I,
+		F,
+		size_t,
+		size_t
+	>
+	filter(const I &src, const F &filterer, size_t width, size_t height)
 	{
-		filter(dst, src, filterer, true);
+		return
+			ImageProxy<
+				void (*)(I&, const I&, const F&, size_t, size_t),
+				I,
+				I,
+				F,
+				size_t,
+				size_t
+			>(
+				&(filter_<I, I, F>),
+				src, 
+				filterer, 
+				width, 
+				height
+			);
+	}
+
+	template<typename To, typename From, typename F>
+	inline
+	const
+	ImageProxy<
+		void (*)(To&, const From&, const F&, size_t, size_t),
+		To,
+		From,
+		F,
+		size_t,
+		size_t
+	>
+	filter(const From &src, const F &filterer)
+	{
+		return filter<To, From, F>( src, filterer, src.width(), src.height() );
 	}
 
 	template<typename I, typename F>
-	void filter(I &dst, const I &src, const F &filterer)
+	inline 
+	const 
+	ImageProxy<
+		void (*)(I&, const I&, const F&, size_t, size_t),
+		I,
+		I,
+		F,
+		size_t,
+		size_t
+	>
+	filter(const I &src, const F &filterer)
 	{
-		filter(dst, src, filterer, typename FiltererTrait<F>::Separable () );
-	}
-
-	template<typename I, typename F>
-	const I filter(const I &src, const F &filterer, size_t width, size_t height)
-	{
-		I dst(width, height);
-		filter(dst, src, filterer, typename FiltererTrait<F>::Separable () );
-		return dst;
+		return filter<I, F>( src, filterer, src.width(), src.height() );
 	}
 }
 

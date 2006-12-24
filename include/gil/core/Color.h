@@ -39,8 +39,8 @@ namespace gil {
 	class TypeTrait {
 		public:
 			typedef T DebugType;
-			typedef double ExtendedType;
-			typedef double MathType;
+			typedef float ExtendedType;
+			typedef float MathType;
 
 			static T zero() { return 0; }
 
@@ -78,112 +78,97 @@ namespace gil {
 				// empty
 			}
 
-			Color(Type c0)
+			template<typename T>
+			explicit Color(T c0)
 			{
 				set(c0);
 			}
 
-			Color(Type c0, Type c1, Type c2)
+			template<typename T>
+			Color(T c0, T c1, T c2)
 			{
 				set(c0, c1, c2);
 			}
 
-			Color(Type c0, Type c1, Type c2, Type c3)
+			template<typename T>
+			Color(T c0, T c1, T c2, T c3)
 			{
 				set(c0, c1, c2, c3);
 			}
 
-			void fill(Type c0)
+			template<typename T>
+			void fill(T c0)
 			{
-				std::fill(begin(), end(), c0);
+				std::fill(begin(), end(), static_cast<Type>(c0));
 			}
 
-			void set(Type c0)
+			template<typename T>
+			void set(T c0)
 			{
 				fill(c0);
 			}
 
-			void set(Type c0, Type c1, Type c2)
+			template<typename T>
+			void set(T c0, T c1, T c2)
 			{
-				my_data[0] = c0;
-				if(Channel >= 2) my_data[1] = c1;
-				if(Channel >= 3) my_data[2] = c2;
+				(*this)[0] = static_cast<Type>(c0);
+				if(Channel >= 2) (*this)[1] = static_cast<Type>(c1);
+				if(Channel >= 3) (*this)[2] = static_cast<Type>(c2);
 			}
 
-			void set(Type c0, Type c1, Type c2, Type c3)
+			template<typename T>
+			void set(T c0, T c1, T c2, T c3)
 			{
-				my_data[0] = c0;
-				if(Channel >= 2) my_data[1] = c1;
-				if(Channel >= 3) my_data[2] = c2;
-				if(Channel >= 4) my_data[3] = c3;
+				(*this)[0] = static_cast<Type>(c0);
+				if(Channel >= 2) (*this)[1] = static_cast<Type>(c1);
+				if(Channel >= 3) (*this)[2] = static_cast<Type>(c2);
+				if(Channel >= 4) (*this)[3] = static_cast<Type>(c3);
 			}
 
-			ColorType& operator =(const Color<Type,3>& color)
+			template<typename T>
+			ColorType& operator =(const Color<T, 3>& color)
 			{
 				set(color[0], color[1], color[2]);
 				return *this;
 			}
 
-			ColorType& operator =(const Color<Type,4>& color)
+			template<typename T>
+			ColorType& operator =(const Color<T, 4>& color)
 			{
 				set(color[0], color[1], color[2], color[3]);
 				return *this;
 			}
 
 			// some calculations...
-			ColorType& operator +=(const ColorType& color)
-			{
-				std::transform( 
-						begin(), 
-						end(), 
-						color.begin(), 
-						begin(), 
-						std::plus<Type>() );
-				return *this;
-			}
-
-			ColorType& operator -=(const ColorType& color)
-			{
-				std::transform( 
-						begin(), 
-						end(), 
-						color.begin(), 
-						begin(), 
-						std::minus<Type>() );
-				return *this;
-			}
-
-			ColorType& operator *=(Type v)
-			{
-				std::transform( 
-						begin(), 
-						end(), 
-						begin(), 
-						std::bind2nd(std::multiplies<Type>(), v) );
-				return *this;
-			}
-
-			ColorType& operator *=(MathType v)
+			template<typename T>
+			ColorType& operator +=(const Color<T, Channel>& color)
 			{
 				for (size_t i = 0; i < Channel; ++i)
-					my_data[i] *= v;
+					(*this)[i] += static_cast<Type>(color[i]);
 				return *this;
 			}
 
-			ColorType& operator /=(Type v)
-			{
-				std::transform( 
-						begin(), 
-						end(), 
-						begin(), 
-						std::bind2nd(std::divides<Type>(), v) );
-				return *this;
-			}
-
-			ColorType& operator /=(MathType v)
+			template<typename T>
+			ColorType& operator -=(const Color<T, Channel>& color)
 			{
 				for (size_t i = 0; i < Channel; ++i)
-					my_data[i] /= v;
+					(*this)[i] -= static_cast<Type>(color[i]);
+				return *this;
+			}
+
+			template<typename T>
+			ColorType& operator *=(T v)
+			{
+				for (size_t i = 0; i < Channel; ++i)
+					(*this)[i] *= static_cast<Type>(v);
+				return *this;
+			}
+
+			template<typename T>
+			ColorType& operator /=(T v)
+			{
+				for (size_t i = 0; i < Channel; ++i)
+					(*this)[i] /= static_cast<Type>(v);
 				return *this;
 			}
 
@@ -194,65 +179,35 @@ namespace gil {
 				return r;
 			}
 
-			ConstColorType operator +(const ColorType& c) const
+			template<typename T>
+			ConstColorType operator +(const Color<T, Channel>& c) const
 			{
-				ColorType r;
-				std::transform( 
-						begin(), 
-						end(), 
-						c.begin(), 
-						r.begin(), 
-						std::plus<Type>() );
+				ColorType r(*this);
+				r += c;
 				return r;
 			}
 
-			ConstColorType operator -(const ColorType& c) const
+			template<typename T>
+			ConstColorType operator -(const Color<T, Channel>& c) const
 			{
-				ColorType r;
-				std::transform( 
-						begin(), 
-						end(), 
-						c.begin(), 
-						r.begin(), 
-						std::minus<Type>() );
+				ColorType r(*this);
+				r -= c;
 				return r;
 			}
 
-			ConstColorType operator *(Type v) const
+			template<typename T>
+			ConstColorType operator *(T v) const
 			{
-				ColorType r;
-				std::transform( 
-						begin(), 
-						end(), 
-						r.begin(), 
-						std::bind2nd(std::multiplies<Type>(), v) );
+				ColorType r(*this);
+				r *= v;
 				return r;
 			}
 
-			ConstColorType operator *(MathType v) const
+			template<typename T>
+			ConstColorType operator /(T v) const
 			{
-				ColorType r;
-				for (size_t i = 0; i < Channel; ++i)
-					r[i] = my_data[i] * v;
-				return r;
-			}
-
-			ConstColorType operator /(Type v) const
-			{
-				ColorType r;
-				std::transform( 
-						begin(), 
-						end(), 
-						r.begin(), 
-						std::bind2nd(std::divides<Type>(), v) );
-				return r;
-			}
-
-			ConstColorType operator /(MathType v) const
-			{
-				ColorType r;
-				for (size_t i = 0; i < Channel; ++i)
-					r[i] = my_data[i] / v;
+				ColorType r(*this);
+				r /= v;
 				return r;
 			}
 
@@ -275,37 +230,17 @@ namespace gil {
 	};
 
 	// Scalar * Color
-	template <typename T, size_t C>
-	const Color<T,C> operator *(T v, const Color<T,C>& c)
-	{
-		return (c * v);
-	}
-
-	template <typename T, size_t C>
-	const Color<T,C> operator *(
-		typename TypeTrait<T>::MathType v, const Color<T,C>& c)
+	template <typename S, typename T, size_t C>
+	const Color<T,C> operator *(S v, const Color<T,C>& c)
 	{
 		return (c * v);
 	}
 
 	// Scalar / Color
-	template <typename T, size_t C>
-	const Color<T,C> operator /(T v, const Color<T,C>& c)
+	template <typename S, typename T, size_t C>
+	const Color<T,C> operator /(S v, const Color<T,C>& c)
 	{
 		Color<T,C> r;
-		std::transform( 
-				c.begin(), 
-				c.end(), 
-				r.begin(), 
-				std::bind1st(std::divides<T>(), v) );
-		return r;
-	}
-
-	template <typename T, size_t C>
-	const Color<T,C> operator /(
-		typename TypeTrait<T>::MathType v, const Color<T,C>& c)
-	{
-		Color<T, C> r;
 		for (size_t i = 0; i < C; ++i)
 			r[i] = v / c[i];
 		return r;
@@ -407,6 +342,14 @@ namespace gil {
 		typedef T BaseType;
 		typedef typename TypeTrait<T>::ExtendedType ExtendedColor;
 		static size_t channels() { return 1; }
+		static inline T& select_channel(T& color, size_t c) 
+		{ 
+			return color; 
+		}
+		static inline const T& select_channel(const T& color, size_t c) 
+		{ 
+			return color;
+		}
 		enum { Channels = 1 };
 	};
 
@@ -415,6 +358,14 @@ namespace gil {
 		typedef T BaseType;
 		typedef Color<typename TypeTrait<T>::ExtendedType, C> ExtendedColor;
 		static size_t channels() { return C; }
+		static inline T& select_channel(Color<T, C>& color, size_t c)
+		{
+			return color[c];
+		}
+		static inline const T& select_channel(const Color<T, C>& color, size_t c)
+		{
+			return color[c];
+		}
 		enum { Channels = C };
 	};
 

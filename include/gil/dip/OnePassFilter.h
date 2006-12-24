@@ -1,0 +1,77 @@
+#ifndef ONE_PASS_FILTER_H
+#define ONE_PASS_FILTER_H
+
+#include "Filter.h"
+
+namespace gil {
+
+	template<class DstImage, typename T, class Kernel>
+	class OnePassFilter: 
+		public Filter< OnePassFilter<DstImage, T, Kernel>, DstImage > 
+	{
+
+		public:
+			template<class RealFilter, typename S>
+			OnePassFilter<DstImage, T, Kernel>(
+				RealFilter& ref, S x, S y
+			): 
+				Filter< OnePassFilter<DstImage, T, Kernel>, DstImage >(ref), 
+				my_kernel(x, y)
+			{
+				// empty
+			}
+
+		protected:
+
+			template<class SrcImage>
+			void filter(DstImage& dst, const SrcImage& src) 
+			{
+				typedef 
+					typename ColorTrait< 
+						typename SrcImage::value_type 
+					>::ExtendedColor sum_type;
+
+				dst.resize(src.width(), src.height());
+
+				const int width = static_cast<int>(src.width());
+				const int height = static_cast<int>(src.height());
+				const size_t rx = my_kernel.sizex()/2;
+				const size_t ry = my_kernel.sizey()/2;
+
+				for (size_t y = 0; y < dst.height(); ++y) {
+					for (size_t x = 0; x < dst.weight(); ++x) {
+						sum_type sum(0);
+						T num = 0;
+
+						for (int h = -ry; h <= ry; ++h) {
+
+							const int cur_y = static_cast<int>(y) + h;
+							if (cur_y < 0) continue;
+							else if (cur_y >= height)
+								break;
+
+							for (int w = -rx; w <= rx; ++w) {
+
+								const int cur_x = static_cast<int>(x) + w;
+								if (cur_x < 0) continue;
+								else if (cur_x >= width)
+									break;
+
+								sum += my_kernel(w, h) * src(cur_x, cur_y);
+								num += my_kernel(w, h);
+							}
+						}
+
+						assert(num);
+						dst(x, y) = sum / num;
+					}
+				}
+			}
+
+		private:
+			Kernel my_kernel;
+	};
+
+}
+
+#endif
