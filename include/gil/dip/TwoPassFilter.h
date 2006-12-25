@@ -106,9 +106,16 @@ namespace gil {
 							if ( cur >= Selector::size(src) ) 
 								break;
 
-							sum += 
-								kernel(i) *
-								Selector::color(src, x, y, cur);
+							for (size_t c = 0; c < dst.channels(); ++c) {
+								ColorTrait<sum_type>::select_channel(sum, c) += 
+									kernel(i) * 
+									ColorTrait<
+										typename SrcImage::value_type
+									>::select_channel(
+										Selector::color(src, x, y, cur),
+										c
+									);
+							}
 							num += kernel(i);
 						}
 

@@ -57,7 +57,14 @@ namespace gil {
 								else if (cur_x >= width)
 									break;
 
-								sum += my_kernel(w, h) * src(cur_x, cur_y);
+								for (size_t c = 0; c < dst.channels(); ++c) {
+									ColorTrait<sum_type>::select_channel(sum, c)
+										+= 
+										kernel(w, h) * 
+										ColorTrait<
+											typename SrcImage::value_type
+										>::select_channel(src(cur_x, cur_y), c);
+								}
 								num += my_kernel(w, h);
 							}
 						}
