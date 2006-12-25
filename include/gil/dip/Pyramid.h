@@ -6,16 +6,20 @@
 #include <stdexcept>
 #include <cmath>
 
-#include "Scaling.h"
-#include "Convolution.h"
+#include "NearestFilter.h"
+#include "GaussianFilter.h"
 
 namespace gil {
-	template<typename I, typename S = NearestFilterer<I>, typename T = double>
+	template<
+		class Image, 
+		class Scaler = NearestFilter<Image>, 
+		typename T = TypeTrait<Byte1>::MathType
+	>
 	class Pyramid {
 		public:
-			typedef typename I::value_type value_type;
+			typedef typename Image::value_type value_type;
 
-			Pyramid(const I &image)
+			Pyramid(const Image &image)
 			{
 				size_t width = image.width();
 				size_t height = image.height();
@@ -25,32 +29,29 @@ namespace gil {
 				while (width > 1 && height > 1) {
 					width = (width+1) / 2;
 					height = (height+1) / 2;
-					const I &img = my_pyramids[ my_pyramids.size()-1 ];
+					const Image &img = my_pyramids[ my_pyramids.size()-1 ];
+
+					Image tmp = GaussianFilter<Image>(1., 1.)(img);
+					my_pyramids.push_back( Scaler(width, height)(tmp) );
+
+					/*
 					my_pyramids.push_back(
-						scale(
-							convolute(
-								img, 
-								GaussianFilterer<I>(1, 1)
-							),
-							S(
-								static_cast<T>(width)/img.width(), 
-								static_cast<T>(height)/img.height()
-							),
-							width,
-							height
+						Scaler(width, height)(
+							GaussianFilter<Image>(1., 1.)(img)
 						)
 					);
+					*/
 				}
 			}
 
-			const I operator ()(T layer) const
+			const Image operator ()(T layer) const
 			{
-				I tmp;
+				Image tmp;
 				(*this)(tmp, layer);
 				return tmp;
 			}
 
-			void operator ()(I &dst, T layer) const
+			void operator ()(Image &dst, T layer) const
 			{
 				my_check_layer(layer);
 
@@ -100,6 +101,11 @@ namespace gil {
 				return my_texel(layer, x, y);
 			}
 
+			size_t size(void) const
+			{
+				return my_pyramids.size();
+			}
+
 		protected:
 			void my_check_layer(T layer) const
 			{
@@ -125,7 +131,7 @@ namespace gil {
 				T fractional = std::modf(layer, &integral);
 				const size_t integer = static_cast<size_t>(integral);
 
-				T ratio = std::pow(2., fractional);
+				T ratio = std::pow(static_cast<T>(2), fractional);
 				width = 
 					static_cast<size_t>(my_pyramids[integer].width()/ratio);
 				height = 
@@ -158,7 +164,7 @@ namespace gil {
 			}
 
 		private:
-			std::vector<I> my_pyramids;
+			std::vector<Image> my_pyramids;
 	};
 
 }
