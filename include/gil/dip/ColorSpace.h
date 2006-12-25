@@ -28,32 +28,13 @@ namespace gil {
 	template<typename T>
 	const T max(const T &a, const T &b, const T &c)
 	{
-		return max( max(a, b), max(b, c) );
+		return std::max( std::max(a, b), std::max(b, c) );
 	}
 
 	template<typename T>
 	const T min (const T &a, const T &b, const T &c)
 	{
-		return min( min(a, b), min(b, c) );
-	}
-
-	template<typename Converter>
-	void convert(
-		Image<typename Converter::To> &dst, 
-		const Image<typename Converter::From> &src, 
-		const Converter &converter)
-	{
-		transform(src.begin(), src.end(), dst.begin(), converter);
-	}
-
-	template<typename Converter>
-	const Image<typename Converter::To> 
-	convert(const Image<typename Converter::From> &src, 
-			const Converter &converter)
-	{
-		Image<typename Converter::To> dst(src.width(), src.height());
-		convert(dst, src, converter);
-		return dst;
+		return std::min( std::min(a, b), std::min(b, c) );
 	}
 
 	template<typename To, typename From> struct RgbToGray;
