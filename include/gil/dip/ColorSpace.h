@@ -37,9 +37,9 @@ namespace gil {
 		return std::min( std::min(a, b), std::min(b, c) );
 	}
 
-	template<typename To, typename From> struct RgbToGray;
+	template<typename T> struct RgbToGray;
 	template<typename T, size_t C> 
-	struct RgbToGray<T, Color<T, C> >
+	struct RgbToGray< Color<T, C> >
 	{
 		typedef T To;
 		typedef Color<T, C> From;
@@ -53,7 +53,7 @@ namespace gil {
 			);
 		}
 	};
-	template<typename T> struct RgbToGray<T, Color<T, 2> >;
+	template<typename T> struct RgbToGray< Color<T, 2> >;
 
 	template<typename T>
 	struct RgbToXyz {
@@ -118,7 +118,7 @@ namespace gil {
 			const value_type &B = from[2];
 			const value_type delta = TypeTrait<value_type>::opaque() / 2;
                         //printf("%g \n",delta);
-			value_type Y = RgbToGray<value_type, From>()(from);
+			value_type Y = RgbToGray<From>()(from);
 			value_type Cr = static_cast<value_type>( (R-Y) * 0.713 + delta );
 			value_type Cb = static_cast<value_type>( (B-Y) * 0.564 + delta );
 

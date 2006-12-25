@@ -5,29 +5,63 @@
 
 namespace gil {
 
-	template<class DstImage, class Converter>
-	class Convert: public Filter<Convert<DstImage, Converter>, DstImage> {
-		friend class Filter<Convert<DstImage, Converter>, DstImage>;
+	template<template<class> class Converter>
+	class Convert {
 		public:
-			Convert<DstImage, Converter>(): 
-				Filter<Convert<DstImage, Converter>, DstImage>(*this),
-				my_converter(Converter())
+			Convert()
 			{
 				// empty
 			}
 
-		protected:
-			template<class SrcImage>
-			void filter(DstImage& dst, const SrcImage& src) const
+			template<class I>
+			inline void operator ()(
+				Image<typename Converter<typename I::value_type>::To>& dst, 
+				const I& src
+			) const
 			{
 				dst.resize(src.width(), src.height());
+				Converter<typename I::value_type> converter;
 				for (size_t y = 0; y < src.height(); ++y)
 					for (size_t x = 0; x < src.width(); ++x)
-						dst(x, y) = my_converter(src(x, y));
+						dst(x, y) = converter(src(x, y));
 			}
 
+			template<
+				class ProxyFilter, class ProxyDstImage, class ProxySrcImage
+			>
+			inline void operator ()(
+				Image<
+					typename Converter<typename ProxyDstImage::value_type>::To
+				>& dst,
+				const ImageProxy<ProxyFilter, ProxyDstImage, ProxySrcImage>&
+				src_proxy
+			) const
+			{
+				ProxyDstImage tmp;
+				(*this)(dst, src_proxy(tmp));
+			}
+
+			template<class I>
+			inline 
+			ImageProxy<
+				Convert<Converter>, 
+				Image<typename Converter<typename I::value_type>::To>, 
+				I
+			>
+			operator ()(const I& src) const
+			{
+				return 
+					ImageProxy<
+						Convert<Converter>, 
+						Image<typename Converter<typename I::value_type>::To>, 
+						I
+					>
+					(*this, src);
+			}
+
+		protected:
+
 		private:
-			const Converter my_converter;
 
 	};
 

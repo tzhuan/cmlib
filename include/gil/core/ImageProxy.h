@@ -6,6 +6,8 @@ namespace gil {
 	template<class Filter, class DstImage, class SrcImage>
 	class ImageProxy {
 		public:
+			typedef typename DstImage::value_type value_type;
+
 			ImageProxy(const Filter& filter, const SrcImage& src):
 				my_filter(filter), my_src(src)
 			{
