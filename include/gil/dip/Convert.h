@@ -5,6 +5,42 @@
 
 namespace gil {
 
+	template<class Converter>
+	class DefaultConvert: 
+		public 
+			Filter< DefaultConvert<Converter>, Image<typename Converter::To> > 
+	{
+		friend 
+			class Filter< 
+				DefaultConvert<Converter>, 
+				Image<typename Converter::To> 
+			>;
+		public:
+			DefaultConvert(): 
+				Filter<
+					DefaultConvert<Converter>, Image<typename Converter::To>
+				>(*this)
+			{
+				// empty
+			}
+
+		protected:
+			template<class I>
+			inline void filter(
+				Image<typename Converter::To>& dst, const I& src
+			) const
+			{
+				dst.resize(src.width(), src.height());
+				Converter converter;
+				for (size_t y = 0; y < src.height(); ++y)
+					for (size_t x = 0; x < src.width(); ++x)
+						dst(x, y) = converter(src(x, y));
+			}
+
+		private:
+
+	};
+
 	template<template<class> class Converter>
 	class Convert {
 		public:
