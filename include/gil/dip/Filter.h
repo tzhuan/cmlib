@@ -16,7 +16,7 @@ namespace gil {
 			}
 
 			template<class SrcImage>
-			void operator ()(DstImage& dst, const SrcImage& src) const
+			inline void operator ()(DstImage& dst, const SrcImage& src) const
 			{
 				my_real_filter.filter(dst, src);
 			}
@@ -24,38 +24,23 @@ namespace gil {
 			template<
 				class ProxyFilter, class ProxyDstImage, class ProxySrcImage
 			>
-			void operator ()(
+			inline void operator ()(
 				DstImage& dst,
 				const ImageProxy<ProxyFilter, ProxyDstImage, ProxySrcImage>&
 				src_proxy
 			) const
 			{
 				ProxyDstImage tmp;
-				return (*this)(dst, src_proxy(tmp));
+				(*this)(dst, src_proxy(tmp));
 			}
 
 			template<class SrcImage>
-			ImageProxy<RealFilter, DstImage, SrcImage>
+			inline ImageProxy<RealFilter, DstImage, SrcImage>
 			operator ()(const SrcImage& src) const
 			{
 				return 
 					ImageProxy< RealFilter, DstImage, SrcImage >
 					(my_real_filter, src);
-			}
-
-			template<
-				class ProxyFilter, class ProxyDstImage, class ProxySrcImage
-			>
-			ImageProxy<RealFilter, DstImage, ProxyDstImage>
-			operator ()(
-				const ImageProxy<ProxyFilter, ProxyDstImage, ProxySrcImage>&
-				src_proxy
-			) const
-			{
-				ProxyDstImage tmp;
-				return 
-					ImageProxy< RealFilter, DstImage, ProxyDstImage >
-					( my_real_filter, src_proxy(tmp) );
 			}
 
 		protected:

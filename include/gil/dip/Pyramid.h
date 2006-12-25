@@ -31,16 +31,11 @@ namespace gil {
 					height = (height+1) / 2;
 					const Image &img = my_pyramids[ my_pyramids.size()-1 ];
 
-					Image tmp = GaussianFilter<Image>(1., 1.)(img);
-					my_pyramids.push_back( Scaler(width, height)(tmp) );
-
-					/*
 					my_pyramids.push_back(
 						Scaler(width, height)(
 							GaussianFilter<Image>(1., 1.)(img)
 						)
 					);
-					*/
 				}
 			}
 
