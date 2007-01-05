@@ -16,7 +16,7 @@ namespace gil {
 			{
 				for (int i = - static_cast<int>(this->my_radius); 
 						i <= static_cast<int>(this->my_radius); ++i) {
-					(*this)(i) = std::exp( -(i*i) / sigma );
+					(*this)(i) = std::exp( -(i*i) / (2*sigma*sigma) );
 				}
 			}
 	};
