@@ -2,43 +2,64 @@
 #define CONVERT_H
 
 #include "Filter.h"
+#include "../core/Converter.h"
 
 namespace gil {
 
-	template<class Converter>
-	class DefaultConvert: 
-		public 
-			Filter< DefaultConvert<Converter>, Image<typename Converter::To> > 
-	{
-		friend 
-			class Filter< 
-				DefaultConvert<Converter>, 
-				Image<typename Converter::To> 
-			>;
+	template<
+		class DstImage, 
+		template<class, class> class Converter = DefaultConverter
+	>
+	class DefaultConvert {
 		public:
-			DefaultConvert(): 
-				Filter<
-					DefaultConvert<Converter>, Image<typename Converter::To>
-				>(*this)
+			DefaultConvert()
 			{
 				// empty
 			}
 
-		protected:
-			template<class I>
-			inline void filter(
-				Image<typename Converter::To>& dst, const I& src
-			) const
+			template<class SrcImage>
+			inline void operator ()(DstImage& dst, const SrcImage& src) const
 			{
 				dst.resize(src.width(), src.height());
-				Converter converter;
+				Converter<
+					typename DstImage::value_type, 
+					typename SrcImage::value_type
+				> converter;
 				for (size_t y = 0; y < src.height(); ++y)
 					for (size_t x = 0; x < src.width(); ++x)
 						dst(x, y) = converter(src(x, y));
 			}
 
-		private:
+			template<
+				class ProxyFilter, class ProxyDstImage, class ProxySrcImage
+			>
+			inline void operator ()(
+				DstImage& dst,
+				const ImageProxy<ProxyFilter, ProxyDstImage, ProxySrcImage>&
+				src_proxy
+			) const
+			{
+				ProxyDstImage tmp;
+				(*this)(dst, src_proxy(tmp));
+			}
 
+			template<class SrcImage>
+			inline 
+			ImageProxy<
+				DefaultConvert<DstImage, Converter>, 
+				DstImage,
+				SrcImage
+			>
+			operator ()(const SrcImage& src) const
+			{
+				return 
+					ImageProxy<
+						DefaultConvert<DstImage, Converter>, 
+						DstImage,
+						SrcImage
+					>
+					(*this, src);
+			}
 	};
 
 	template<template<class> class Converter>
@@ -100,7 +121,6 @@ namespace gil {
 		private:
 
 	};
-
 }
 
 #endif
