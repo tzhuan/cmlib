@@ -44,7 +44,7 @@ namespace gil {
 				std::fill(my_data.begin(), my_data.end(), v);
 			}
 
-		private:
+		protected:
 			size_t my_radius_x;
 			size_t my_radius_y;
 			std::vector<T> my_data;

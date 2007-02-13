@@ -31,15 +31,16 @@ namespace gil {
 						typename SrcImage::value_type 
 					>::ExtendedColor sum_type;
 
+
 				dst.resize(src.width(), src.height());
 
 				const int width = static_cast<int>(src.width());
 				const int height = static_cast<int>(src.height());
-				const size_t rx = my_kernel.sizex()/2;
-				const size_t ry = my_kernel.sizey()/2;
+				const int rx = my_kernel.sizex()/2;
+				const int ry = my_kernel.sizey()/2;
 
 				for (size_t y = 0; y < dst.height(); ++y) {
-					for (size_t x = 0; x < dst.weight(); ++x) {
+					for (size_t x = 0; x < dst.width(); ++x) {
 						sum_type sum(0);
 						T num = 0;
 
@@ -60,7 +61,7 @@ namespace gil {
 								for (size_t c = 0; c < dst.channels(); ++c) {
 									ColorTrait<sum_type>::select_channel(sum, c)
 										+= 
-										kernel(w, h) * 
+										my_kernel(w, h) * 
 										ColorTrait<
 											typename SrcImage::value_type
 										>::select_channel(src(cur_x, cur_y), c);
