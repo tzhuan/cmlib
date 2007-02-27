@@ -30,14 +30,16 @@ $(IO_DIR)/dcraw.o: $(IO_DIR)/dcraw.c
 	@ echo Compiling $<
 	@ $(CC) -c $< -o $@ $(CXXFLAGS)
 
-install: $(TARGET)
-	@ echo Export headers to $(INSTALL_INCLUDE)
-	@ svn --force export ../include/gil $(INSTALL_INCLUDE)/gil
+install: $(TARGET) install-header
 	@ echo Installing $(TARGET) to $(INSTALL_LIB)
 	@ install -m644 $(TARGET) $(INSTALL_LIB)
 	@ echo -n Running ldconfig...
 	@ ldconfig
 	@ echo done
+
+install-header:
+	@ echo Export headers to $(INSTALL_INCLUDE)
+	@ svn --force export ../include/gil $(INSTALL_INCLUDE)/gil
 
 clean:
 	rm -f $(TARGET) $(OBJS) *.gch *.core

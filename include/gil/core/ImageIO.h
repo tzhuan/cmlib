@@ -228,7 +228,7 @@ namespace gil {
 	template <template<typename, typename> class Converter, typename I>
 	inline bool write(const I& image, const std::string& filename, TiffWriter& writer)
 	{
-		return writer.template operator()<Converter>(image, filename);
+		return writer.operator()<Converter>(image, filename);
 	}
 
 	template <typename W, typename I>
@@ -282,7 +282,7 @@ namespace gil {
 			case FF_TIFF: {
 				//return write<Converter, TiffWriter>(image, filename);
 				TiffWriter writer;
-				return writer.template operator()<Converter>(image, filename);
+				return writer.operator()<Converter>(image, filename);
 			}
 
 			case FF_EXR:
