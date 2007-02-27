@@ -20,7 +20,11 @@ namespace gil {
 	>
 	inline void read(I& image, FILE* f, R& reader)
 	{
+#ifdef _MSC_VER
+		reader.operator()<Converter>(image, f);
+#else
 		reader.template operator()<Converter>(image, f);
+#endif
 	}
 	template <typename R, typename I>
 	inline void read(I& image, FILE* f, R& reader)
@@ -179,7 +183,12 @@ namespace gil {
 	>
 	inline void write(const I& image, FILE* f, W& writer)
 	{
+#ifdef _MSC_VER
+		writer.operator()<Converter>(image, f);
+#else
 		writer.template operator()<Converter>(image, f);
+#endif
+
 	}
 	template <typename W, typename I>
 	inline void write(const I& image, FILE* f, W& writer)
