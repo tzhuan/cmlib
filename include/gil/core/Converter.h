@@ -151,7 +151,7 @@ namespace gil {
 			if(cmin >= 4) tmp[3] = from[3];
 
 			if(cmin >= 5)
-				std::copy(&from[4], &from[cmin], &tmp[4]);
+				std::copy(&from[4], &from[int(cmin)], &tmp[4]);
 
 			if (Cf < Ct)
 				std::fill( &tmp[Cf], &tmp[Ct], TypeTrait<T>::opaque() );

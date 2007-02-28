@@ -1,5 +1,5 @@
 project libgil2
-	: requirements <include>../include
+	: requirements <include>../include <define>WIN32
 	: usage-requirements <include>../include
 	;
 
@@ -12,7 +12,7 @@ rule prefix ( dir : sequences * ) {
         return $(result) ;
 }
 
-lib libgil2 : 
+lib gil2 : 
         [ prefix io :
                 crw.cpp dcraw.c exr.cpp hdr.cpp jpeg.cpp
                 png.cpp tiff.cpp bmp.cpp
@@ -20,4 +20,8 @@ lib libgil2 :
         ..//EXTRA_LIBS
         ;
 
-stage dist : libgil2 : <location>$(TOP)/lib ;
+install dist 
+	: gil2 
+	: <variant>debug:<location>$(TOP)/lib/debug
+	  <variant>release:<location>$(TOP)/lib/release
+	;

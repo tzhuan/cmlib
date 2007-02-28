@@ -1,3 +1,5 @@
+import os ;
+
 build-project src ;
 
 project : default-build release ;
@@ -5,11 +7,24 @@ project : default-build release ;
 # edit following lines so they'll match the installation
 # of libpng, libjpeg, libtiff and OpenEXR
 
-alias EXTRA_LIBS : :
-	: :
-	<toolset>gcc:<cxxflags>"`pkg-config --cflags libpng OpenEXR`"
-	<toolset>gcc:<linkflags>"`pkg-config --libs libpng OpenEXR` -ljpeg -ltiff"
-	<toolset>msvc:<cxxflags>"/ID:\\Projects\\include /ID:\\Projects\\include\\OpenEXR"
-	<toolset>msvc:<linkflags>"zlib.lib libpng.lib libjpeg.lib libtiff.lib IlmImf.lib"
+
+if [ os.name ] = NT
+{
+    alias EXTRA_LIBS : jpeg png zlib tiff Half Imath Iex IlmThread IlmImf
+        :
+	:
+        : <include>"D:/gil/include"
+	  <include>"D:/gil/include/OpenEXR"
+	  <variant>debug:<linkflags>"/libpath:D:\\gil\\bin\\debug"
+	  <variant>release:<linkflags>"/libpath:D:\\gil\\bin\\release"
+        ;
+
+    lib jpeg png zlib tiff Half Imath Iex IlmThread IlmImf ;
+
+} else {
+    alias EXTRA_LIBS : : :
+        : <cxxflags>"`pkg-config --cflags libpng OpenEXR`"
+	  <linkflags>"`pkg-config --libs libpng OpenEXR` -ljpeg -ltiff"
 	;
+}
 

@@ -104,8 +104,8 @@ namespace gil {
 			template<template<typename, typename> class Converter, typename I>
 			void operator ()(const I& image, FILE* f)
 			{
-				int width = image.width();
-				int height = image.height();
+				int width = static_cast<int>( image.width() );
+				int height = static_cast<int>( image.height() );
 				if (fwrite(&width, sizeof(int), 1, f) != 1)
 					throw IOError("unknown write error");
 				if (fwrite(&height, sizeof(int), 1, f) != 1)
