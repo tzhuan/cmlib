@@ -209,22 +209,22 @@ namespace gil {
 
 			iterator begin()
 			{
-				return &my_data[0];
+				return my_data.size() ? &my_data[0] : 0;
 			}
 
 			const_iterator begin() const
 			{
-				return &my_data[0];
+				return my_data.size() ? &my_data[0] : 0;
 			}
 
 			iterator end()
 			{
-				return &my_data[0] + my_width*my_height;
+				return my_data.size() ? &my_data[0] + my_width*my_height : 0;
 			}
 
 			const_iterator end() const
 			{
-				return &my_data[0] + my_width*my_height;
+				return my_data.size() ? &my_data[0] + my_width*my_height : 0;
 			}
 
 		protected:
