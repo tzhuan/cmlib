@@ -186,7 +186,7 @@ namespace gil {
 			//
 			// if H<0 then H<-H+360
 			//
-			// On output 0≤V≤1, 0≤S≤1, 0≤H≤360.
+			// On output 0 <= V <= 1, 0 <= S <= 1, 0 <= H <= 360.
 			// The values are then converted to the destination data type:
 			// 8-bit images:
 			//   V <- V*255, S <- S*255, H <- H/2 (to fit to 0..255)
@@ -281,7 +281,7 @@ namespace gil {
 			// L <- (Vmax + Vmin)/2
 			//
 			// S <- (Vmax - Vmin)/(Vmax + Vmin)			if L < 0.5
-			//    \ (Vmax - Vmin)/(2 - (Vmax + Vmin))	if L ≥ 0.5
+			//    \ (Vmax - Vmin)/(2 - (Vmax + Vmin))	if L >= 0.5
 			//
 			//	   / (G - B)*60/S,		if Vmax=R
 			// H <-  180+(B - R)*60/S,	if Vmax=G XXX 180 must be 120!
@@ -289,7 +289,7 @@ namespace gil {
 			//
 			// if H<0 then H<-H+360
 			//
-			// On output 0≤L≤1, 0≤S≤1, 0≤H≤360.
+			// On output 0 <= L <= 1, 0 <= S <= 1, 0 <= H <= 360.
 			// The values are then converted to the destination data type:
 			// 8-bit images:
 			//   L <- L*255, S <- S*255, H <- H/2
@@ -400,7 +400,7 @@ namespace gil {
 			// where delta = 128 for 8-bit images,
 			//                 0 for floating-point images
 			//
-			// On output 0≤L≤100, -127≤a≤127, -127≤b≤127
+			// On output 0 <= L <= 100, -127 <= a <= 127, -127 <= b <= 127
 			// The values are then converted to the destination data type:
 			// 8-bit images:
 			//   L <- L*255/100, a <- a + 128, b <- b + 128
@@ -483,7 +483,7 @@ namespace gil {
 			// u <- 13*L*(u' - un), where un=0.19793943
 			// v <- 13*L*(v' - vn), where vn=0.46831096
 			//
-			// On output 0≤L≤100, -134≤u≤220, -140≤v≤122
+			// On output 0 <= L <= 100, -134 <= u <= 220, -140 <= v <= 122
 			// The values are then converted to the destination data type:
 			// 8-bit images:
 			//   L <- L*255/100, u <- (u + 134)*255/354, v <- (v + 140)*255/256

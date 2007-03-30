@@ -10,6 +10,8 @@
 // set DLLAPI if we're using VC
 
 #ifdef _MSC_VER
+	#pragma warning(disable: 4996)
+
 	#ifdef BUILD_GIL_DLL
 		#define DLLAPI __declspec(dllexport)
 	#elif defined(LINK_GIL_DLL)

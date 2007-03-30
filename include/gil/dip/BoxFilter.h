@@ -4,6 +4,10 @@
 #include "Kernel.h"
 #include "TwoPassFilter.h"
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4355)
+#endif // _MSC_VER
+
 namespace gil {
 
 	template<typename T>
