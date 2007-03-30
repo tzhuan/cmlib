@@ -10,6 +10,7 @@
 #include "GaussianFilter.h"
 
 namespace gil {
+	
 	template<
 		class Image, 
 		class Scaler = NearestFilter<Image>, 
@@ -17,6 +18,7 @@ namespace gil {
 	>
 	class Pyramid {
 		public:
+			typedef Image image_type;
 			typedef typename Image::value_type value_type;
 
 			Pyramid(const Image &image)

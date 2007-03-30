@@ -50,6 +50,11 @@ namespace gil {
 	class TwoPassFilter: 
 		public Filter< TwoPassFilter<DstImage, T, XKernel, YKernel>, DstImage > 
 	{
+		friend 
+			class Filter<
+				TwoPassFilter<DstImage, T, XKernel, YKernel>, 
+				DstImage
+			>;
 
 		public:
 			template<class RealFilter, typename S>

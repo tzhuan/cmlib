@@ -9,6 +9,8 @@ namespace gil {
 	class OnePassFilter: 
 		public Filter< OnePassFilter<DstImage, T, Kernel>, DstImage > 
 	{
+		friend 
+			class Filter<OnePassFilter<DstImage, T, Kernel>, DstImage>;
 
 		public:
 			template<class RealFilter, typename S>
