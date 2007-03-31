@@ -21,11 +21,21 @@ namespace gil {
 			typedef Image image_type;
 			typedef typename Image::value_type value_type;
 
-			Pyramid(const Image &image)
+			Pyramid()
+			{
+			}
+
+			Pyramid(const Image& image)
+			{
+				reset(image);
+			}
+
+			reset(const Image &image)
 			{
 				size_t width = image.width();
 				size_t height = image.height();
 
+				my_pyramids.clear();
 				my_pyramids.push_back(image);
 
 				while (width > 1 && height > 1) {
