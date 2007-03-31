@@ -30,7 +30,7 @@ namespace gil {
 				reset(image);
 			}
 
-			reset(const Image &image)
+			void reset(const Image &image)
 			{
 				size_t width = image.width();
 				size_t height = image.height();
