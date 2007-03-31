@@ -11,6 +11,7 @@
 #include "dip/GaussianFilter.h"
 #include "dip/NearestFilter.h"
 #include "dip/BilinearFilter.h"
+#include "dip/GaborFilter.h"
 #include "dip/ColorSpace.h"
 #include "dip/Convert.h"
 #include "dip/Pyramid.h"

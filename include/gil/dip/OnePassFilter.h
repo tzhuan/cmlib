@@ -78,7 +78,6 @@ namespace gil {
 				}
 			}
 
-		private:
 			Kernel my_kernel;
 	};
 

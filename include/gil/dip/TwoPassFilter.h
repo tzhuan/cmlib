@@ -130,7 +130,6 @@ namespace gil {
 				}
 			}
 
-		private:
 			XKernel my_xkernel;
 			YKernel my_ykernel;
 	};

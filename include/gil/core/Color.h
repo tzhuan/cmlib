@@ -344,11 +344,11 @@ namespace gil {
 		typedef T BaseType;
 		typedef typename TypeTrait<T>::ExtendedType ExtendedColor;
 		static size_t channels() { return 1; }
-		static inline T& select_channel(T& color, size_t c) 
+		static inline T& select_channel(T& color, size_t) 
 		{ 
 			return color; 
 		}
-		static inline const T& select_channel(const T& color, size_t c) 
+		static inline const T& select_channel(const T& color, size_t) 
 		{ 
 			return color;
 		}
