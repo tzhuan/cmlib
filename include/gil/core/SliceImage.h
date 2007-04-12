@@ -24,6 +24,8 @@ namespace gil {
 			typedef Iterator<value_type> iterator;
 			typedef Iterator<const value_type> const_iterator;
 
+			typedef value_type ColorType;
+
 			SliceImage(ImageType& i, size_type c): my_image(i), my_channel(c)
 			{
 				// empty
