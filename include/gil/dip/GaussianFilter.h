@@ -1,5 +1,5 @@
-#ifndef GAUSSIAN_FILTER_H
-#define GAUSSIAN_FILTER_H
+#ifndef GIL_GAUSSIAN_FILTER_H
+#define GIL_GAUSSIAN_FILTER_H
 
 #include <cmath>
 

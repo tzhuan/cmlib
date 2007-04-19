@@ -1,5 +1,5 @@
-#ifndef KERNEL_H
-#define KERNEL_H
+#ifndef GIL_KERNEL_H
+#define GIL_KERNEL_H
 
 #include <cstddef>
 #include <vector>

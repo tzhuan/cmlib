@@ -1,5 +1,5 @@
-#ifndef TWO_PASS_FILTER_H
-#define TWO_PASS_FILTER_H
+#ifndef GIL_TWO_PASS_FILTER_H
+#define GIL_TWO_PASS_FILTER_H
 
 #include <cstddef>
 #include "Filter.h"

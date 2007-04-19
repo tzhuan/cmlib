@@ -65,8 +65,8 @@ namespace gil {
 				// FIXME use exception instead of assert.
 				assert( pos_x < this->width() );
 				assert( pos_y < this->height() );
-				assert( pos_x + img.width() < this->width() );
-				assert( pos_y + img.height() < this->height() );
+				assert( pos_x + img.width() <= this->width() );
+				assert( pos_y + img.height() <= this->height() );
 
 				for (size_type y(pos_y), iy(0); iy < img.height(); ++iy, ++y)
 					for (size_type x(pos_x), ix(0); ix < img.width(); ++ix, ++x)

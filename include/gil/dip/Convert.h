@@ -1,5 +1,5 @@
-#ifndef CONVERT_H
-#define CONVERT_H
+#ifndef GIL_CONVERT_H
+#define GIL_CONVERT_H
 
 #include "Filter.h"
 #include "../core/Converter.h"

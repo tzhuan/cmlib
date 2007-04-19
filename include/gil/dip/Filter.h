@@ -1,5 +1,5 @@
-#ifndef FILTERER_H 
-#define FILTERER_H 
+#ifndef GIL_FILTERER_H 
+#define GIL_FILTERER_H 
 
 #include <cstddef>
 

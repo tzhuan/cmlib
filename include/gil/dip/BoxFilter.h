@@ -1,5 +1,5 @@
-#ifndef BOX_FILTER_H
-#define BOX_FILTER_H
+#ifndef GIL_BOX_FILTER_H
+#define GIL_BOX_FILTER_H
 
 #include "Kernel.h"
 #include "TwoPassFilter.h"

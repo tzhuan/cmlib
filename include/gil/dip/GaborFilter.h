@@ -1,5 +1,5 @@
-#ifndef GABOR_FILTER_H
-#define GABOR_FILTER_H
+#ifndef GIL_GABOR_FILTER_H
+#define GIL_GABOR_FILTER_H
 
 #include <cmath>
 

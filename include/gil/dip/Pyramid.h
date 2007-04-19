@@ -1,5 +1,5 @@
-#ifndef PYRAMID_H
-#define PYRAMID_H
+#ifndef GIL_PYRAMID_H
+#define GIL_PYRAMID_H
 
 #include <vector>
 #include <string>

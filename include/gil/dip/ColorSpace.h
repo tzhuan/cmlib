@@ -1,5 +1,5 @@
-#ifndef COLORSPACE_H
-#define COLORSPACE_H
+#ifndef GIL_COLORSPACE_H
+#define GIL_COLORSPACE_H
 
 /* 
  * reference: 

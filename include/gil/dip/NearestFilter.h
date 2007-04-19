@@ -1,5 +1,5 @@
-#ifndef NEAREST_FILTER_H
-#define NEAREST_FILTER_H
+#ifndef GIL_NEAREST_FILTER_H
+#define GIL_NEAREST_FILTER_H
 
 #include <algorithm>
 #include "Filter.h"

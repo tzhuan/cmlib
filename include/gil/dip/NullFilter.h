@@ -1,5 +1,5 @@
-#ifndef NULL_FILTER_H
-#define NULL_FILTER_H
+#ifndef GIL_NULL_FILTER_H
+#define GIL_NULL_FILTER_H
 
 #include "Filter.h"
 

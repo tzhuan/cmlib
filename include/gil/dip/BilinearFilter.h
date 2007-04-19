@@ -1,5 +1,5 @@
-#ifndef BILINEAR_FILTER_H
-#define BILINEAR_FILTER_H
+#ifndef GIL_BILINEAR_FILTER_H
+#define GIL_BILINEAR_FILTER_H
 
 #include <algorithm>
 #include "Filter.h"

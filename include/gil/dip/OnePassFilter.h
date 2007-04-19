@@ -1,5 +1,5 @@
-#ifndef ONE_PASS_FILTER_H
-#define ONE_PASS_FILTER_H
+#ifndef GIL_ONE_PASS_FILTER_H
+#define GIL_ONE_PASS_FILTER_H
 
 #include "Filter.h"
 
