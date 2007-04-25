@@ -46,6 +46,11 @@ namespace gil {
 				return my_image.height();	
 			}
 
+			size_type size() const
+			{
+				return this->width() * this->height();
+			}
+
 			reference operator ()(size_type x, size_type y)
 			{
 				return 
