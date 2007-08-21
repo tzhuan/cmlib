@@ -25,18 +25,6 @@
 
 namespace gil {
 
-	template<typename T>
-	const T max(const T &a, const T &b, const T &c)
-	{
-		return std::max( std::max(a, b), std::max(b, c) );
-	}
-
-	template<typename T>
-	const T min (const T &a, const T &b, const T &c)
-	{
-		return std::min( std::min(a, b), std::min(b, c) );
-	}
-
 	template<typename T> struct RgbToGray;
 	template<typename T, size_t C> 
 	struct RgbToGray< Color<T, C> >
@@ -200,8 +188,8 @@ namespace gil {
 			const tmp_type &G = tmp[1];
 			const tmp_type &B = tmp[2];
 
-			tmp_type V = max(R, G, B);
-			tmp_type S = V ? ( (V-min(R, G, B)) / V ) : 0;
+			tmp_type V = max( max(R, G), max(G, B) );
+			tmp_type S = V ? ( (V-min( min(R, G), min(G, B) ) ) / V ) : 0;
 			tmp_type H;
 
 			if (V == R)
@@ -213,37 +201,12 @@ namespace gil {
 
 			if (H < 0) H += 360;
 
-			// FIXME
-			assert(0);
-			/*
-			const value_type opaque = TypeTrait<value_type>::opaque();
-			const tmp_type factor = FactorTrait<value_type>::factor();
-
 			return To(
-				static_cast<value_type>( H*factor ),
-				static_cast<value_type>( S*opaque ),
-				static_cast<value_type>( V*opaque )
+				static_cast<value_type>(H),
+				static_cast<value_type>(S),
+				static_cast<value_type>(V)
 			);
-			*/
 		}
-
-		private:
-			/*
-			template<typename S>
-			struct FactorTrait {
-				inline static typename RgbToHsv::tmp_type factor()
-				{
-					return static_cast<typename RgbToHsv::tmp_type>(1);
-				}
-			};
-			template<>
-			struct gil::RgbToHsv::FactorTrait<Byte1> {
-				inline static typename RgbToHsv::tmp_type factor()
-				{
-					return static_cast<typename RgbToHsv::tmp_type>(0.5);
-				}
-			};
-			*/
 	};
 	template<typename T> struct RgbToHsv< Color<T, 2> >;
 	
@@ -303,8 +266,8 @@ namespace gil {
 			const tmp_type &G = tmp[1];
 			const tmp_type &B = tmp[2];
 
-			tmp_type Vmax = max(R, G, B);
-			tmp_type Vmin = min(R, G, B);
+			tmp_type Vmax = max( max(R, G), max(G, B) );
+			tmp_type Vmin = min( min(R, G), min(G, B) );
 
 			tmp_type L = (Vmax+Vmin) / 2;
 			tmp_type S = (L < 0.5) ? 
@@ -321,37 +284,12 @@ namespace gil {
 
 			if (H < 0) H += 360;
 
-			// FIXME
-			assert(0);
-			/*
-			const value_type opaque = TypeTrait<value_type>::opaque();
-			const tmp_type factor = FactorTrait<value_type>::factor();
-
 			return To(
-				static_cast<value_type>( H*factor ),
-				static_cast<value_type>( S*opaque ),
-				static_cast<value_type>( L*opaque )
+				static_cast<value_type>(H),
+				static_cast<value_type>(S),
+				static_cast<value_type>(L)
 			);
-			*/
 		}
-
-		private:
-			/*
-			template<typename S>
-			struct FactorTrait {
-				inline static tmp_type factor()
-				{
-					return static_cast<tmp_type>(1);
-				}
-			};
-			template<>
-			struct FactorTrait<Byte1> {
-				inline static tmp_type factor()
-				{
-					return static_cast<tmp_type>(0.5);
-				}
-			};
-			*/
 	};
 	template<typename T> struct RgbToHsl< Color<T, 2> >;
 
@@ -425,10 +363,11 @@ namespace gil {
 			tmp_type a = 500 * (f(X)-f(Y)) + delta;
 			tmp_type b = 200 * (f(Y)-f(Z)) + delta;
 
-			// FIXME 
-			assert(0);
-
-			return DefaultConverter<T, tmp_color>()( tmp_color(L, a, b) );
+			return To(
+				static_cast<value_type>(L),
+				static_cast<value_type>(a),
+				static_cast<value_type>(b)
+			);
 		}
 
 		private:
@@ -510,8 +449,11 @@ namespace gil {
 			tmp_type u = 13 * L * (u_-un);
 			tmp_type v = 13 * L * (v_-vn);
 			
-			// FIXME
-			assert(0);
+			return To(
+				static_cast<value_type>(L),
+				static_cast<value_type>(u),
+				static_cast<value_type>(v)
+			);
 		}
 	};
 	template<typename T> struct RgbToLuv< Color<T, 2> >;
