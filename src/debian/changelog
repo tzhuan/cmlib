@@ -1,0 +1,6 @@
+libgil2 (2.0-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Victor Hsieh <victor@csie.org>  Mon, 14 May 2007 22:21:30 +0800
+
