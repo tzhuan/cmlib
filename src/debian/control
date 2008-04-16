@@ -8,6 +8,6 @@ Section: libs
 Package: libgil2
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, libpng12-0, libjpeg62, libtiff4, libopenexr2c2a
+Depends: ${shlibs:Depends}, libpng12-0, libjpeg62, libtiff4, libopenexr2ldbl
 Description: libgil2
  libgil2 is a good library.
