@@ -10,11 +10,11 @@
 #include <cstring>
 #include <cmath>
 
-#include "gil/core/Exception.h"
-#include "gil/core/io/hdr.h"
+#include "gil/Exception.h"
+#include "gil/io/hdr.h"
 
 using namespace std;
-using namespace gil;
+using namespace cmlib::gil;
 
 namespace {
     // some ugly definition
@@ -62,7 +62,7 @@ namespace {
     char FMTSTR[] = "FORMAT=";	
 
     // identifying line of information header
-    void newheader(char *s, FILE *fp) 
+    void newheader(const char *s, FILE *fp) 
     {
 	    fputs(HDRSTR, fp);
 	    fputs(s, fp);

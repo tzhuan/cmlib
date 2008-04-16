@@ -12,11 +12,11 @@
 #include <ImfIO.h>
 #include <half.h>
 
-#include "gil/core/Exception.h"
-#include "gil/core/io/exr.h"
+#include "gil/Exception.h"
+#include "gil/io/exr.h"
 
 using namespace std;
-using namespace gil;
+using namespace cmlib::gil;
 
 using namespace Imf;
 using namespace Imath;

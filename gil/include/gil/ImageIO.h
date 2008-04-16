@@ -10,6 +10,7 @@
 #include "FileFormat.h"
 #include "Converter.h"
 
+namespace cmlib {
 namespace gil {
 
 	// Read functions
@@ -326,5 +327,6 @@ namespace gil {
 	}
 
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_FILE_IO_H

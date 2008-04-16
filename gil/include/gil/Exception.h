@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <string>
 
+namespace cmlib {
 namespace gil {
 
 	// this exception will be thrown when the image file is corrupt
@@ -37,5 +38,6 @@ namespace gil {
 	};
 
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_EXCEPTION_H

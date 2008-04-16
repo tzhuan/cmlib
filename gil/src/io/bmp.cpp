@@ -2,11 +2,11 @@
 #include <vector>
 #include <cstdio>
 
-#include "gil/core/io/bmp.h"
-#include "gil/core/Exception.h"
+#include "gil/io/bmp.h"
+#include "gil/Exception.h"
 
 using namespace std;
-using namespace gil;
+using namespace cmlib::gil;
 
 namespace {
 	const size_t FILE_HEADER_SIZE = 14;

@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <cassert>
 
-#include "gil/core/Exception.h"
-#include "gil/core/io/crw.h"
+#include "gil/Exception.h"
+#include "gil/io/crw.h"
 
 extern "C" {
 extern int ext_identify(FILE *f);
@@ -10,7 +10,7 @@ extern void ext_init(size_t *w, size_t *h, size_t *m);
 extern void ext_read(unsigned short(*row_pointers)[4]);
 }
 
-using namespace gil;
+using namespace cmlib::gil;
 
 void CrwReader::check(FILE *f)
 {

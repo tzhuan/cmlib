@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 
+namespace cmlib {
 namespace gil {
 	
 	template <typename I>
@@ -193,5 +194,6 @@ namespace gil {
 	}
 	
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_SUBIMAGE_H

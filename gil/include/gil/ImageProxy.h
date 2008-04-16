@@ -1,6 +1,7 @@
 #ifndef IMAGE_PROXY_H
 #define IMAGE_PROXY_H
 
+namespace cmlib {
 namespace gil {
 
 	template<class Filter, class DstImage, class SrcImage>
@@ -25,6 +26,7 @@ namespace gil {
 			const Filter& my_filter;
 			const SrcImage& my_src;
 	};
-}
+} // namespace gil
+} // namespace cmlib
 
 #endif

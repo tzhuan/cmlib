@@ -8,10 +8,10 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-#include "gil/core/io/jpeg.h"
+#include "gil/io/jpeg.h"
 
 using namespace std;
-using namespace gil;
+using namespace cmlib::gil;
 
 void JpegReader::init(FILE* f, size_t& w, size_t& h, size_t& c)
 {

@@ -9,6 +9,7 @@
 #include "../Color.h"
 #include "../Converter.h"
 
+namespace cmlib {
 namespace gil {
 	class DLLAPI PngReader {
 		public:
@@ -162,5 +163,6 @@ namespace gil {
 			size_t my_bit_depth;
 	};
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_PNG_H

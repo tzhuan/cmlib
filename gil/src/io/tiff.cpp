@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "gil/core/io/tiff.h"
+#include "gil/io/tiff.h"
 
 // must include tiffio.h after gil/io/tiff.h
 // or you will failed to compile under VC++
@@ -11,7 +11,7 @@
 
 
 using namespace std;
-using namespace gil;
+using namespace cmlib::gil;
 
 void TiffReader::init(const string& name, size_t& w, size_t& h, size_t& c)
 {

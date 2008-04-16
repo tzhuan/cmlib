@@ -12,6 +12,7 @@
 #include "../Color.h"
 #include "../Converter.h"
 
+namespace cmlib {
 namespace gil {
 
 	class DLLAPI FltReader {
@@ -150,5 +151,6 @@ namespace gil {
 			}
 	};
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_FLT_H

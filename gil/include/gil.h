@@ -5,11 +5,11 @@
 #pragma warning(disable: 4996)
 #endif // _MSC_VER
 
-#include "core/Exception.h"
-#include "core/Image.h"
-#include "core/SubImage.h"
-#include "core/SliceImage.h"
-#include "core/ImageIO.h"
-#include "core/Formatter.h"
+#include "gil/Exception.h"
+#include "gil/Image.h"
+#include "gil/SubImage.h"
+#include "gil/SliceImage.h"
+#include "gil/ImageIO.h"
+#include "gil/Formatter.h"
 
 #endif

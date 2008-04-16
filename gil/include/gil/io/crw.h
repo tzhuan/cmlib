@@ -7,6 +7,7 @@
 #include "../Color.h"
 #include "../Converter.h"
 
+namespace cmlib {
 namespace gil {
 
 	class DLLAPI CrwReader {
@@ -52,5 +53,6 @@ namespace gil {
 
 	/* there is no support for writing */
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_CRW_H

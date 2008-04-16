@@ -23,6 +23,7 @@
 	#define DLLAPI
 #endif // _MSC_VER
 
+namespace cmlib {
 namespace gil {
 	// scalar type, may be used later...
 	typedef unsigned char Byte1;
@@ -381,5 +382,6 @@ namespace gil {
 	typedef Color<Double1, 4> Double4;
 
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_COLOR_H

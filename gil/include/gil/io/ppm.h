@@ -16,6 +16,7 @@
 #include "../Color.h"
 #include "../Converter.h"
 
+namespace cmlib {
 namespace gil {
 	template<typename ColorType, char Magic>
 	class PpmReader {
@@ -129,5 +130,6 @@ namespace gil {
 			}
 	};
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_PPM_H

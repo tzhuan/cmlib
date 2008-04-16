@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "Color.h"
 
+namespace cmlib {
 namespace gil {
 
 	template <typename Tt, typename Tf>
@@ -251,5 +252,6 @@ namespace gil {
 	};
 
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_CONVERTER_H

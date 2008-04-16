@@ -10,6 +10,7 @@
 #include "../Color.h"
 #include "../Converter.h"
 
+namespace cmlib {
 namespace gil {
 
 	class DLLAPI BmpReader {
@@ -120,5 +121,6 @@ namespace gil {
 
 
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_BMP_H

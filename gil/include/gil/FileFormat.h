@@ -10,6 +10,7 @@
 
 #include "Color.h" // to define DLLAPI on windows
 
+namespace cmlib {
 namespace gil {
 
 	enum FileFormat{
@@ -152,5 +153,6 @@ namespace gil {
 	};
 
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_FILE_FORMAT_H

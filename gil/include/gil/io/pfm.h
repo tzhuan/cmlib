@@ -12,6 +12,7 @@
 
 /* XXX: This code only works when sizeof(char) == 1 */
 
+namespace cmlib {
 namespace gil {
 	template<typename T, bool = false>
 	struct ByteReverser {
@@ -218,5 +219,6 @@ namespace gil {
 			}
 	};
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_PFM_H

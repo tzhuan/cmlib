@@ -11,6 +11,7 @@
 #include "Color.h"
 #include "ImageProxy.h"
 
+namespace cmlib {
 namespace gil {
 
 	template<typename, template<typename> class> class Image;
@@ -260,5 +261,6 @@ namespace gil {
 	typedef Image<Float4> FloatImage4;
 
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_IMAGE_H

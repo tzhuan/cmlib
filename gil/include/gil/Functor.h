@@ -4,6 +4,7 @@
 #include <cstddef>
 #include "ImageProxy.h"
 
+namespace cmlib {
 namespace gil {
 
 	template<class RealFunctor, class DstImage>
@@ -47,6 +48,7 @@ namespace gil {
 		private:
 			RealFunctor& my_real_functor;	
 	};
-}
+} // namespace gil
+} // namespace cmlib
 
 #endif

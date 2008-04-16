@@ -7,6 +7,7 @@
 
 #include "Color.h"
 
+namespace cmlib {
 namespace gil {
 
 	template <typename ImageType>
@@ -198,5 +199,6 @@ namespace gil {
 	}
 	
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_SLICEIMAGE_H

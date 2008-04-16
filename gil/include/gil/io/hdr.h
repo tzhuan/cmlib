@@ -13,6 +13,7 @@
 #pragma warning(disable:4251) 
 #endif
 
+namespace cmlib {
 namespace gil {
 
 	class DLLAPI HdrReader {
@@ -104,5 +105,6 @@ namespace gil {
 
 
 } // namespace gil
+} // namespace cmlib
 
 #endif // GIL_HDR_H
