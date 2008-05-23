@@ -7,7 +7,9 @@
 namespace cmlib {
 namespace gil {
 
-	// this exception will be thrown when the image file is corrupt
+	/**
+	 * this exception will be thrown when the image file is corrupt
+	 */
 	class InvalidFormat : public std::runtime_error {
 		public:
 			InvalidFormat(const std::string& msg)

@@ -1,6 +1,13 @@
 #ifndef GIL_COLOR_H
 #define GIL_COLOR_H
 
+/** @file Color.h (rule 3)
+ *  @brief This file contains the basic pixel type in gil. 
+ *
+ *  @author littleshan, tzhuan
+ */
+
+#include <cstddef>
 #include <iostream>
 #include <iterator>
 #include <algorithm>
@@ -8,7 +15,6 @@
 #include <limits>
 
 // set DLLAPI if we're using VC
-
 #ifdef _MSC_VER
 	#pragma warning(disable: 4996)
 
@@ -25,211 +31,249 @@
 
 namespace cmlib {
 namespace gil {
+
 	// scalar type, may be used later...
 	typedef unsigned char Byte1;
 	typedef unsigned short Short1;
 	typedef float Float1;
 	typedef double Double1;
 
-	// utilities
+	/** @brief clamp the value to be between lower and upper
+	 *
+	 *  @param value the value to be clamp
+	 *  @param lower minimum value
+	 *  @param upper maximum value
+	 */
 	template <typename T>
 	T clamp(T value, T lower, T upper){
 		return std::min( std::max(value, lower), upper );
 	}
 
-	// type traits
+	/** @class TypeTrait
+	 *  @brief TypeTrait is used to get the type properties.
+	 *
+	 *  @tparam T the type to be get properties
+	 */
 	template <typename T>
 	class TypeTrait {
-		public:
-			typedef T DebugType;
-			typedef float ExtendedType;
-			typedef float MathType;
+	public:
+		typedef float ExtendedType; ///< for pixel value arithmetic
+		typedef float MathType; ///< for pixel value arithmetic
+		typedef float OutputType; ///< for pixel value output
 
-			static T zero() { return 0; }
+		static T zero() { return 0; }
 
-			// for alpha channel
-			static T transparent() { return 0; } 
-			static T opaque() { return std::numeric_limits<T>::max(); }
-			static T mix(T a, T b, T w)
-			{
-				return ( a * (opaque()-w) + b * w ) / opaque();
-			}
+		// for alpha channel
+		static T transparent() 
+		{ 
+			return 0; 
+		}
+		static T opaque() 
+		{
+			return std::numeric_limits<T>::max(); 
+		}
+		static T mix(T a, T b, T w)
+		{
+			return ( a * (opaque()-w) + b * w ) / opaque();
+		}
 	};
 	
-	template <> inline Float1 TypeTrait<float>::opaque() { return 1.0f; }
-	template <> inline Double1 TypeTrait<double>::opaque() { return 1.0; }
+	template <> inline Float1 TypeTrait<float>::opaque() 
+	{
+		return 1.0f; 
+	}
+	template <> inline Double1 TypeTrait<double>::opaque()
+	{ 
+		return 1.0; 
+	}
 
-	// Basic features for a pixel
+	/** @class Color
+	 *  @brief Color is the type of a pixel
+	 *
+	 *  @tparam Type the type of color
+	 *  @tparam Channel the channel number of color
+	 */
 	template <typename Type, size_t Channel>
 	class Color {
-		public:
-			typedef Color<Type,Channel> ColorType;
-			typedef const Color<Type,Channel> ConstColorType;
-			typedef Type* PtrType;
-			typedef const Type* ConstPtrType;
-			typedef Type& RefType;
-			typedef const Type& ConstRefType;
+	public:
+		typedef Color ColorType;
 
-			typedef typename TypeTrait<Type>::MathType MathType;
+		// STL-compliance
+		typedef Type value_type;
+		typedef Type* iterator;
+		typedef const Type*	const_iterator;
+		typedef Type& reference;
+		typedef const Type&	const_reference;
+		typedef Type* pointer;
+		typedef std::ptrdiff_t difference_type;
+		typedef std::size_t	size_type;
 
-			RefType operator [](int i){ return my_data[i]; }
+		typedef typename TypeTrait<Type>::MathType MathType;
 
-			ConstRefType operator [](int i) const { return my_data[i]; }
+		Type& operator [](int i)
+		{
+			return my_data[i]; 
+		}
 
-			Color()
-			{
-				// empty
-			}
+		const Type& operator [](int i) const 
+		{ 
+			return my_data[i]; 
+		}
 
-			template<typename T>
-			explicit Color(T c0)
-			{
-				set(c0);
-			}
+		Color()
+		{
+			// empty
+		}
 
-			template<typename T>
-			Color(T c0, T c1, T c2)
-			{
-				set(c0, c1, c2);
-			}
+		template<typename T>
+		explicit Color(T c0)
+		{
+			set(c0);
+		}
 
-			template<typename T>
-			Color(T c0, T c1, T c2, T c3)
-			{
-				set(c0, c1, c2, c3);
-			}
+		template<typename T>
+		Color(T c0, T c1, T c2)
+		{
+			set(c0, c1, c2);
+		}
 
-			template<typename T>
-			void fill(T c0)
-			{
-				std::fill(begin(), end(), static_cast<Type>(c0));
-			}
+		template<typename T>
+		Color(T c0, T c1, T c2, T c3)
+		{
+			set(c0, c1, c2, c3);
+		}
 
-			template<typename T>
-			void set(T c0)
-			{
-				fill(c0);
-			}
+		template<typename T>
+		void fill(T c0)
+		{
+			std::fill(begin(), end(), static_cast<Type>(c0));
+		}
 
-			template<typename T>
-			void set(T c0, T c1, T c2)
-			{
-				(*this)[0] = static_cast<Type>(c0);
-				if(Channel >= 2) (*this)[1] = static_cast<Type>(c1);
-				if(Channel >= 3) (*this)[2] = static_cast<Type>(c2);
-			}
+		template<typename T>
+		void set(T c0)
+		{
+			fill(c0);
+		}
 
-			template<typename T>
-			void set(T c0, T c1, T c2, T c3)
-			{
-				(*this)[0] = static_cast<Type>(c0);
-				if(Channel >= 2) (*this)[1] = static_cast<Type>(c1);
-				if(Channel >= 3) (*this)[2] = static_cast<Type>(c2);
-				if(Channel >= 4) (*this)[3] = static_cast<Type>(c3);
-			}
+		template<typename T>
+		void set(T c0, T c1, T c2)
+		{
+			(*this)[0] = static_cast<Type>(c0);
+			if(Channel >= 2) (*this)[1] = static_cast<Type>(c1);
+			if(Channel >= 3) (*this)[2] = static_cast<Type>(c2);
+		}
 
-			template<typename T>
-			ColorType& operator =(const Color<T, 3>& color)
-			{
-				set(color[0], color[1], color[2]);
-				return *this;
-			}
+		template<typename T>
+		void set(T c0, T c1, T c2, T c3)
+		{
+			(*this)[0] = static_cast<Type>(c0);
+			if(Channel >= 2) (*this)[1] = static_cast<Type>(c1);
+			if(Channel >= 3) (*this)[2] = static_cast<Type>(c2);
+			if(Channel >= 4) (*this)[3] = static_cast<Type>(c3);
+		}
 
-			template<typename T>
-			ColorType& operator =(const Color<T, 4>& color)
-			{
-				set(color[0], color[1], color[2], color[3]);
-				return *this;
-			}
+		template<typename T>
+		Color& operator =(const Color<T, 3>& color)
+		{
+			set(color[0], color[1], color[2]);
+			return *this;
+		}
 
-			// some calculations...
-			template<typename T>
-			ColorType& operator +=(const Color<T, Channel>& color)
-			{
-				for (size_t i = 0; i < Channel; ++i)
-					(*this)[i] += static_cast<Type>(color[i]);
-				return *this;
-			}
+		template<typename T>
+		Color& operator =(const Color<T, 4>& color)
+		{
+			set(color[0], color[1], color[2], color[3]);
+			return *this;
+		}
 
-			template<typename T>
-			ColorType& operator -=(const Color<T, Channel>& color)
-			{
-				for (size_t i = 0; i < Channel; ++i)
-					(*this)[i] -= static_cast<Type>(color[i]);
-				return *this;
-			}
+		// some calculations...
+		template<typename T>
+		Color& operator +=(const Color<T, Channel>& color)
+		{
+			for (size_t i = 0; i < Channel; ++i)
+				(*this)[i] += static_cast<Type>(color[i]);
+			return *this;
+		}
 
-			template<typename T>
-			ColorType& operator *=(T v)
-			{
-				for (size_t i = 0; i < Channel; ++i)
-					(*this)[i] *= static_cast<Type>(v);
-				return *this;
-			}
+		template<typename T>
+		Color& operator -=(const Color<T, Channel>& color)
+		{
+			for (size_t i = 0; i < Channel; ++i)
+				(*this)[i] -= static_cast<Type>(color[i]);
+			return *this;
+		}
 
-			template<typename T>
-			ColorType& operator /=(T v)
-			{
-				for (size_t i = 0; i < Channel; ++i)
-					(*this)[i] /= static_cast<Type>(v);
-				return *this;
-			}
+		template<typename T>
+		Color& operator *=(T v)
+		{
+			for (size_t i = 0; i < Channel; ++i)
+				(*this)[i] *= static_cast<Type>(v);
+			return *this;
+		}
 
-			ConstColorType operator -() const
-			{
-				ColorType r;
-				std::transform(begin(), end(), r.begin(), std::negate<Type>());
-				return r;
-			}
+		template<typename T>
+		Color& operator /=(T v)
+		{
+			for (size_t i = 0; i < Channel; ++i)
+				(*this)[i] /= static_cast<Type>(v);
+			return *this;
+		}
 
-			template<typename T>
-			ConstColorType operator +(const Color<T, Channel>& c) const
-			{
-				ColorType r(*this);
-				r += c;
-				return r;
-			}
+		const Color operator -() const
+		{
+			Color r;
+			std::transform(begin(), end(), r.begin(), std::negate<Type>());
+			return r;
+		}
 
-			template<typename T>
-			ConstColorType operator -(const Color<T, Channel>& c) const
-			{
-				ColorType r(*this);
-				r -= c;
-				return r;
-			}
+		template<typename T>
+		const Color operator +(const Color<T, Channel>& c) const
+		{
+			Color r(*this);
+			r += c;
+			return r;
+		}
 
-			template<typename T>
-			ConstColorType operator *(T v) const
-			{
-				ColorType r(*this);
-				r *= v;
-				return r;
-			}
+		template<typename T>
+		const Color operator -(const Color<T, Channel>& c) const
+		{
+			Color r(*this);
+			r -= c;
+			return r;
+		}
 
-			template<typename T>
-			ConstColorType operator /(T v) const
-			{
-				ColorType r(*this);
-				r /= v;
-				return r;
-			}
+		template<typename T>
+		const Color operator *(T v) const
+		{
+			Color r(*this);
+			r *= v;
+			return r;
+		}
 
-			PtrType begin() { return my_data; }
-			ConstPtrType begin() const { return my_data; }
-			PtrType end() { return my_data+Channel; }
-			ConstPtrType end() const { return my_data+Channel; }
+		template<typename T>
+		const Color operator /(T v) const
+		{
+			Color r(*this);
+			r /= v;
+			return r;
+		}
 
-			static size_t channels() { return Channel; }
+		iterator begin() { return my_data; }
+		const_iterator begin() const { return my_data; }
+		iterator end() { return my_data+Channel; }
+		const_iterator end() const { return my_data+Channel; }
 
-		protected:
-			Type my_data[Channel];
+		static size_t channels() { return Channel; }
+
+	protected:
+		Type my_data[Channel];
 	};
 
 	// VC will produce warning if I use struct here.
 	template <typename T>
 	class Color<T, 1> {
-		public:
-			typedef T ColorType;
+	public:
+		typedef T ColorType;
 	};
 
 	// Scalar * Color
@@ -251,7 +295,7 @@ namespace gil {
 
 	// default behavior to print all channels in a pixel
 	// to avoid unprintable characters, values are converted
-	// to DebugType defined in TypeTrait.
+	// to OutputType defined in TypeTrait.
 	/*
 	template <typename T>
 	std::ostream& operator <<(std::ostream& out, const T& color)
@@ -265,10 +309,10 @@ namespace gil {
 	template <typename T, size_t C>
 	std::ostream& operator <<(std::ostream& out, const Color<T, C>& color)
 	{
-		typedef typename TypeTrait<T>::DebugType DebugType;
+		typedef typename TypeTrait<T>::OutputType OutputType;
 		std::copy(color.begin(),
 				color.end(),
-				std::ostream_iterator<DebugType>(out, " "));
+				std::ostream_iterator<OutputType>(out, " "));
 		return out;
 	}
 
