@@ -112,19 +112,20 @@ int main(int argc, char *argv[])
 			avcodec_decode_video(
 				codec_context, frame, &finished, packet.data, packet.size
 			);
-			if (!finished) {
+			if (finished == 0) {
 				non_finished_index.push_back(count);
+			} else {
+				++count;
+				duration_count[packet.duration]++;
 			}
-
-			++count;
-			duration_count[packet.duration]++;
 
 			av_free_packet(&packet);
 		}
 	}
 
 	if (non_finished_index.size()) {
-		cerr << "error: non finished packet: ";
+		cerr << "error: " << non_finished_index.size() 
+			<< " non finished packet: ";
 		for (size_t i = 0; i < non_finished_index.size(); ++i)
 			cerr << " " << non_finished_index[i];
 		cerr << endl;
