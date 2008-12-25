@@ -1,9 +1,13 @@
 #include <iostream>
 #include <stdexcept>
-#include "gil/gil.h"
+
+#include "imageio/all.h"
+#include "imageio.h"
+#include "image.h"
 
 using namespace std;
-using namespace gil;
+using namespace cmlib;
+using namespace cmlib::image;
 
 int main(int argc, char **argv)
 {

@@ -1,0 +1,27 @@
+import os ;
+
+project video
+	: default-build debug debug_static release release_static
+	;
+
+if [ os.name ] = NT
+{
+
+} else {
+
+	alias EXTRA_LIBS 
+		: 
+		: 
+		:
+		: <include>/usr/include/ffmpeg <include>/usr/local/include/ffmpeg
+		  <linkflags>"-lavformat -lavcodec -lavutil -lz -m -lpthread"
+		;
+
+	lib cmlib-videostream
+		: [ glob src/*.cpp ] .//EXTRA_LIBS
+		: <include>include
+		:
+		: <include>include
+		;	
+
+}

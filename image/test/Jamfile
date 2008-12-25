@@ -1,1 +1,1 @@
-exe giltest : convert.cpp ../src//libgil2 ;
+exe convert : convert.cpp ..//gil : <include>../include ;

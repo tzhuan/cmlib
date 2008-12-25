@@ -1,13 +1,13 @@
-Source: libgil2
+Source: libcmlib-imageio
 Priority: extra
 Maintainer: Victor Hsieh <victor@csie.org>
 Build-Depends: debhelper (>= 5), libpng12-dev, libjpeg62-dev, libtiff4-dev, libopenexr-dev
 Standards-Version: 3.7.2
 Section: libs
 
-Package: libgil2
+Package: libcmlib-imageio
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, libpng12-0, libjpeg62, libtiff4, libopenexr2ldbl
-Description: libgil2
- libgil2 is a good library.
+Description: libcmlib-imageio
+ libcmlib-imageio is a good library.

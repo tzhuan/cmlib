@@ -63,7 +63,7 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tmp
-	$(MAKE) DESTDIR=$(CURDIR)/debian/libgil2 real-install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/libcmlib-imageio real-install
 
 
 # Build architecture-independent files here.

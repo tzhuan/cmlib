@@ -17,7 +17,7 @@ CXX = g++
 AR = ar rc
 
 # Target name
-TARGET = libgil2.a
+TARGET = libcmlib-imageio.a
 
 
 # I don't think you'll need to touch following lines...

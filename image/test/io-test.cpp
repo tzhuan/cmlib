@@ -1,10 +1,12 @@
 #include <exception>
 #include <iostream>
 #include <string>
-#include "gil/gil.h"
+
+#include "imageio/all.h"
+#include "image.h"
 
 using namespace std;
-using namespace gil;
+using namespace cmlib::image;
 
 template<typename ImageType>
 void read_test(const string& type_name);

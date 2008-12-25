@@ -3,10 +3,10 @@
 #include <string>
 #include <cstdlib>
 #include <cstddef>
-#include "gil/gil.h"
+#include "image.h"
 
 using namespace std;
-using namespace gil;
+using namespace cmlib::image;
 
 int main(int argc, char **argv)
 {

@@ -1,21 +1,24 @@
-CXXFLAGS = -I../include -I /usr/local/include
-GIL_LIBS = -L../src -L../lib -lgil2
+CFLAGS = -I../include -I /usr/local/include
+GIL_LIBS = -L../src -L../lib -lcmlib-imageio
 BOOST_LIBS = -L /usr/local/lib -lboost_unit_test_framework-gcc
-LD_FLAGS = $(GIL_LIBS) $(BOOST_LIBS)
+LIBS = $(GIL_LIBS)
+
+CONVERT = convert
+IO_TEST = io-test
 
 %.o: %.cpp
-	$(CXX) -o $@ $< $(CXXFLAGS) $(LD_FLAGS)
+	$(CXX) $(CFLAGS) -c $< -o $@ 
 
 all: $(CONVERT) $(IO_TEST)
 
 $(IO_TEST): $(IO_TEST).o 
-	$(CXX) -o $@ $(IO_TEST).o $(LIBS)
+	$(CXX) $(IO_TEST).o -o $@ $(LIBS)
 
 $(SUBIMAGE_TEST): $(SUBIMAGE_TEST).o 
-	$(CXX) -o $@ $(SUBIMAGE_TEST).o $(LIBS)
+	$(CXX) $(SUBIMAGE_TEST).o -o $@ $(LIBS)
 
 $(CONVERT): $(CONVERT).o
-	$(CXX) -o $@ $(CONVERT).o $(LIBS)
+	$(CXX) $(CONVERT).o -o $@ $(LIBS)
 
 test: $(IO_TEST)
 	./$(IO_TEST)

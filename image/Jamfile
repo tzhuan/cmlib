@@ -1,30 +1,144 @@
 import os ;
+import regex ;
 
-build-project src ;
+project image
+	: default-build debug debug_static release release_static
+	;
 
-project : default-build release ;
-    
-# edit following lines so they'll match the installation
-# of libpng, libjpeg, libtiff and OpenEXR
-
+rule prefix ( dir : sequences * ) {
+	local result ;
+	for local x in $(sequences) {
+		result += $(dir)/$(x) ;
+	}
+	return $(result) ;
+}
 
 if [ os.name ] = NT
 {
-    alias EXTRA_LIBS : jpeg png zlib tiff Half Imath Iex IlmThread IlmImf
-        :
-	:
-        : <include>"D:/gil/include"
-	  <include>"D:/gil/include/OpenEXR"
-	  <variant>debug:<linkflags>"/libpath:D:\\gil\\bin\\debug"
-	  <variant>release:<linkflags>"/libpath:D:\\gil\\bin\\release"
-        ;
+	GIL_SRC = 
+		[ glob src/io/*.cpp : src/io/crw.cpp src/io/png.cpp ] 
+		[ obj imagepng : 
+			src/io/png.cpp : 
+			<include>include <include>contrib/libpng 
+			<include>contrib/zlib
+		] ;
+	GIL_REQ = <include>include ;
+	
+	Z_SRC = [ glob contrib/zlib/*.c : 
+		[ prefix contrib/zlib : 
+			example.c minigzip.c 
+		] 
+	] ;
+	Z_REQ = <include>contrib/zlib <toolset>msvc:<define>WIN32 ;
 
-    lib jpeg png zlib tiff Half Imath Iex IlmThread IlmImf ;
+	PNG_SRC = [ glob contrib/libpng/*.c : 
+		[ prefix contrib/libpng :
+			example.c pnggccrd.c 
+			pngrcrd.c pngtest.c
+		]
+	] ;
+	PNG_REQ = <include>contrib/libpng 
+		<toolset>msvc:<define>WIN32
+		<toolset>gcc:<cflags>"-falign-loops=2 -falign-functions=2 -funroll-loops -fomit-frame-pointer" ;
+
+	JPEG_SYSDEP_MEM = jmemnobs.c ;
+	JPEG_SRC = [ glob contrib/libjpeg/j*.c : 
+		[ prefix contrib/libjpeg : 
+			jpegtran.c jmemdos.c jmemmac.c jmemname.c jmemansi.c
+		]
+	] ;
+	JPEG_REQ = <include>contrib/libjpeg
+		<toolset>msvc:<define>WIN32 <toolset>msvc:<define>_WINDOWS
+		<variant>release:<define>NDEBUG ;
+
+	TIFF_SYSDEP_MODULE = tif_unix.c ;
+	TIFF_STRIP_SIZE_DEFAULT = 8192 ;
+
+	TIFF_SRC = [ glob contrib/libtiff/libtiff/tif*.c : 
+		[ prefix contrib/libtiff/libtiff :
+			tif_acorn.c tif_apple.c tif_msdos.c 
+			tif_atari.c tif_win3.c tif_win32.c
+		]
+	] contrib/libtiff/libtiff/tif_stream.cxx ;
+	TIFF_REQ = <include>contrib/libtiff/libtiff
+		<define>FILLODER_LSB2MSB
+		<define>TIF_PLATFORM_WINDOWED
+		<define>CCITT_SUPPORT
+		<define>PACKBITS_SUPPORT
+		<define>LZW_SUPPORT
+		<define>THUNDER_SUPPORT
+		<define>NEXT_SUPPORT
+		<define>LOGLUV_SUPPORT
+		<define>JPEG_SUPPORT
+		<define>ZIP_SUPPORT
+		<define>PIXARLOG_SUPPORT
+		<define>STRIPCHOP_DEFAULT=TIFF_STRIPCHOP
+		<define>STRIP_SIZE_DEFAULT=$(TIFF_STRIP_SIZE_DEFAULT)
+		<define>DEFAULT_EXTRASAMPLE_AS_ALPHA
+		<define>CHECK_JPEG_YCBCR_SUBSAMPLING ;
+
+	ILMBASE_SRC = contrib/ilmbase/Half/half.cpp
+		[ glob contrib/ilmbase/Iex/*.cpp ]
+		[ glob contrib/ilmbase/Imath/*.cpp ]
+		[ prefix contrib/ilmbase/IlmThread : 
+			IlmThreadPool.cpp IlmThreadWin32.cpp IlmThreadMutexWin32.cpp 
+			IlmThreadSemaphoreWin32.cpp
+		] ;
+	ILMBASE_REQ = 
+		<include>contrib/ilmbase/config
+		<include>contrib/ilmbase/Half 
+		<include>contrib/ilmbase/Iex
+		<include>contrib/ilmbase/Imath 
+		<include>contrib/ilmbase/IlmThread
+		<define>_CONSOLE
+		<define>WIN32_LEAN_AND_MEAN
+		<define>__WIN32__
+		<define>MSWIN32
+		<define>_USRDLL
+		<define>_DLL
+		<define>NOMINMAX
+		<define>__STD_C=1
+		<define>_BOOL
+		<define>__x86__
+		<define>_MBCS
+		<toolset>msvc:<cxxflags>"/wd4018 /wd4231 /wd4244 /wd4267 /wd4305 /wd4800 /wd4275 /wd4661 /wd4290" ;
+ 
+	OPENEXR_SRC = [ glob contrib/openexr/IlmImf/*.cpp : 
+		contrib/openexr/IlmImf/b44ExpLogTable.cpp 
+	] ;
+	OPENEXR_REQ = 
+		<include>contrib/openexr/IlmImf 
+		<include>contrib/openexr/config
+		<toolset>msvc:<cxxflags>"/wd4290" ;
+
+	SRC = $(GIL_SRC) $(Z_SRC) $(PNG_SRC) $(JPEG_SRC) 
+		$(TIFF_SRC) $(ILMBASE_SRC) $(OPENEXR_SRC) ;
+	REQ = $(GIL_REQ) $(Z_REQ) $(PNG_REQ) $(JPEG_REQ) 
+		$(TIFF_REQ) $(ILMBASE_REQ) $(OPENEXR_REQ) ;
+
+	lib cmlib-imageio
+		: $(SRC) 
+		: $(REQ)
+		:
+		: $(GIL_REQ)
+		;	
 
 } else {
-    alias EXTRA_LIBS : : :
-        : <cxxflags>"`pkg-config --cflags libpng OpenEXR`"
-	  <linkflags>"`pkg-config --libs libpng OpenEXR` -ljpeg -ltiff"
-	;
-}
 
+	alias EXTRA_LIBS 
+		: 
+		: 
+		:
+		: <include>/usr/include <include>/usr/local/include
+		  <cxxflags>"`pkg-config --cflags libpng OpenEXR`"
+		  <linkflags>"`pkg-config --libs libpng OpenEXR` -ljpeg -ltiff"
+		;
+
+	lib cmlib-imageio
+		: [ glob src/io/*.cpp : src/io/crw.cpp ] .//EXTRA_LIBS
+		: <include>include
+		:
+		: <include>include
+		;	
+
+}

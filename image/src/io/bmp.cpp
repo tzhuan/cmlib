@@ -2,11 +2,11 @@
 #include <vector>
 #include <cstdio>
 
-#include "gil/io/bmp.h"
-#include "gil/Exception.h"
+#include "cmlib/imageio/io/bmp.h"
+#include "cmlib/imageio/Exception.h"
 
 using namespace std;
-using namespace cmlib::gil;
+using namespace cmlib::image;
 
 namespace {
 	const size_t FILE_HEADER_SIZE = 14;
@@ -145,75 +145,79 @@ namespace {
 		if(fwrite(header, HEADER_SIZE, 1, f) != 1)
 			throw IOError("IO error while writing BMP header");
 	}
-}
+} // anonymous namespace
 
-void BmpReader::init(FILE* f, size_t& w, size_t& h)
-{
-	my_file = f;
-	my_pixel_offset = read_file_header(f);
-	size_t bpp, table_num;
-	read_image_header(f, w, h, bpp, table_num);
-	if(bpp == 8)
-		read_color_table(f, my_color_table, table_num);
-	else if(bpp != 24)
-		throw InvalidFormat("unexpected bits per pixel in BMP image header");
-}
-
-void BmpReader::read_scanline(vector<Byte3>& buf)
-{
-	if(my_color_table.size() == 256){ // color indexed
-		size_t scan_size = buf.size();
-		// BMP has padding after each scanline
-		int padding = 4 - scan_size % 4;
-		if(padding < 4) 
-			scan_size += padding;
-
-		vector<unsigned char> index(scan_size);
-		read_and_check(&index[0], scan_size, my_file, "BMP pixel data");
-		for(size_t i = 0; i < buf.size(); i++)
-			buf[i] = my_color_table[ index[i] ];
-	}else{
-		int padding = 4 - ( buf.size() * 3 ) % 4;
-		if(padding == 4) padding = 0;
-		
-		read_and_check(&buf[0][0], buf.size()*3, my_file, "BMP pixel data");
-
-		for(; padding > 0; padding--)
-			fgetc(my_file);
+namespace cmlib {
+namespace image {
+	void BmpReader::init(FILE* f, size_t& w, size_t& h)
+	{
+		my_file = f;
+		my_pixel_offset = read_file_header(f);
+		size_t bpp, table_num;
+		read_image_header(f, w, h, bpp, table_num);
+		if(bpp == 8)
+			read_color_table(f, my_color_table, table_num);
+		else if(bpp != 24)
+			throw InvalidFormat("unexpected bits per pixel in BMP image header");
 	}
-}
 
-void BmpWriter::init(FILE* f, size_t w, size_t h, size_t c)
-{
-	my_file = f;
-	write_header(f, w, h, c);
-	if(c == 1)
-		write_color_table(f);
-}
+	void BmpReader::read_scanline(vector<Byte3>& buf)
+	{
+		if(my_color_table.size() == 256){ // color indexed
+			size_t scan_size = buf.size();
+			// BMP has padding after each scanline
+			int padding = 4 - scan_size % 4;
+			if(padding < 4) 
+				scan_size += padding;
 
-void BmpWriter::write_scanline(vector<Byte1>& buf)
-{
-	const char PADDING[4] = {0,0,0,0};
-	size_t padding_len = 4 - buf.size() % 4;
-	if(padding_len == 4) padding_len = 0;
-	
+			vector<unsigned char> index(scan_size);
+			read_and_check(&index[0], scan_size, my_file, "BMP pixel data");
+			for(size_t i = 0; i < buf.size(); i++)
+				buf[i] = my_color_table[ index[i] ];
+		}else{
+			int padding = 4 - ( buf.size() * 3 ) % 4;
+			if(padding == 4) padding = 0;
+			
+			read_and_check(&buf[0][0], buf.size()*3, my_file, "BMP pixel data");
 
-	if( fwrite(&buf[0], buf.size(), 1, my_file) != 1 )
-		throw IOError("IO error while writing BMP image");
-	fwrite(PADDING, padding_len, 1, my_file);
-}
+			for(; padding > 0; padding--)
+				fgetc(my_file);
+		}
+	}
 
-void BmpWriter::write_scanline(vector<Byte3>& buf)
-{
-	const char PADDING[4] = {0,0,0,0};
-	size_t padding_len = 4 - ( buf.size()*3 ) % 4;
-	if(padding_len == 4) padding_len = 0;
+	void BmpWriter::init(FILE* f, size_t w, size_t h, size_t c)
+	{
+		my_file = f;
+		write_header(f, w, h, c);
+		if(c == 1)
+			write_color_table(f);
+	}
 
-	for(size_t i = 0; i < buf.size(); i++)
-		swap(buf[i][0], buf[i][2]);
+	void BmpWriter::write_scanline(vector<Byte1>& buf)
+	{
+		const char PADDING[4] = {0,0,0,0};
+		size_t padding_len = 4 - buf.size() % 4;
+		if(padding_len == 4) padding_len = 0;
+		
 
-	if( fwrite(&buf[0][0], buf.size()*3, 1, my_file) != 1 )
-		throw IOError("IO error while writing BMP image");
+		if( fwrite(&buf[0], buf.size(), 1, my_file) != 1 )
+			throw IOError("IO error while writing BMP image");
+		fwrite(PADDING, padding_len, 1, my_file);
+	}
 
-	fwrite(PADDING, padding_len, 1, my_file);
-}
+	void BmpWriter::write_scanline(vector<Byte3>& buf)
+	{
+		const char PADDING[4] = {0,0,0,0};
+		size_t padding_len = 4 - ( buf.size()*3 ) % 4;
+		if(padding_len == 4) padding_len = 0;
+
+		for(size_t i = 0; i < buf.size(); i++)
+			swap(buf[i][0], buf[i][2]);
+
+		if( fwrite(&buf[0][0], buf.size()*3, 1, my_file) != 1 )
+			throw IOError("IO error while writing BMP image");
+
+		fwrite(PADDING, padding_len, 1, my_file);
+	}
+} // namespace image
+} // namespace cmlib

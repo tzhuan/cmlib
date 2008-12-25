@@ -12,11 +12,11 @@
 #include <ImfIO.h>
 #include <half.h>
 
-#include "gil/Exception.h"
-#include "gil/io/exr.h"
+#include "cmlib/imageio/Exception.h"
+#include "cmlib/imageio/io/exr.h"
 
 using namespace std;
-using namespace cmlib::gil;
+using namespace cmlib::image;
 
 using namespace Imf;
 using namespace Imath;
@@ -116,99 +116,105 @@ namespace {
 
 } // anonymous namespace
 
-void ExrReader::init(FILE* f, size_t& w, size_t& h)
-{
-	try{
-		my_istream = new C_IStream(f);
-		my_input_file = new RgbaInputFile( *(C_IStream*)my_istream );
-		RgbaInputFile* input_file = (RgbaInputFile*)my_input_file;
-		Box2i dw = input_file->dataWindow();
-		w = static_cast<size_t>( dw.max.x - dw.min.x + 1 );
-		h = static_cast<size_t>( dw.max.y - dw.min.y + 1 );
-		my_min_x = dw.min.x;
-		my_min_y = dw.min.y;
-	}
-	catch(exception&){
-		cleanup();
-		throw;
-	}
-}
+namespace cmlib {
+namespace image {
 
-void ExrReader::read_scanline(vector<Float4>& buf_float, int y)
-{
-	try{
-		RgbaInputFile* input_file = (RgbaInputFile*)my_input_file;
-		const size_t width = buf_float.size();
-		int cur_y = my_min_y + y;
-		vector<Rgba> buf_half(width);
-		input_file->setFrameBuffer( &buf_half[0] - my_min_x - cur_y * width, 1, width );
-		input_file->readPixels(cur_y);
-		for(size_t i = 0; i < width; i++){
-			buf_float[i][0] = buf_half[i].r;
-			buf_float[i][1] = buf_half[i].g;
-			buf_float[i][2] = buf_half[i].b;
-			buf_float[i][3] = buf_half[i].a;
+	void ExrReader::init(FILE* f, size_t& w, size_t& h)
+	{
+		try{
+			my_istream = new C_IStream(f);
+			my_input_file = new RgbaInputFile( *(C_IStream*)my_istream );
+			RgbaInputFile* input_file = (RgbaInputFile*)my_input_file;
+			Box2i dw = input_file->dataWindow();
+			w = static_cast<size_t>( dw.max.x - dw.min.x + 1 );
+			h = static_cast<size_t>( dw.max.y - dw.min.y + 1 );
+			my_min_x = dw.min.x;
+			my_min_y = dw.min.y;
+		}
+		catch(exception&){
+			cleanup();
+			throw;
 		}
 	}
-	catch(exception&){
-		cleanup();
-		throw;
-	}
-}
 
-void ExrReader::cleanup() throw()
-{
-	delete (RgbaInputFile*)my_input_file;
-	delete (C_IStream*)my_istream;
-	my_input_file = NULL;
-	my_istream = NULL;
-}
-
-
-void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
-{
-	RgbaChannels ch;
-	if(c == 1) ch = WRITE_Y;
-	else if(c == 3) ch = WRITE_RGB;
-	else ch = WRITE_RGBA;
-
-	try{
-		my_ostream = new C_OStream(f);
-		my_output_file = new RgbaOutputFile( *(C_OStream*)my_ostream, Header(w, h), ch );
-	}
-	catch(exception&){
-		cleanup();
-		throw;
-	}
-}
-
-void ExrWriter::write_scanline(vector<Float4>& buf_float, int y)
-{
-	try{
-		RgbaOutputFile* output_file = (RgbaOutputFile*)my_output_file;
-		const size_t width = buf_float.size();
-		vector<Rgba> buf_half(width);
-
-		for(size_t i = 0; i < width; i++){
-			buf_half[i].r = buf_float[i][0];
-			buf_half[i].g = buf_float[i][1];
-			buf_half[i].b = buf_float[i][2];
-			buf_half[i].a = buf_float[i][3];
+	void ExrReader::read_scanline(vector<Float4>& buf_float, int y)
+	{
+		try{
+			RgbaInputFile* input_file = (RgbaInputFile*)my_input_file;
+			const size_t width = buf_float.size();
+			int cur_y = my_min_y + y;
+			vector<Rgba> buf_half(width);
+			input_file->setFrameBuffer( &buf_half[0] - my_min_x - cur_y * width, 1, width );
+			input_file->readPixels(cur_y);
+			for(size_t i = 0; i < width; i++){
+				buf_float[i][0] = buf_half[i].r;
+				buf_float[i][1] = buf_half[i].g;
+				buf_float[i][2] = buf_half[i].b;
+				buf_float[i][3] = buf_half[i].a;
+			}
 		}
-
-		output_file->setFrameBuffer( &buf_half[0] - y * width, 1, width );
-		output_file->writePixels(1);
+		catch(exception&){
+			cleanup();
+			throw;
+		}
 	}
-	catch(exception&){
-		cleanup();
-		throw;
-	}
-}
 
-void ExrWriter::cleanup() throw()
-{
-	delete (RgbaOutputFile*)my_output_file;
-	delete (C_OStream*)my_ostream;
-	my_output_file = NULL;
-	my_ostream = NULL;
-}
+	void ExrReader::cleanup() throw()
+	{
+		delete (RgbaInputFile*)my_input_file;
+		delete (C_IStream*)my_istream;
+		my_input_file = NULL;
+		my_istream = NULL;
+	}
+
+
+	void ExrWriter::init(FILE* f, size_t w, size_t h, size_t c)
+	{
+		RgbaChannels ch;
+		if(c == 1) ch = WRITE_Y;
+		else if(c == 3) ch = WRITE_RGB;
+		else ch = WRITE_RGBA;
+
+		try{
+			my_ostream = new C_OStream(f);
+			my_output_file = new RgbaOutputFile( *(C_OStream*)my_ostream, Header(w, h), ch );
+		}
+		catch(exception&){
+			cleanup();
+			throw;
+		}
+	}
+
+	void ExrWriter::write_scanline(vector<Float4>& buf_float, int y)
+	{
+		try{
+			RgbaOutputFile* output_file = (RgbaOutputFile*)my_output_file;
+			const size_t width = buf_float.size();
+			vector<Rgba> buf_half(width);
+
+			for(size_t i = 0; i < width; i++){
+				buf_half[i].r = buf_float[i][0];
+				buf_half[i].g = buf_float[i][1];
+				buf_half[i].b = buf_float[i][2];
+				buf_half[i].a = buf_float[i][3];
+			}
+
+			output_file->setFrameBuffer( &buf_half[0] - y * width, 1, width );
+			output_file->writePixels(1);
+		}
+		catch(exception&){
+			cleanup();
+			throw;
+		}
+	}
+
+	void ExrWriter::cleanup() throw()
+	{
+		delete (RgbaOutputFile*)my_output_file;
+		delete (C_OStream*)my_ostream;
+		my_output_file = NULL;
+		my_ostream = NULL;
+	}
+
+} // namespace image
+} // namespace cmlib

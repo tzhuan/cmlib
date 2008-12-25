@@ -10,11 +10,11 @@
 #include <cstring>
 #include <cmath>
 
-#include "gil/Exception.h"
-#include "gil/io/hdr.h"
+#include "cmlib/imageio/Exception.h"
+#include "cmlib/imageio/io/hdr.h"
 
 using namespace std;
-using namespace cmlib::gil;
+using namespace cmlib::image;
 
 namespace {
     // some ugly definition
@@ -452,212 +452,218 @@ namespace {
 
 } // end of anonymous namespace
 
-void HdrReader::init(FILE* f, size_t& w, size_t& h)
-{
-    my_file = f;
-    // don't read resolution into width and height directly
-    // or it will failed on 64bit machines.
-    int x, y;
-    if( checkheader(my_file, COLRFMT, NULL) < 0)
-	throw InvalidFormat("invalid HDR format in HdrReader::init()");
-	    
-    if(fgetresolu(&x, &y, my_file) < 0)
-	throw InvalidFormat("invalid HDR format in HdrReader::init()");
-    
-    w = x;
-    h = y;
-    my_enc_buffer.resize(w);
-}
+namespace cmlib {
+namespace image {
 
-void HdrReader::read_scanline(vector<Float3>& buf)
-{
-    read_encoded();
-    // now the encoded (RGBE) pixels are stored in my_enc_buffer
-    realpixels_2_rgb(my_enc_buffer, buf);
-}
+	void HdrReader::init(FILE* f, size_t& w, size_t& h)
+	{
+		my_file = f;
+		// don't read resolution into width and height directly
+		// or it will failed on 64bit machines.
+		int x, y;
+		if( checkheader(my_file, COLRFMT, NULL) < 0)
+		throw InvalidFormat("invalid HDR format in HdrReader::init()");
+			
+		if(fgetresolu(&x, &y, my_file) < 0)
+		throw InvalidFormat("invalid HDR format in HdrReader::init()");
+		
+		w = x;
+		h = y;
+		my_enc_buffer.resize(w);
+	}
 
-void HdrReader::read_encoded()
-{
-    size_t  i, j;
-    int  code, val;
+	void HdrReader::read_scanline(vector<Float3>& buf)
+	{
+		read_encoded();
+		// now the encoded (RGBE) pixels are stored in my_enc_buffer
+		realpixels_2_rgb(my_enc_buffer, buf);
+	}
 
-    size_t len = my_enc_buffer.size();
-    
-    // determine scanline type
-    if (len < MIN_ENC_LENGTH || len > MAX_ENC_LENGTH){
-	read_encoded_old();
-	return;
-    }
-    
-    if ((code = getc(my_file)) == EOF)
-	throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
-    
-    if (code != 2) {
-	ungetc(code, my_file);
-	read_encoded_old();
-	return;
-    }
-    
-    my_enc_buffer[0][GRN] = getc(my_file);
-    my_enc_buffer[0][BLU] = getc(my_file);
-    
-    if ((code = getc(my_file)) == EOF)
-	throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
-    
-    if (my_enc_buffer[0][GRN] != 2 || my_enc_buffer[0][BLU] & 128) {
-	    my_enc_buffer[0][RED] = 2;
-	    my_enc_buffer[0][EXP] = code;
-	    read_encoded_old(1);
-	    return;
-    }
-    
-    if ( static_cast<size_t>(my_enc_buffer[0][BLU]<<8 | code) != len )
-	    throw InvalidFormat("length mismatch in HdrReader::read_encoded()");
-    
-    // read each component
-    for (i = 0; i < 4; i++){
-	for (j = 0; j < len; ) {
-	    if ((code = getc(my_file)) == EOF)
+	void HdrReader::read_encoded()
+	{
+		size_t  i, j;
+		int  code, val;
+
+		size_t len = my_enc_buffer.size();
+		
+		// determine scanline type
+		if (len < MIN_ENC_LENGTH || len > MAX_ENC_LENGTH){
+		read_encoded_old();
+		return;
+		}
+		
+		if ((code = getc(my_file)) == EOF)
 		throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
 		
-	    if (code > 128) {	
-		// run
-		code &= 127;
-		val = getc(my_file);
-		while (code--)
-		    my_enc_buffer[j++][i] = val;
-	    } else {
-		// non-run
-		while (code--)
-		    my_enc_buffer[j++][i] = getc(my_file);
-	    }
-	}
-    }
-}
-
-void HdrReader::read_encoded_old(size_t pos)
-{
-    int  rshift;
-    register int  i;
-
-    rshift = 0;
-    size_t len = my_enc_buffer.size() - pos;
-    vector<Byte4>::iterator p = my_enc_buffer.begin() + pos;
-
-    while (len > 0) {
-	(*p)[RED] = getc(my_file);
-	(*p)[GRN] = getc(my_file);
-	(*p)[BLU] = getc(my_file);
-	(*p)[EXP] = getc(my_file);
-	if(feof(my_file))
-	    throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
-	if(ferror(my_file))
-	    throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
-	    
-	if ( (*p)[RED] == 1 && (*p)[GRN] == 1 && (*p)[BLU] == 1) {
-	    for (i = (*p)[EXP] << rshift; i > 0; i--) {
-		*p = *(p-1);
-		++p;
-		--len;
-	    }
-	    rshift += 8;
-	} else {
-	    ++p;
-	    --len;
-	    rshift = 0;
-	}
-    }
-}
-
-void HdrReader::finish()
-{
-    // no need to close the file.
-    my_file = NULL;
-    my_enc_buffer.resize(0);
-}
-
-void HdrWriter::init(FILE* f, size_t w, size_t h)
-{
-    my_file = f;
-    char* argv = new char[128];
-    strcpy(argv, "hdrio");
-    int x = w, y = h;
-
-    newheader("RADIANCE", my_file);
-    printargs(1, &argv, my_file);
-    delete [] argv;
-
-    fputformat(COLRFMT, my_file);
-    fprintf(my_file, "\n");
-    fprtresolu(x, y, my_file);
-    
-    my_enc_buffer.resize(w);
-}
-
-void HdrWriter::write_scanline(const vector<Float3>& buf)
-{
-    rgb_2_realpixels(buf, my_enc_buffer);
-    write_encoded();
-}
-
-void HdrWriter::write_encoded()
-{
-    size_t len = my_enc_buffer.size();
-    Byte4* scanline = &my_enc_buffer[0];
-    size_t i, j, beg, cnt=1;
-    size_t c2;
-
-    if (len < MIN_ENC_LENGTH || len > MAX_ENC_LENGTH){
-	// OOBs, write out flat
-	fwrite(scanline, sizeof(Byte4), len, my_file);
-	return;
-    }
-    /* put magic header */
-    putc(2, my_file);
-    putc(2, my_file);
-    putc(len>>8, my_file);
-    putc(len&255, my_file);
-    /* put components seperately */
-    for (i = 0; i < 4; i++) {
-	for (j = 0; j < len; j += cnt) {	/* find next run */
-	    for (beg = j; beg < len; beg += cnt) {
-		for (cnt = 1; cnt < 127; cnt++){
-		    if(beg+cnt >= len)
-			break;
-		    if(scanline[beg+cnt][i] != scanline[beg][i])
-			break;
+		if (code != 2) {
+		ungetc(code, my_file);
+		read_encoded_old();
+		return;
 		}
-
-		if (cnt >= MINRUN)
-		    break;			/* long enough */
-	    }
-	    if (beg-j > 1 && beg-j < MINRUN) {
-		c2 = j+1;
-		while (scanline[c2++][i] == scanline[j][i])
-		    if (c2 == beg) {	/* short run */
-			putc(128+beg-j, my_file);
-			putc(scanline[j][i], my_file);
-			j = beg;
-			break;
-		    }
-	    }
-	    while (j < beg) {		/* write out non-run */
-		if ((c2 = beg-j) > 128) c2 = 128;
-		putc(c2, my_file);
-		while (c2--)
-		    putc(scanline[j++][i], my_file);
-	    }
-	    if (cnt >= MINRUN) {		/* write out run */
-		putc(128+cnt, my_file);
-		putc(scanline[beg][i], my_file);
-	    } else
-		cnt = 0;
+		
+		my_enc_buffer[0][GRN] = getc(my_file);
+		my_enc_buffer[0][BLU] = getc(my_file);
+		
+		if ((code = getc(my_file)) == EOF)
+		throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
+		
+		if (my_enc_buffer[0][GRN] != 2 || my_enc_buffer[0][BLU] & 128) {
+			my_enc_buffer[0][RED] = 2;
+			my_enc_buffer[0][EXP] = code;
+			read_encoded_old(1);
+			return;
+		}
+		
+		if ( static_cast<size_t>(my_enc_buffer[0][BLU]<<8 | code) != len )
+			throw InvalidFormat("length mismatch in HdrReader::read_encoded()");
+		
+		// read each component
+		for (i = 0; i < 4; i++){
+		for (j = 0; j < len; ) {
+			if ((code = getc(my_file)) == EOF)
+			throw EndOfFile("unexpected EOF in HdrReader::read_encoded()");
+			
+			if (code > 128) {	
+			// run
+			code &= 127;
+			val = getc(my_file);
+			while (code--)
+				my_enc_buffer[j++][i] = val;
+			} else {
+			// non-run
+			while (code--)
+				my_enc_buffer[j++][i] = getc(my_file);
+			}
+		}
+		}
 	}
-    }
-}
 
-void HdrWriter::finish()
-{
-    my_file = NULL;
-    my_enc_buffer.resize(0);
-}
+	void HdrReader::read_encoded_old(size_t pos)
+	{
+		int  rshift;
+		register int  i;
+
+		rshift = 0;
+		size_t len = my_enc_buffer.size() - pos;
+		vector<Byte4>::iterator p = my_enc_buffer.begin() + pos;
+
+		while (len > 0) {
+		(*p)[RED] = getc(my_file);
+		(*p)[GRN] = getc(my_file);
+		(*p)[BLU] = getc(my_file);
+		(*p)[EXP] = getc(my_file);
+		if(feof(my_file))
+			throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
+		if(ferror(my_file))
+			throw EndOfFile("unexpected EOF in HdrReader::read_encoded_old()");
+			
+		if ( (*p)[RED] == 1 && (*p)[GRN] == 1 && (*p)[BLU] == 1) {
+			for (i = (*p)[EXP] << rshift; i > 0; i--) {
+			*p = *(p-1);
+			++p;
+			--len;
+			}
+			rshift += 8;
+		} else {
+			++p;
+			--len;
+			rshift = 0;
+		}
+		}
+	}
+
+	void HdrReader::finish()
+	{
+		// no need to close the file.
+		my_file = NULL;
+		my_enc_buffer.resize(0);
+	}
+
+	void HdrWriter::init(FILE* f, size_t w, size_t h)
+	{
+		my_file = f;
+		char* argv = new char[128];
+		strcpy(argv, "hdrio");
+		int x = w, y = h;
+
+		newheader("RADIANCE", my_file);
+		printargs(1, &argv, my_file);
+		delete [] argv;
+
+		fputformat(COLRFMT, my_file);
+		fprintf(my_file, "\n");
+		fprtresolu(x, y, my_file);
+		
+		my_enc_buffer.resize(w);
+	}
+
+	void HdrWriter::write_scanline(const vector<Float3>& buf)
+	{
+		rgb_2_realpixels(buf, my_enc_buffer);
+		write_encoded();
+	}
+
+	void HdrWriter::write_encoded()
+	{
+		size_t len = my_enc_buffer.size();
+		Byte4* scanline = &my_enc_buffer[0];
+		size_t i, j, beg, cnt=1;
+		size_t c2;
+
+		if (len < MIN_ENC_LENGTH || len > MAX_ENC_LENGTH){
+		// OOBs, write out flat
+		fwrite(scanline, sizeof(Byte4), len, my_file);
+		return;
+		}
+		/* put magic header */
+		putc(2, my_file);
+		putc(2, my_file);
+		putc(len>>8, my_file);
+		putc(len&255, my_file);
+		/* put components seperately */
+		for (i = 0; i < 4; i++) {
+		for (j = 0; j < len; j += cnt) {	/* find next run */
+			for (beg = j; beg < len; beg += cnt) {
+			for (cnt = 1; cnt < 127; cnt++){
+				if(beg+cnt >= len)
+				break;
+				if(scanline[beg+cnt][i] != scanline[beg][i])
+				break;
+			}
+
+			if (cnt >= MINRUN)
+				break;			/* long enough */
+			}
+			if (beg-j > 1 && beg-j < MINRUN) {
+			c2 = j+1;
+			while (scanline[c2++][i] == scanline[j][i])
+				if (c2 == beg) {	/* short run */
+				putc(128+beg-j, my_file);
+				putc(scanline[j][i], my_file);
+				j = beg;
+				break;
+				}
+			}
+			while (j < beg) {		/* write out non-run */
+			if ((c2 = beg-j) > 128) c2 = 128;
+			putc(c2, my_file);
+			while (c2--)
+				putc(scanline[j++][i], my_file);
+			}
+			if (cnt >= MINRUN) {		/* write out run */
+			putc(128+cnt, my_file);
+			putc(scanline[beg][i], my_file);
+			} else
+			cnt = 0;
+		}
+		}
+	}
+
+	void HdrWriter::finish()
+	{
+		my_file = NULL;
+		my_enc_buffer.resize(0);
+	}
+
+} // namespace image
+} // namespace cmlib

@@ -3,7 +3,7 @@ DESTDIR =
 PREFIX = $(DESTDIR)/usr
 INSTALL_INCLUDE = $(PREFIX)/include
 INSTALL_LIB = $(PREFIX)/lib
-TARGET = libgil2.so
+TARGET = libcmlib-imageio.so
 HEADERS = -I../include
 CXXFLAGS = -g $(HEADERS) -I/usr/local/include -fPIC -Wall -pipe
 LIBS =    -L/usr/local/lib -lpng -ljpeg -ltiff -lz
@@ -15,11 +15,11 @@ IO_DIR = io
 UTIL_DIR = $(IO_DIR)/io_utils
 SRCS = #FileFormat.cpp
 IO_SRCS = $(IO_DIR)/jpeg.cpp $(IO_DIR)/png.cpp $(IO_DIR)/tiff.cpp \
-	  $(IO_DIR)/exr.cpp $(IO_DIR)/hdr.cpp $(IO_DIR)/crw.cpp $(IO_DIR)/bmp.cpp
+	  $(IO_DIR)/exr.cpp $(IO_DIR)/hdr.cpp $(IO_DIR)/bmp.cpp #$(IO_DIR)/crw.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 IO_OBJS = $(IO_SRCS:.cpp=.o)
-IO_OBJS += $(IO_DIR)/dcraw.o
+#IO_OBJS += $(IO_DIR)/dcraw.o
 
 %.o: %.cpp
 	@ echo Compiling $<
@@ -47,7 +47,7 @@ post-install: real-install
 install-header:
 	@ echo Export headers to $(INSTALL_INCLUDE)
 	@ install -m755 -d $(INSTALL_INCLUDE)
-	@ svn --force export ../include/gil $(INSTALL_INCLUDE)/gil
+	@ svn --force export ../include/cmlib $(INSTALL_INCLUDE)/cmlib
 
 clean:
 	rm -f $(TARGET) $(OBJS) *.gch *.core
@@ -57,24 +57,36 @@ depend:
 	makedepend -Y $(HEADERS) $(SRCS) $(IO_SRCS) 2>/dev/null
 # DO NOT DELETE
 
-io/jpeg.o: ../include/gil/io/jpeg.h ../include/gil/Exception.h
-io/jpeg.o: ../include/gil/Color.h ../include/gil/Converter.h
-io/jpeg.o: ../include/gil/Color.h
-io/png.o: ../include/gil/Exception.h ../include/gil/io/png.h
-io/png.o: ../include/gil/Exception.h ../include/gil/Color.h
-io/png.o: ../include/gil/Converter.h ../include/gil/Color.h
-io/tiff.o: ../include/gil/io/tiff.h ../include/gil/Exception.h
-io/tiff.o: ../include/gil/Color.h ../include/gil/Converter.h
-io/tiff.o: ../include/gil/Color.h
-io/exr.o: ../include/gil/Exception.h ../include/gil/io/exr.h
-io/exr.o: ../include/gil/Image.h ../include/gil/Color.h
-io/exr.o: ../include/gil/ImageProxy.h ../include/gil/Converter.h
-io/hdr.o: ../include/gil/Exception.h ../include/gil/io/hdr.h
-io/hdr.o: ../include/gil/Color.h ../include/gil/Converter.h
-io/hdr.o: ../include/gil/Color.h
-io/crw.o: ../include/gil/Exception.h ../include/gil/io/crw.h
-io/crw.o: ../include/gil/Color.h ../include/gil/Converter.h
-io/crw.o: ../include/gil/Color.h
-io/bmp.o: ../include/gil/io/bmp.h ../include/gil/Exception.h
-io/bmp.o: ../include/gil/Color.h ../include/gil/Converter.h
-io/bmp.o: ../include/gil/Color.h ../include/gil/Exception.h
+io/jpeg.o: ../include/cmlib/imageio/io/jpeg.h
+io/jpeg.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
+io/jpeg.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
+io/jpeg.o: ../include/cmlib/image/ColorTrait.h
+io/jpeg.o: ../include/cmlib/imageio/Exception.h
+io/png.o: ../include/cmlib/imageio/Exception.h
+io/png.o: ../include/cmlib/imageio/io/png.h
+io/png.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
+io/png.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
+io/png.o: ../include/cmlib/image/ColorTrait.h
+io/png.o: ../include/cmlib/imageio/Exception.h
+io/tiff.o: ../include/cmlib/imageio/io/tiff.h
+io/tiff.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
+io/tiff.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
+io/tiff.o: ../include/cmlib/image/ColorTrait.h
+io/tiff.o: ../include/cmlib/imageio/Exception.h
+io/exr.o: ../include/cmlib/imageio/Exception.h
+io/exr.o: ../include/cmlib/imageio/io/exr.h
+io/exr.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
+io/exr.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
+io/exr.o: ../include/cmlib/image/ColorTrait.h
+io/exr.o: ../include/cmlib/imageio/Exception.h
+io/hdr.o: ../include/cmlib/imageio/Exception.h
+io/hdr.o: ../include/cmlib/imageio/io/hdr.h
+io/hdr.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
+io/hdr.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
+io/hdr.o: ../include/cmlib/image/ColorTrait.h
+io/bmp.o: ../include/cmlib/imageio/io/bmp.h
+io/bmp.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
+io/bmp.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
+io/bmp.o: ../include/cmlib/image/ColorTrait.h
+io/bmp.o: ../include/cmlib/imageio/Exception.h
+io/bmp.o: ../include/cmlib/imageio/Exception.h
