@@ -62,6 +62,7 @@ namespace { // anonymous namesapce
 					dst(x, y) /= weight;
 			}
 		}
+		return dst;
 	}
 
 	/**
