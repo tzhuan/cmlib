@@ -12,7 +12,7 @@ namespace image {
 	 *
 	 *  SliceImage is a class which is used to extract one slice 
 	 *  (say, the specified channel of the whole pixels) of the Image and
-	 *  you can treat it as an one-channel-Image. The operations on 
+	 *  you can treat it as an one-channel Image. The operations on 
 	 *  SliceImage will be affected on the reference Image as well. 
 	 *  It supports almost all interface of the Image except the memory
 	 *  operation like resize(), allocate(), etc.
@@ -211,7 +211,7 @@ namespace image {
 
 		size_type size() const
 		{
-			return this->size(); 
+			return my_image.size(); 
 		}
 
 		reference operator ()(size_type x, size_type y)
