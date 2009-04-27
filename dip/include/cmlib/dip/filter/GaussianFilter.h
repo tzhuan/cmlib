@@ -64,7 +64,7 @@ namespace dip {
 		}
 
 	private:
-		DstImage my_kernel;
+		Kernel my_kernel;
 	};
 
 	template<class SrcImage, class DstImage>
