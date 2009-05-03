@@ -111,6 +111,8 @@ namespace {
 		h = unpack_dword(ih+8);
 		bpp = unpack_word(ih+14);
 		table_num = unpack_dword(ih+32);
+		if (table_num == 0 && bpp <= 8) 
+			table_num = 1<<bpp;
 
 		// seek to the end of header
 		fseek(f, FILE_HEADER_SIZE + real_size, SEEK_SET);
