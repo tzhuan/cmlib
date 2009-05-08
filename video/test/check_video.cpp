@@ -43,7 +43,7 @@ try {
 		throw runtime_error("could not find stream information");
 
     // Dump information about file onto standard error
-    // dump_format(format_context, 0, file.c_str(), 0);
+    dump_format(format_context, 0, file.c_str(), 0);
 
     // Find the first video stream
 	if (video_stream_index < 0) {

@@ -3,7 +3,8 @@
 #include <string>
 #include <cstdlib>
 #include <cstddef>
-#include "image.h"
+
+#include <cmlib/image.h>
 
 using namespace std;
 using namespace cmlib::image;

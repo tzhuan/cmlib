@@ -1,9 +1,9 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "imageio/all.h"
-#include "imageio.h"
-#include "image.h"
+#include <cmlib/image.h>
+#include <cmlib/imageio/all.h>
+#include <cmlib/imageio.h>
 
 using namespace std;
 using namespace cmlib;

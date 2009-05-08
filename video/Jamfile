@@ -14,12 +14,13 @@ if [ os.name ] = NT
 		: 
 		:
 		: <include>/usr/include/ffmpeg <include>/usr/local/include/ffmpeg
-		  <linkflags>"-lavformat -lavcodec -lavutil -lz -m -lpthread"
+		  <include>"`pkg-config --cflags libswscale`"
+		  <linkflags>"-lavformat -lavcodec -lavutil -lz -m -lpthread `pkg-config --libs libswscale`"
 		;
 
 	lib cmlib-videostream
 		: [ glob src/*.cpp ] .//EXTRA_LIBS
-		: <include>include
+		: <include>include <include>../image/include
 		:
 		: <include>include
 		;	

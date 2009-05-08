@@ -1,3 +1,10 @@
-build-project image ;
-build-project video ;
-build-project dip ;
+# use-project /contrib : contrib ;
+# use-project /cmlib/image : image ;
+# use-project /cmlib/video : video ;
+# use-project /cmlib/dip : dip ;
+
+# build-project contrib//z ;
+# build-project /cmlib/image ;
+# build-project /cmlib/video ;
+# build-project /cmlib/dip ;
+# build-project test//main ;

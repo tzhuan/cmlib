@@ -1,0 +1,100 @@
+import common ;
+import modules ;
+import property-set ;
+
+default-build =
+	<variant>debug <variant>release
+	<link>shared <link>static
+	<runtime-link>shared <runtime-link>static
+	<threading>multi
+	;
+
+project cmlib 
+	: requirements 
+	  <conditional>@handle-static-runtime
+	  <tag>@tag 
+	:
+	: build-dir bin
+	: default-build $(default-build)
+	;
+
+if --with-system-libs in [ modules.peek : ARGV ]
+{
+    use-project /contrib : contrib-sys ;
+	other-libs = ;
+} else {
+    use-project /contrib : contrib ;
+	other-libs = contrib ;
+}
+
+# cmlib-libs = image video dip ;
+cmlib-libs = image ;
+all-libs = $(other-libs) $(cmlib-libs) ;
+ECHO $(all-libs) ;
+
+# Install just library.
+install dist
+    : $(all-libs)
+    : <install-type>LIB
+	  <conditional>@location
+    ;
+
+# Make project ids of all libraries known.
+for local l in $(all-libraries)
+{
+    use-project /cmlib/$(l) : $(l) ;
+}
+
+rule prefix ( dir : sequences * ) {
+	local result ;
+	for local x in $(sequences) {
+		result += $(dir)/$(x) ;
+	}
+	return $(result) ;
+}
+
+rule handle-static-runtime ( properties * )
+{
+    # This property combination is dangerous.
+    # Ideally, we'd add constraint to default build,
+    # so that user can build with property combination
+    # by hand. But we don't have any 'constraint' mechanism
+    # for default-build, so disable such builds in requirements.
+
+    # For CW, static runtime is needed so that
+    # std::locale works.
+    if <link>shared in $(properties)
+      && <runtime-link>static in $(properties)
+        && ! ( <toolset>cw in $(properties) )
+    {
+        return <build>no ;
+    }
+}
+
+rule tag ( name : type ? : property-set )
+{
+    if $(type) in STATIC_LIB SHARED_LIB IMPORT_LIB
+    {  
+		local result = [ common.format-name
+			<base> <runtime>
+			: $(name) : $(type) : $(property-set) ] ;
+
+		return $(result) ;
+    }
+}
+
+rule location ( properties * )
+{
+	local prefix = [ MATCH "^--prefix=(.*)" : [ modules.peek : ARGV ] ] ;
+	prefix ?= dist ;
+
+	local pset = [ property-set.create $(properties) ] ;
+	local toolset = [ $(pset).get <toolset> ] ;
+	local version = [ $(pset).get <toolset-$(toolset):version> ] ;
+	# local variant = [ $(pset).get <variant> ] ;
+	# local link = [ $(pset).get <link> ] ;
+	# local path = <location>$(toolset)-$(version)/$(variant)/$(link) ;
+
+	local path = <location>$(prefix)/$(toolset)-$(version) ;
+	return $(path) ;
+}
