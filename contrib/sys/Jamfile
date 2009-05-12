@@ -1,0 +1,48 @@
+import modules ;
+
+local prefix = [ MATCH "^--system-prefix=(.*)" : [ modules.peek : ARGV ] ] ;
+prefix ?= /usr ;
+
+lib z # {{{
+	: 
+	: <name>z <search>$(prefix)/lib
+	:
+	: <include>$(prefix)/include
+	; # }}}
+
+lib png # {{{
+	: 
+	: <name>png <search>$(prefix)/lib
+	:
+	: <include>$(prefix)/include
+	; # }}}
+
+lib tiff # {{{
+	: 
+	: <name>tiff <search>$(prefix)/lib
+	:
+	: <include>$(prefix)/include
+	; # }}}
+
+lib jpeg # {{{
+	: 
+	: <include>jpeg <search>$(prefix)/lib
+	:
+	: <include>$(prefix)/include
+	; # }}}
+
+alias ilmbase # {{{
+	: 
+	: 
+	:
+	: <cxxflags>"`pkg-config --cflags IlmBase`"
+	  <linkflags>"`pkg-config --libs IlmBase`"
+	; # }}}
+
+alias openexr # {{{
+	:
+	:
+	:
+	: <cxxflags>"`pkg-config --cflags OpenEXR`"
+	  <linkflags>"`pkg-config --libs OpenEXR`"
+	; # }}}

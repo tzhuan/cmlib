@@ -1,3 +1,20 @@
+# Usage:
+#
+#   bjam [options] [properties] [install|stage]
+#
+#   Builds cmlib.
+#
+# Targets and Related Options:
+#
+#   --help                  This message.
+#
+#   --with-system-libs      link with system libraries.
+#
+#   --system-prefix         prefix of system libraries, default is /usr
+#                           useful only when --with-system-libs
+#	
+
+
 import common ;
 import modules ;
 import property-set ;
@@ -20,11 +37,11 @@ project cmlib
 
 if --with-system-libs in [ modules.peek : ARGV ]
 {
-    use-project /contrib : contrib-sys ;
+    use-project /contrib : contrib/sys ;
 	other-libs = ;
 } else {
-    use-project /contrib : contrib ;
-	other-libs = contrib ;
+    use-project /contrib : contrib/local ;
+	other-libs = contrib/local ;
 }
 
 # cmlib-libs = image video dip ;
@@ -43,14 +60,6 @@ install dist
 for local l in $(all-libraries)
 {
     use-project /cmlib/$(l) : $(l) ;
-}
-
-rule prefix ( dir : sequences * ) {
-	local result ;
-	for local x in $(sequences) {
-		result += $(dir)/$(x) ;
-	}
-	return $(result) ;
 }
 
 rule handle-static-runtime ( properties * )

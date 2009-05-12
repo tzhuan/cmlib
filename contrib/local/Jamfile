@@ -1,0 +1,189 @@
+rule prefix ( dir : sequences * ) {
+	local result ;
+	for local x in $(sequences) {
+		result += $(dir)/$(x) ;
+	}
+	return $(result) ;
+}
+
+lib z # {{{
+    : [ prefix z : adler32.c compress.c crc32.c gzio.c uncompr.c
+		deflate.c trees.c zutil.c inflate.c infback.c inftrees.c inffast.c 
+	  ]
+	: <toolset>msvc:<define>WIN32
+	:
+	: <include>z <toolset>msvc:<define>WIN32
+	; # }}}
+
+lib png # {{{
+	: [ prefix png : png.c pngset.c pngget.c pngrutil.c pngtrans.c 
+		pngwutil.c pngread.c pngrio.c pngwio.c pngwrite.c pngrtran.c 
+		pngwtran.c pngmem.c pngerror.c pngpread.c 
+	  ] 
+	  /contrib//z
+	: <toolset>msvc:<define>WIN32
+	  <toolset>gcc:<cflags>"-falign-loops=2 -falign-functions=2 -funroll-loops -fomit-frame-pointer"
+	:
+	: <include>png <toolset>msvc:<define>WIN32
+	; # }}}
+
+JPEG_SYSDEPMEM = jmemnobs.c ;
+lib jpeg # {{{
+    : [ prefix jpeg : jcapimin.c jcapistd.c jccoefct.c jccolor.c 
+		jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c 
+		jcomapi.c jcparam.c jcphuff.c jcprepct.c jcsample.c jctrans.c 
+		jdapimin.c jdapistd.c jdatadst.c jdatasrc.c jdcoefct.c 
+		jdcolor.c jddctmgr.c jdhuff.c jdinput.c jdmainct.c jdmarker.c 
+		jdmaster.c jdmerge.c jdphuff.c jdpostct.c jdsample.c jdtrans.c
+		jerror.c jfdctflt.c jfdctfst.c jfdctint.c jidctflt.c jidctfst.c 
+		jidctint.c jidctred.c jquant1.c jquant2.c jutils.c jmemmgr.c 
+		$(JPEG_SYSDEPMEM) 
+	  ]
+    : 
+	:
+    : <include>jpeg
+    ; # }}}
+
+TIFF_SYSDEP_MODULE = tif_unix.c ;
+TIFF_STRIP_SIZE_DEFAULT = 8192 ;
+lib tiff # {{{
+    : [ prefix tiff/libtiff : tif_aux.c tif_close.c tif_codec.c
+		tif_color.c tif_compress.c tif_dir.c tif_dirinfo.c 
+		tif_dirread.c tif_dirwrite.c tif_dumpmode.c tif_error.c 
+		tif_extension.c tif_fax3.c tif_fax3sm.c tif_getimage.c 
+		tif_jpeg.c tif_ojpeg.c tif_flush.c tif_luv.c tif_lzw.c
+		tif_next.c tif_open.c tif_packbits.c tif_pixarlog.c 
+		tif_predict.c tif_print.c tif_read.c tif_stream.cxx 
+		tif_strip.c tif_swab.c tif_thunder.c tif_tile.c 
+		tif_version.c tif_warning.c tif_write.c tif_zip.c
+		$(TIFF_SYSDEP_MODULE)
+	  ] /contrib//z /contrib//jpeg
+	: <define>FILLODER_LSB2MSB
+      <define>TIF_PLATFORM_WINDOWED
+      <define>CCITT_SUPPORT
+      <define>PACKBITS_SUPPORT
+      <define>LZW_SUPPORT
+      <define>THUNDER_SUPPORT
+      <define>NEXT_SUPPORT
+      <define>LOGLUV_SUPPORT
+      <define>JPEG_SUPPORT
+      <define>ZIP_SUPPORT
+      <define>PIXARLOG_SUPPORT
+      <define>STRIPCHOP_DEFAULT=TIFF_STRIPCHOP
+      <define>STRIP_SIZE_DEFAULT=$(TIFF_STRIP_SIZE_DEFAULT)
+      <define>DEFAULT_EXTRASAMPLE_AS_ALPHA
+      <define>CHECK_JPEG_YCBCR_SUBSAMPLING
+	:
+	: <include>tiff/libtiff
+    ; # }}}
+
+EXR_REQUIREMENTS = 
+      <toolset>msvc:<include>config.windows
+      <toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
+      <toolset>msvc:<define>WIN32
+      <toolset>msvc:<define>_WINDOWS
+      <toolset>msvc:<define>_VC80_UPGRADE=0x0710
+	  <toolset>msvc:<cxxflags>"/wd4290"
+      <variant>debug:<define>_DEBUG
+      <variant>release:<define>NDEBUG
+      <link>dynamic:<define>_WINDLL
+      <link>dynamic:<define>OPENEXR_DLL ;
+
+lib IlmImf # {{{
+    : [ prefix openexr/IlmImf : ImfAttribute.cpp ImfBoxAttribute.cpp
+		ImfChannelList.cpp ImfChannelListAttribute.cpp 
+		ImfChromaticities.cpp ImfChromaticitiesAttribute.cpp 
+		ImfCompressionAttribute.cpp ImfCompressor.cpp ImfConvert.cpp
+		ImfCRgbaFile.cpp ImfDoubleAttribute.cpp ImfEnvmap.cpp 
+		ImfEnvmapAttribute.cpp ImfFloatAttribute.cpp ImfFrameBuffer.cpp 
+		ImfHeader.cpp ImfHuf.cpp ImfInputFile.cpp ImfIntAttribute.cpp
+		ImfIO.cpp ImfKeyCode.cpp ImfKeyCodeAttribute.cpp
+		ImfLineOrderAttribute.cpp ImfLut.cpp ImfMatrixAttribute.cpp
+		ImfMisc.cpp ImfOpaqueAttribute.cpp ImfOutputFile.cpp
+		ImfPizCompressor.cpp ImfPreviewImage.cpp 
+		ImfPreviewImageAttribute.cpp ImfPxr24Compressor.cpp
+		ImfRgbaFile.cpp ImfRgbaYca.cpp ImfRleCompressor.cpp
+		ImfScanLineInputFile.cpp ImfStandardAttributes.cpp ImfStdIO.cpp
+		ImfStringAttribute.cpp ImfTestFile.cpp ImfThreading.cpp
+		ImfTileDescriptionAttribute.cpp ImfTiledInputFile.cpp
+		ImfTiledMisc.cpp ImfTiledOutputFile.cpp ImfTiledRgbaFile.cpp
+		ImfTileOffsets.cpp ImfTimeCode.cpp ImfTimeCodeAttribute.cpp
+		ImfVecAttribute.cpp ImfVersion.cpp ImfWav.cpp ImfZipCompressor.cpp
+	  ] /contrib//z 
+    : $(EXR_REQUIREMENTS)
+	:
+	: <include>openexr/IlmImf
+    ; # }}}
+
+lib IlmThread # {{{
+	: [ prefix ilmbase/IlmThread : IlmThreadPool.cpp IlmThreadWin32.cpp
+	  IlmThreadMutexWin32.cpp IlmThreadSemaphoreWin32.cpp ]
+	: $(EXR_REQUIREMENTS)
+	:
+	: <include>ilmbase/IlmThread
+	; # }}}
+
+lib Imath # {{{
+	: [ prefix ilmbase/Imath : ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp 
+		ImathColorAlgo.cpp ImathFun.cpp ImathBox.cpp ImathRandom.cpp ]
+	: $(EXR_REQUIREMENTS)
+	:
+	: <include>ilmbase/Imath
+	; # }}}
+
+lib Iex # {{{
+	: [ prefix ilmbase/Iex : IexBaseExc.cpp IexThrowErrnoExc.cpp ]
+	: $(EXR_REQUIREMENTS)
+	:
+	: <include>ilmbase/Iex
+	; # }}}
+
+actions gen_header
+{
+	$(>) > $(<)
+}
+
+HALF_DIR = ilmbase/Half ;
+make $(HALF_DIR)/toFloat.h : toFloat : @gen_header ;
+make $(HALF_DIR)/eLut.h : eLut : @gen_header ;
+
+exe toFloat : $(HALF_DIR)/toFloat.cpp ;
+exe eLut : $(HALF_DIR)/eLut.cpp ;
+
+alias HALF_EXTRA_HEADERS : [ prefix $(HALF_DIR) : toFloat.h eLut.h ] ;
+
+lib Half # {{{
+	: $(HALF_DIR)/half.cpp
+	: <implicit-dependency>HALF_EXTRA_HEADERS
+	  $(EXR_REQUIREMENTS)
+	  <define>_CONSOLE
+	  <define>WIN32_LEAN_AND_MEAN
+	  <define>__WIN32__
+	  <define>MSWIN32
+	  <define>_USRDLL
+	  <define>_DLL
+	  <define>NOMINMAX
+	  <define>__STD_C=1
+	  <define>_BOOL
+	  <define>__x86__
+	  <define>_MBCS
+	  <toolset>msvc:<cxxflags>"/wd4018 /wd4231 /wd4244 /wd4267 /wd4305 /wd4800 /wd4275 /wd4661"
+	:
+	: <include>$(HALF_DIR)
+	; # }}}
+
+alias ilmbase # {{{
+	: /contrib//Half /contrib//Imath /contrib//IlmThread
+	:
+	:
+	: 
+	; # }}}
+
+alias openexr # {{{
+	: /contrib//IlmImf
+	:
+	: 
+	:
+	; # }}}
+
+
