@@ -1,3 +1,5 @@
+path-constant CONTRIB-LOCAL : . ;
+
 rule prefix ( dir : sequences * ) {
 	local result ;
 	for local x in $(sequences) {
@@ -11,8 +13,10 @@ lib z # {{{
 		deflate.c trees.c zutil.c inflate.c infback.c inftrees.c inffast.c 
 	  ]
 	: <toolset>msvc:<define>WIN32
+	  <toolset>msvc,<link>shared:<define>ZLIB_DLL
 	:
 	: <include>z <toolset>msvc:<define>WIN32
+	  <toolset>msvc,<link>shared:<define>ZLIB_DLL
 	; # }}}
 
 lib png # {{{
@@ -22,27 +26,36 @@ lib png # {{{
 	  ] 
 	  /contrib//z
 	: <toolset>msvc:<define>WIN32
+	  <toolset>msvc:<define>PNG_NO_MMX_CODE
+	  <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS
+	  <toolset>msvc,<link>shared:<define>PNG_BUILD_DLL
+	  <toolset>msvc,<link>shared:<linkflags>"/DEF:png/scripts/pngw32.def"
 	  <toolset>gcc:<cflags>"-falign-loops=2 -falign-functions=2 -funroll-loops -fomit-frame-pointer"
 	:
-	: <include>png <toolset>msvc:<define>WIN32
+	: <include>png
+	  <toolset>msvc:<define>WIN32
+	  <toolset>msvc,<link>shared:<define>PNG_USE_DLL
 	; # }}}
 
 JPEG_SYSDEPMEM = jmemnobs.c ;
 lib jpeg # {{{
-    : [ prefix jpeg : jcapimin.c jcapistd.c jccoefct.c jccolor.c 
-		jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c 
-		jcomapi.c jcparam.c jcphuff.c jcprepct.c jcsample.c jctrans.c 
-		jdapimin.c jdapistd.c jdatadst.c jdatasrc.c jdcoefct.c 
-		jdcolor.c jddctmgr.c jdhuff.c jdinput.c jdmainct.c jdmarker.c 
-		jdmaster.c jdmerge.c jdphuff.c jdpostct.c jdsample.c jdtrans.c
-		jerror.c jfdctflt.c jfdctfst.c jfdctint.c jidctflt.c jidctfst.c 
-		jidctint.c jidctred.c jquant1.c jquant2.c jutils.c jmemmgr.c 
-		$(JPEG_SYSDEPMEM) 
+	: [ prefix jpeg : jcapimin.c jcapistd.c jccoefct.c jccolor.c 
+	    jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c 
+	    jcomapi.c jcparam.c jcphuff.c jcprepct.c jcsample.c jctrans.c 
+	    jdapimin.c jdapistd.c jdatadst.c jdatasrc.c jdcoefct.c 
+	    jdcolor.c jddctmgr.c jdhuff.c jdinput.c jdmainct.c jdmarker.c 
+	    jdmaster.c jdmerge.c jdphuff.c jdpostct.c jdsample.c jdtrans.c
+	    jerror.c jfdctflt.c jfdctfst.c jfdctint.c jidctflt.c jidctfst.c 
+	    jidctint.c jidctred.c jquant1.c jquant2.c jutils.c jmemmgr.c 
+	    $(JPEG_SYSDEPMEM) 
 	  ]
-    : 
+	: <toolset>msvc:<define>WIN32
+	  <toolset>msvc:<define>_WINDOWS
+	  <toolset>msvc,<link>shared:<define>JPEG_BUILD_DLL
 	:
-    : <include>jpeg
-    ; # }}}
+	: <include>jpeg
+	  <toolset>msvc,<link>shared:<define>JPEG_USE_DLL
+	; # }}}
 
 TIFF_SYSDEP_MODULE = tif_unix.c ;
 TIFF_STRIP_SIZE_DEFAULT = 8192 ;
@@ -73,67 +86,89 @@ lib tiff # {{{
       <define>STRIP_SIZE_DEFAULT=$(TIFF_STRIP_SIZE_DEFAULT)
       <define>DEFAULT_EXTRASAMPLE_AS_ALPHA
       <define>CHECK_JPEG_YCBCR_SUBSAMPLING
+	  <toolset>msvc,<link>shared:<linkflags>"/DEF:tiff/libtiff/libtiff.def"
 	:
 	: <include>tiff/libtiff
     ; # }}}
 
 EXR_REQUIREMENTS = 
-      <toolset>msvc:<include>config.windows
-      <toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
-      <toolset>msvc:<define>WIN32
-      <toolset>msvc:<define>_WINDOWS
-      <toolset>msvc:<define>_VC80_UPGRADE=0x0710
-	  <toolset>msvc:<cxxflags>"/wd4290"
-      <variant>debug:<define>_DEBUG
-      <variant>release:<define>NDEBUG
-      <link>dynamic:<define>_WINDLL
-      <link>dynamic:<define>OPENEXR_DLL ;
+	<toolset>msvc:<include>config.windows
+	<toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
+	<toolset>msvc:<define>WIN32
+	<toolset>msvc:<define>_WINDOWS
+	<toolset>msvc:<define>_VC80_UPGRADE=0x0710
+	<toolset>msvc:<cxxflags>"/wd4290"
+	<variant>debug:<define>_DEBUG
+	<variant>release:<define>NDEBUG
+	<link>dynamic:<define>_WINDLL
+	<link>dynamic:<define>OPENEXR_DLL 
+	<toolset>msvc,<link>shared:<linkflags>"/MAP /MAPINFO:EXPORTS"
+	<include>openexr/config 
+	<toolset>msvc:<undef>HAVE_LINUX_PROCFS
+	<toolset>msvc:<undef>HAVE_COMPLETE_IOMANIP
+	<toolset>msvc:<undef>LARGE_STACK
+	<toolset>msvc:<define>COMPLETE_IOMANIP
+	;
+
+ILMBASE_REQUIREMENTS = 
+	<include>ilmbase/config 
+	<toolset>msvc:<undef>HAVE_PTHREAD
+	<toolset>msvc:<undef>HAVE_POSIX_SEMAPHORES
+	;
 
 lib IlmImf # {{{
-    : [ prefix openexr/IlmImf : ImfAttribute.cpp ImfBoxAttribute.cpp
-		ImfChannelList.cpp ImfChannelListAttribute.cpp 
-		ImfChromaticities.cpp ImfChromaticitiesAttribute.cpp 
-		ImfCompressionAttribute.cpp ImfCompressor.cpp ImfConvert.cpp
-		ImfCRgbaFile.cpp ImfDoubleAttribute.cpp ImfEnvmap.cpp 
-		ImfEnvmapAttribute.cpp ImfFloatAttribute.cpp ImfFrameBuffer.cpp 
-		ImfHeader.cpp ImfHuf.cpp ImfInputFile.cpp ImfIntAttribute.cpp
-		ImfIO.cpp ImfKeyCode.cpp ImfKeyCodeAttribute.cpp
-		ImfLineOrderAttribute.cpp ImfLut.cpp ImfMatrixAttribute.cpp
-		ImfMisc.cpp ImfOpaqueAttribute.cpp ImfOutputFile.cpp
-		ImfPizCompressor.cpp ImfPreviewImage.cpp 
-		ImfPreviewImageAttribute.cpp ImfPxr24Compressor.cpp
-		ImfRgbaFile.cpp ImfRgbaYca.cpp ImfRleCompressor.cpp
-		ImfScanLineInputFile.cpp ImfStandardAttributes.cpp ImfStdIO.cpp
-		ImfStringAttribute.cpp ImfTestFile.cpp ImfThreading.cpp
-		ImfTileDescriptionAttribute.cpp ImfTiledInputFile.cpp
-		ImfTiledMisc.cpp ImfTiledOutputFile.cpp ImfTiledRgbaFile.cpp
-		ImfTileOffsets.cpp ImfTimeCode.cpp ImfTimeCodeAttribute.cpp
-		ImfVecAttribute.cpp ImfVersion.cpp ImfWav.cpp ImfZipCompressor.cpp
-	  ] /contrib//z 
-    : $(EXR_REQUIREMENTS)
+	: [ prefix openexr/IlmImf : ImfAttribute.cpp ImfBoxAttribute.cpp
+	    ImfChannelList.cpp ImfChannelListAttribute.cpp 
+	    ImfChromaticities.cpp ImfChromaticitiesAttribute.cpp 
+	    ImfCompressionAttribute.cpp ImfCompressor.cpp ImfConvert.cpp
+	    ImfCRgbaFile.cpp ImfDoubleAttribute.cpp ImfEnvmap.cpp 
+	    ImfEnvmapAttribute.cpp ImfFloatAttribute.cpp ImfFrameBuffer.cpp 
+	    ImfHeader.cpp ImfHuf.cpp ImfInputFile.cpp ImfIntAttribute.cpp
+	    ImfIO.cpp ImfKeyCode.cpp ImfKeyCodeAttribute.cpp
+	    ImfLineOrderAttribute.cpp ImfLut.cpp ImfMatrixAttribute.cpp
+	    ImfMisc.cpp ImfOpaqueAttribute.cpp ImfOutputFile.cpp
+	    ImfPizCompressor.cpp ImfPreviewImage.cpp 
+	    ImfPreviewImageAttribute.cpp ImfPxr24Compressor.cpp
+	    ImfRgbaFile.cpp ImfRgbaYca.cpp ImfRleCompressor.cpp
+	    ImfScanLineInputFile.cpp ImfStandardAttributes.cpp ImfStdIO.cpp
+	    ImfStringAttribute.cpp ImfTestFile.cpp ImfThreading.cpp
+	    ImfTileDescriptionAttribute.cpp ImfTiledInputFile.cpp
+	    ImfTiledMisc.cpp ImfTiledOutputFile.cpp ImfTiledRgbaFile.cpp
+	    ImfTileOffsets.cpp ImfTimeCode.cpp ImfTimeCodeAttribute.cpp
+	    ImfVecAttribute.cpp ImfVersion.cpp ImfWav.cpp ImfZipCompressor.cpp
+	    ImfB44Compressor.cpp ImfFramesPerSecond.cpp ImfRational.cpp 
+	    ImfRationalAttribute.cpp 
+	  ] ilmbase /contrib//z 
+	: $(EXR_REQUIREMENTS) <include>openexr/IlmImf
 	:
 	: <include>openexr/IlmImf
     ; # }}}
 
 lib IlmThread # {{{
 	: [ prefix ilmbase/IlmThread : IlmThreadPool.cpp IlmThreadWin32.cpp
-	  IlmThreadMutexWin32.cpp IlmThreadSemaphoreWin32.cpp ]
-	: $(EXR_REQUIREMENTS)
+	  IlmThreadMutexWin32.cpp IlmThreadSemaphoreWin32.cpp ] Half Iex
+	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS) 
+	  <toolset>msvc,<link>shared:<dependency>Half.map
+	  <toolset>msvc,<link>shared:<dependency>Iex.map
 	:
-	: <include>ilmbase/IlmThread
+	: <include>ilmbase/IlmThread $(ILMBASE_REQUIREMENTS)
 	; # }}}
 
 lib Imath # {{{
 	: [ prefix ilmbase/Imath : ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp 
-		ImathColorAlgo.cpp ImathFun.cpp ImathBox.cpp ImathRandom.cpp ]
-	: $(EXR_REQUIREMENTS)
+	  ImathColorAlgo.cpp ImathFun.cpp ImathBox.cpp ImathRandom.cpp ] Half Iex 
+	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
+	  <toolset>msvc,<link>shared:<dependency>Half.map
+	  <toolset>msvc,<link>shared:<dependency>Iex.map
 	:
 	: <include>ilmbase/Imath
 	; # }}}
 
 lib Iex # {{{
 	: [ prefix ilmbase/Iex : IexBaseExc.cpp IexThrowErrnoExc.cpp ]
-	: $(EXR_REQUIREMENTS)
+	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
+	  <toolset>msvc,<link>shared:<define>_USRDLL
+	  <toolset>msvc,<link>shared:<define>IEX_EXPORTS
 	:
 	: <include>ilmbase/Iex
 	; # }}}
@@ -155,7 +190,7 @@ alias HALF_EXTRA_HEADERS : [ prefix $(HALF_DIR) : toFloat.h eLut.h ] ;
 lib Half # {{{
 	: $(HALF_DIR)/half.cpp
 	: <implicit-dependency>HALF_EXTRA_HEADERS
-	  $(EXR_REQUIREMENTS)
+	  $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
 	  <define>_CONSOLE
 	  <define>WIN32_LEAN_AND_MEAN
 	  <define>__WIN32__
@@ -172,16 +207,67 @@ lib Half # {{{
 	: <include>$(HALF_DIR)
 	; # }}}
 
-alias ilmbase # {{{
-	: /contrib//Half /contrib//Imath /contrib//IlmThread
-	:
+exe createDLL # {{{
+	: [ prefix ilmbase/vc/createDLL : OptionParser.cpp OptionParser.h createDLL.cpp ]
+	: <toolset>msvc:<define>WIN32
+	  <toolset>msvc:<define>_CONSOLE
+	  <toolset>msvc:<linkflags>user32.lib
 	:
 	: 
 	; # }}}
 
+make Half.map : createDLL Half : @ilmbase-createdll ;
+make Iex.map : createDLL Iex : @ilmbase-createdll ;
+make IlmThread.map : createDLL IlmThread : @ilmbase-createdll ;
+make Imath.map : createDLL Imath : @ilmbase-createdll ;
+make IlmImf.map : createDLL IlmImf : @openexr-createdll ;
+
+#make Half.map : createDLL ilmbase Half : @createdll ;
+#make Iex.map : createDLL ilmbase Iex : @createdll ;
+#make IlmThread.map : createDLL ilmbase IlmThread : @createdll ;
+#make Imath.map : createDLL ilmbase Imath : @createdll ;
+#make IlmImf.map : createDLL openexr IlmImf : @createdll ;
+
+actions ilmbase-createdll
+{
+	cd $(1:D)\ilmbase\$(1:B:B)
+	..\..\$(2[1]:B) -n..\..\$(2[2]:B).map -l..\.. -i..\..\$(2[2]:B).lib
+}
+
+actions openexr-createdll
+{
+	cd $(1:D)\openexr\$(1:B:B)
+	..\..\$(2[1]:B) -n..\..\$(2[2]:B).map -l..\.. -i..\..\$(2[2]:B).lib
+}
+
+# $(1): def, $(2[1]): createDLL.exe, $(2[2]): ilmbase/openexr $(2[3]): lib
+# ECHO $(2[1]) -n$(2[2]:S=.map) -l$(1:D):$(1:D)/ilmbase/$(1:B) -i$(2[2])
+# rem createDLL.bat path1 path2 path3 exe name
+# ..\..\%exe% -n..\..\%name%.map -l..\.. -i..\..\%name%.lib
+# $(TOP)/contrib/local/createDLL.bat $(1:D) ilmbase $(1:B) $(2[1]:B) $(2[2]:B)
+# ..\..\$(2[1]) -n..\..\$(2[2]:B).map -l..\.. -i..\..\$(2[2]:B).lib
+actions createdll
+{
+	ECHO $(1) $(2)
+	ECHO cd ilmbase\$(1:B)
+	ECHO cd $(1:D)\$(2[2])\$(1:B)
+	ECHO ..\..\$(2[1]) -n..\..\$(2[3]:B).map -l..\.. -i..\..\$(2[3]:B).lib
+	ECHO cd $(CONTRIB-LOCAL)
+}
+
+alias ilmbase # {{{
+	: /contrib//Half /contrib//Imath /contrib//IlmThread /contrib//Iex
+	: <toolset>msvc,<link>shared:<implicit-dependency>Half.map
+	  <toolset>msvc,<link>shared:<implicit-dependency>Imath.map
+	  <toolset>msvc,<link>shared:<implicit-dependency>Iex.map
+	  <toolset>msvc,<link>shared:<implicit-dependency>IlmThread.map
+	:
+	:
+	; # }}}
+
 alias openexr # {{{
 	: /contrib//IlmImf
-	:
+	: <toolset>msvc,<link>shared:<implicit-dependency>IlmImf.map
 	: 
 	:
 	; # }}}

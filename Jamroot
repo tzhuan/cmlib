@@ -19,6 +19,8 @@ import common ;
 import modules ;
 import property-set ;
 
+path-constant TOP : . ;
+
 default-build =
 	<variant>debug <variant>release
 	<link>shared <link>static
@@ -30,6 +32,7 @@ project cmlib
 	: requirements 
 	  <conditional>@handle-static-runtime
 	  <tag>@tag 
+	  <toolset>msvc,<link>shared:<define>BUILD_IMAGE_DLL
 	:
 	: build-dir bin
 	: default-build $(default-build)
