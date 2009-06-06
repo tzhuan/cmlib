@@ -1,3 +1,4 @@
+import path ;
 path-constant CONTRIB-LOCAL : . ;
 
 rule prefix ( dir : sequences * ) {
@@ -230,14 +231,19 @@ make IlmImf.map : createDLL IlmImf : @openexr-createdll ;
 
 actions ilmbase-createdll
 {
+	local pwd = [ path.pwd ] ; 
+	ECHO $(pwd)
 	cd $(1:D)\ilmbase\$(1:B:B)
 	..\..\$(2[1]:B) -n..\..\$(2[2]:B).map -l..\.. -i..\..\$(2[2]:B).lib
+	ECHO [ path.pwd ] ; 
 }
 
 actions openexr-createdll
 {
+	ECHO [ path.pwd ] ; 
 	cd $(1:D)\openexr\$(1:B:B)
 	..\..\$(2[1]:B) -n..\..\$(2[2]:B).map -l..\.. -i..\..\$(2[2]:B).lib
+	ECHO [ path.pwd ] ; 
 }
 
 # $(1): def, $(2[1]): createDLL.exe, $(2[2]): ilmbase/openexr $(2[3]): lib

@@ -103,10 +103,10 @@ rule location ( properties * )
 	local pset = [ property-set.create $(properties) ] ;
 	local toolset = [ $(pset).get <toolset> ] ;
 	local version = [ $(pset).get <toolset-$(toolset):version> ] ;
-	# local variant = [ $(pset).get <variant> ] ;
-	# local link = [ $(pset).get <link> ] ;
+	local variant = [ $(pset).get <variant> ] ;
+	local link = [ $(pset).get <link> ] ;
 	# local path = <location>$(toolset)-$(version)/$(variant)/$(link) ;
 
-	local path = <location>$(prefix)/$(toolset)-$(version) ;
+	local path = <location>$(prefix)/$(toolset)-$(version)/$(variant)/$(link) ;
 	return $(path) ;
 }
