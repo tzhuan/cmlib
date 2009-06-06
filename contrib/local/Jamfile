@@ -10,10 +10,10 @@ rule prefix ( dir : sequences * ) {
 }
 
 lib z # {{{
-    : [ prefix z : adler32.c compress.c crc32.c gzio.c uncompr.c
+	: [ prefix z : adler32.c compress.c crc32.c gzio.c uncompr.c
 		deflate.c trees.c zutil.c inflate.c infback.c inftrees.c inffast.c 
 	  ]
-	: <toolset>msvc:<define>WIN32
+	: <toolset>msvc:<define>WIN32 <toolset>msvc,<variant>shared:<define>ZLIB_DLL
 	  <toolset>msvc,<link>shared:<define>ZLIB_DLL
 	:
 	: <include>z <toolset>msvc:<define>WIN32
@@ -61,36 +61,36 @@ lib jpeg # {{{
 TIFF_SYSDEP_MODULE = tif_unix.c ;
 TIFF_STRIP_SIZE_DEFAULT = 8192 ;
 lib tiff # {{{
-    : [ prefix tiff/libtiff : tif_aux.c tif_close.c tif_codec.c
-		tif_color.c tif_compress.c tif_dir.c tif_dirinfo.c 
-		tif_dirread.c tif_dirwrite.c tif_dumpmode.c tif_error.c 
-		tif_extension.c tif_fax3.c tif_fax3sm.c tif_getimage.c 
-		tif_jpeg.c tif_ojpeg.c tif_flush.c tif_luv.c tif_lzw.c
-		tif_next.c tif_open.c tif_packbits.c tif_pixarlog.c 
-		tif_predict.c tif_print.c tif_read.c tif_stream.cxx 
-		tif_strip.c tif_swab.c tif_thunder.c tif_tile.c 
-		tif_version.c tif_warning.c tif_write.c tif_zip.c
-		$(TIFF_SYSDEP_MODULE)
+	: [ prefix tiff/libtiff : tif_aux.c tif_close.c tif_codec.c
+	    tif_color.c tif_compress.c tif_dir.c tif_dirinfo.c 
+	    tif_dirread.c tif_dirwrite.c tif_dumpmode.c tif_error.c 
+	    tif_extension.c tif_fax3.c tif_fax3sm.c tif_getimage.c 
+	    tif_jpeg.c tif_ojpeg.c tif_flush.c tif_luv.c tif_lzw.c
+	    tif_next.c tif_open.c tif_packbits.c tif_pixarlog.c 
+	    tif_predict.c tif_print.c tif_read.c tif_stream.cxx 
+	    tif_strip.c tif_swab.c tif_thunder.c tif_tile.c 
+	    tif_version.c tif_warning.c tif_write.c tif_zip.c
+	    $(TIFF_SYSDEP_MODULE)
 	  ] /contrib//z /contrib//jpeg
 	: <define>FILLODER_LSB2MSB
-      <define>TIF_PLATFORM_WINDOWED
-      <define>CCITT_SUPPORT
-      <define>PACKBITS_SUPPORT
-      <define>LZW_SUPPORT
-      <define>THUNDER_SUPPORT
-      <define>NEXT_SUPPORT
-      <define>LOGLUV_SUPPORT
-      <define>JPEG_SUPPORT
-      <define>ZIP_SUPPORT
-      <define>PIXARLOG_SUPPORT
-      <define>STRIPCHOP_DEFAULT=TIFF_STRIPCHOP
-      <define>STRIP_SIZE_DEFAULT=$(TIFF_STRIP_SIZE_DEFAULT)
-      <define>DEFAULT_EXTRASAMPLE_AS_ALPHA
-      <define>CHECK_JPEG_YCBCR_SUBSAMPLING
+	  <define>TIF_PLATFORM_WINDOWED
+	  <define>CCITT_SUPPORT
+	  <define>PACKBITS_SUPPORT
+	  <define>LZW_SUPPORT
+	  <define>THUNDER_SUPPORT
+	  <define>NEXT_SUPPORT
+	  <define>LOGLUV_SUPPORT
+	  <define>JPEG_SUPPORT
+	  <define>ZIP_SUPPORT
+	  <define>PIXARLOG_SUPPORT
+	  <define>STRIPCHOP_DEFAULT=TIFF_STRIPCHOP
+	  <define>STRIP_SIZE_DEFAULT=$(TIFF_STRIP_SIZE_DEFAULT)
+	  <define>DEFAULT_EXTRASAMPLE_AS_ALPHA
+	  <define>CHECK_JPEG_YCBCR_SUBSAMPLING
 	  <toolset>msvc,<link>shared:<linkflags>"/DEF:tiff/libtiff/libtiff.def"
 	:
 	: <include>tiff/libtiff
-    ; # }}}
+	; # }}}
 
 EXR_REQUIREMENTS = 
 	<toolset>msvc:<include>config.windows
@@ -143,7 +143,7 @@ lib IlmImf # {{{
 	: $(EXR_REQUIREMENTS) <include>openexr/IlmImf
 	:
 	: <include>openexr/IlmImf
-    ; # }}}
+	; # }}}
 
 lib IlmThread # {{{
 	: [ prefix ilmbase/IlmThread : IlmThreadPool.cpp IlmThreadWin32.cpp
