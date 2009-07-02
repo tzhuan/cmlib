@@ -63,7 +63,7 @@ namespace image {
 		}
 
 		template <typename I>
-		Image(I& img)
+		Image(const I& img)
 			: my_width(0), my_height(0), my_data(0), my_row(0)
 		{
 			*this = img;
@@ -161,7 +161,7 @@ namespace image {
 		}
 
 		template <typename ImageType>
-		self_type& operator =(ImageType& img)
+		self_type& operator =(const ImageType& img)
 		{
 			resize(img.width(), img.height());
 			std::copy(img.begin(), img.end(), begin());

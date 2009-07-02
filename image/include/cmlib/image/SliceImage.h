@@ -68,7 +68,7 @@ namespace image {
 				my_channel = i.my_channel;
 			}
 
-			reference operator *() const
+			Reference operator *() const
 			{
 				return 
 					ColorTrait<color_type>::select_channel(
@@ -76,7 +76,7 @@ namespace image {
 					);
 			}
 
-			pointer operator ->() const
+			Pointer operator ->() const
 			{
 				return &(operator *());
 			}
@@ -131,7 +131,7 @@ namespace image {
 				retuern (tmp -= n);
 			}
 
-			reference operator [](difference_type n) const
+			Reference operator [](difference_type n) const
 			{
 				return *(*this + n);
 			}
