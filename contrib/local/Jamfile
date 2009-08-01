@@ -10,10 +10,10 @@ rule prefix ( dir : sequences * ) {
 }
 
 lib z # {{{
-	: [ prefix z : adler32.c compress.c crc32.c gzio.c uncompr.c
+    : [ prefix z : adler32.c compress.c crc32.c gzio.c uncompr.c
 		deflate.c trees.c zutil.c inflate.c infback.c inftrees.c inffast.c 
 	  ]
-	: <toolset>msvc:<define>WIN32 <toolset>msvc,<variant>shared:<define>ZLIB_DLL
+	: <toolset>msvc:<define>WIN32
 	  <toolset>msvc,<link>shared:<define>ZLIB_DLL
 	:
 	: <include>z <toolset>msvc:<define>WIN32
@@ -30,7 +30,7 @@ lib png # {{{
 	  <toolset>msvc:<define>PNG_NO_MMX_CODE
 	  <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS
 	  <toolset>msvc,<link>shared:<define>PNG_BUILD_DLL
-	  <toolset>msvc,<link>shared:<linkflags>"/DEF:png/scripts/pngw32.def"
+	  <toolset>msvc,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/png/scripts/pngw32.def"
 	  <toolset>gcc:<cflags>"-falign-loops=2 -falign-functions=2 -funroll-loops -fomit-frame-pointer"
 	:
 	: <include>png
@@ -61,16 +61,16 @@ lib jpeg # {{{
 TIFF_SYSDEP_MODULE = tif_unix.c ;
 TIFF_STRIP_SIZE_DEFAULT = 8192 ;
 lib tiff # {{{
-	: [ prefix tiff/libtiff : tif_aux.c tif_close.c tif_codec.c
-	    tif_color.c tif_compress.c tif_dir.c tif_dirinfo.c 
-	    tif_dirread.c tif_dirwrite.c tif_dumpmode.c tif_error.c 
-	    tif_extension.c tif_fax3.c tif_fax3sm.c tif_getimage.c 
-	    tif_jpeg.c tif_ojpeg.c tif_flush.c tif_luv.c tif_lzw.c
-	    tif_next.c tif_open.c tif_packbits.c tif_pixarlog.c 
-	    tif_predict.c tif_print.c tif_read.c tif_stream.cxx 
-	    tif_strip.c tif_swab.c tif_thunder.c tif_tile.c 
-	    tif_version.c tif_warning.c tif_write.c tif_zip.c
-	    $(TIFF_SYSDEP_MODULE)
+    : [ prefix tiff/libtiff : tif_aux.c tif_close.c tif_codec.c
+		tif_color.c tif_compress.c tif_dir.c tif_dirinfo.c 
+		tif_dirread.c tif_dirwrite.c tif_dumpmode.c tif_error.c 
+		tif_extension.c tif_fax3.c tif_fax3sm.c tif_getimage.c 
+		tif_jpeg.c tif_ojpeg.c tif_flush.c tif_luv.c tif_lzw.c
+		tif_next.c tif_open.c tif_packbits.c tif_pixarlog.c 
+		tif_predict.c tif_print.c tif_read.c tif_stream.cxx 
+		tif_strip.c tif_swab.c tif_thunder.c tif_tile.c 
+		tif_version.c tif_warning.c tif_write.c tif_zip.c
+		$(TIFF_SYSDEP_MODULE)
 	  ] /contrib//z /contrib//jpeg
 	: <define>FILLODER_LSB2MSB
 	  <define>TIF_PLATFORM_WINDOWED
@@ -87,13 +87,14 @@ lib tiff # {{{
 	  <define>STRIP_SIZE_DEFAULT=$(TIFF_STRIP_SIZE_DEFAULT)
 	  <define>DEFAULT_EXTRASAMPLE_AS_ALPHA
 	  <define>CHECK_JPEG_YCBCR_SUBSAMPLING
-	  <toolset>msvc,<link>shared:<linkflags>"/DEF:tiff/libtiff/libtiff.def"
+	  <toolset>msvc,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/tiff/libtiff/libtiff.def"
 	:
 	: <include>tiff/libtiff
-	; # }}}
+    ; # }}}
 
 EXR_REQUIREMENTS = 
-	<toolset>msvc:<include>config.windows
+	<toolset>gcc:<include>openexr/config 
+	<toolset>msvc:<include>openexr/config.windows
 	<toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
 	<toolset>msvc:<define>WIN32
 	<toolset>msvc:<define>_WINDOWS
@@ -101,20 +102,24 @@ EXR_REQUIREMENTS =
 	<toolset>msvc:<cxxflags>"/wd4290"
 	<variant>debug:<define>_DEBUG
 	<variant>release:<define>NDEBUG
-	<link>dynamic:<define>_WINDLL
-	<link>dynamic:<define>OPENEXR_DLL 
+	<link>shared:<define>_WINDLL
+	<link>shared:<define>OPENEXR_DLL 
 	<toolset>msvc,<link>shared:<linkflags>"/MAP /MAPINFO:EXPORTS"
-	<include>openexr/config 
+	<toolset>msvc:<define>_MBCS
 	<toolset>msvc:<undef>HAVE_LINUX_PROCFS
 	<toolset>msvc:<undef>HAVE_COMPLETE_IOMANIP
 	<toolset>msvc:<undef>LARGE_STACK
 	<toolset>msvc:<define>COMPLETE_IOMANIP
+	<toolset>msvc:<cxxflags>"/wd4018 /wd4231 /wd4244 /wd4267 /wd4305 /wd4800 /wd4275 /wd4661 /wd4273"
 	;
 
 ILMBASE_REQUIREMENTS = 
-	<include>ilmbase/config 
+	<toolset>gcc:<include>ilmbase/config 
+	<toolset>msvc:<include>ilmbase/config.windows
 	<toolset>msvc:<undef>HAVE_PTHREAD
 	<toolset>msvc:<undef>HAVE_POSIX_SEMAPHORES
+	<toolset>msvc,<link>shared:<define>_USRDLL
+	# <toolset>msvc-8.0:<define>_VC80_UPGRADE=0x0710
 	;
 
 lib IlmImf # {{{
@@ -139,18 +144,26 @@ lib IlmImf # {{{
 	    ImfVecAttribute.cpp ImfVersion.cpp ImfWav.cpp ImfZipCompressor.cpp
 	    ImfB44Compressor.cpp ImfFramesPerSecond.cpp ImfRational.cpp 
 	    ImfRationalAttribute.cpp 
-	  ] ilmbase /contrib//z 
+	  ] z ilmbase
 	: $(EXR_REQUIREMENTS) <include>openexr/IlmImf
+	  <toolset>msvc,<link>shared:<define>ILMIMF_EXPORTS
+	  <toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/IlmImf.def"
+	  <toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/IlmImf.def"
 	:
 	: <include>openexr/IlmImf
-	; # }}}
+    ; # }}}
 
 lib IlmThread # {{{
-	: [ prefix ilmbase/IlmThread : IlmThreadPool.cpp IlmThreadWin32.cpp
-	  IlmThreadMutexWin32.cpp IlmThreadSemaphoreWin32.cpp ] Half Iex
+	: [ prefix ilmbase/IlmThread : IlmThread.cpp IlmThreadMutex.cpp
+	    IlmThreadMutexPosix.cpp IlmThreadMutexWin32.cpp 
+	    IlmThreadPool.cpp IlmThreadPosix.cpp IlmThreadSemaphore.cpp 
+	    IlmThreadSemaphorePosix.cpp IlmThreadSemaphorePosixCompat.cpp 
+	    IlmThreadSemaphoreWin32.cpp IlmThreadWin32.cpp
+	  ] Half Iex
 	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS) 
-	  <toolset>msvc,<link>shared:<dependency>Half.map
-	  <toolset>msvc,<link>shared:<dependency>Iex.map
+	  <toolset>msvc,<link>shared:<define>ILMTHREAD_EXPORTS
+	  <toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/IlmThread.def"
+	  <toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/IlmThread.def"
 	:
 	: <include>ilmbase/IlmThread $(ILMBASE_REQUIREMENTS)
 	; # }}}
@@ -159,8 +172,9 @@ lib Imath # {{{
 	: [ prefix ilmbase/Imath : ImathShear.cpp ImathMatrixAlgo.cpp ImathVec.cpp 
 	  ImathColorAlgo.cpp ImathFun.cpp ImathBox.cpp ImathRandom.cpp ] Half Iex 
 	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
-	  <toolset>msvc,<link>shared:<dependency>Half.map
-	  <toolset>msvc,<link>shared:<dependency>Iex.map
+	  <toolset>msvc,<link>shared:<define>IMATH_EXPORTS
+	  <toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/Imath.def"
+	  <toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/Imath.def"
 	:
 	: <include>ilmbase/Imath
 	; # }}}
@@ -168,8 +182,10 @@ lib Imath # {{{
 lib Iex # {{{
 	: [ prefix ilmbase/Iex : IexBaseExc.cpp IexThrowErrnoExc.cpp ]
 	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
-	  <toolset>msvc,<link>shared:<define>_USRDLL
 	  <toolset>msvc,<link>shared:<define>IEX_EXPORTS
+	  <toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/Iex.def"
+	  <toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/Iex.def"
+	  # <toolset>msvc-8.0,<link>shared,<variant>release:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/release/Iex.def"
 	:
 	: <include>ilmbase/Iex
 	; # }}}
@@ -192,18 +208,10 @@ lib Half # {{{
 	: $(HALF_DIR)/half.cpp
 	: <implicit-dependency>HALF_EXTRA_HEADERS
 	  $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
-	  <define>_CONSOLE
-	  <define>WIN32_LEAN_AND_MEAN
-	  <define>__WIN32__
-	  <define>MSWIN32
-	  <define>_USRDLL
-	  <define>_DLL
-	  <define>NOMINMAX
-	  <define>__STD_C=1
-	  <define>_BOOL
-	  <define>__x86__
-	  <define>_MBCS
-	  <toolset>msvc:<cxxflags>"/wd4018 /wd4231 /wd4244 /wd4267 /wd4305 /wd4800 /wd4275 /wd4661"
+	  <toolset>msvc,<link>shared:<define>HALF_EXPORTS
+	  #<toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/Half.def"
+	  #<toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/Half.def"
+	  #<toolset>msvc-8.0,<link>shared,<variant>release:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/release/Half.def"
 	:
 	: <include>$(HALF_DIR)
 	; # }}}
@@ -217,65 +225,18 @@ exe createDLL # {{{
 	: 
 	; # }}}
 
-make Half.map : createDLL Half : @ilmbase-createdll ;
-make Iex.map : createDLL Iex : @ilmbase-createdll ;
-make IlmThread.map : createDLL IlmThread : @ilmbase-createdll ;
-make Imath.map : createDLL Imath : @ilmbase-createdll ;
-make IlmImf.map : createDLL IlmImf : @openexr-createdll ;
-
-#make Half.map : createDLL ilmbase Half : @createdll ;
-#make Iex.map : createDLL ilmbase Iex : @createdll ;
-#make IlmThread.map : createDLL ilmbase IlmThread : @createdll ;
-#make Imath.map : createDLL ilmbase Imath : @createdll ;
-#make IlmImf.map : createDLL openexr IlmImf : @createdll ;
-
-actions ilmbase-createdll
-{
-	local pwd = [ path.pwd ] ; 
-	ECHO $(pwd)
-	cd $(1:D)\ilmbase\$(1:B:B)
-	..\..\$(2[1]:B) -n..\..\$(2[2]:B).map -l..\.. -i..\..\$(2[2]:B).lib
-	ECHO [ path.pwd ] ; 
-}
-
-actions openexr-createdll
-{
-	ECHO [ path.pwd ] ; 
-	cd $(1:D)\openexr\$(1:B:B)
-	..\..\$(2[1]:B) -n..\..\$(2[2]:B).map -l..\.. -i..\..\$(2[2]:B).lib
-	ECHO [ path.pwd ] ; 
-}
-
-# $(1): def, $(2[1]): createDLL.exe, $(2[2]): ilmbase/openexr $(2[3]): lib
-# ECHO $(2[1]) -n$(2[2]:S=.map) -l$(1:D):$(1:D)/ilmbase/$(1:B) -i$(2[2])
-# rem createDLL.bat path1 path2 path3 exe name
-# ..\..\%exe% -n..\..\%name%.map -l..\.. -i..\..\%name%.lib
-# $(TOP)/contrib/local/createDLL.bat $(1:D) ilmbase $(1:B) $(2[1]:B) $(2[2]:B)
-# ..\..\$(2[1]) -n..\..\$(2[2]:B).map -l..\.. -i..\..\$(2[2]:B).lib
-actions createdll
-{
-	ECHO $(1) $(2)
-	ECHO cd ilmbase\$(1:B)
-	ECHO cd $(1:D)\$(2[2])\$(1:B)
-	ECHO ..\..\$(2[1]) -n..\..\$(2[3]:B).map -l..\.. -i..\..\$(2[3]:B).lib
-	ECHO cd $(CONTRIB-LOCAL)
-}
-
 alias ilmbase # {{{
 	: /contrib//Half /contrib//Imath /contrib//IlmThread /contrib//Iex
-	: <toolset>msvc,<link>shared:<implicit-dependency>Half.map
-	  <toolset>msvc,<link>shared:<implicit-dependency>Imath.map
-	  <toolset>msvc,<link>shared:<implicit-dependency>Iex.map
-	  <toolset>msvc,<link>shared:<implicit-dependency>IlmThread.map
+	:
 	:
 	:
 	; # }}}
 
 alias openexr # {{{
 	: /contrib//IlmImf
-	: <toolset>msvc,<link>shared:<implicit-dependency>IlmImf.map
-	: 
 	:
+	: 
+	: <toolset>msvc,<link>shared:<define>OPENEXR_DLL
 	; # }}}
 
 
