@@ -7,6 +7,8 @@
  */
 
 #include <stdexcept>
+
+#include <cmlib/common.h>
 #include <cmlib/image.h>
 
 namespace cmlib {
@@ -16,7 +18,7 @@ namespace video {
 	 *
 	 */
 	template<class ImageType>
-	class VideoStream {
+	class DLLAPI VideoStream {
 	public:
 
 		typedef int seekdir;

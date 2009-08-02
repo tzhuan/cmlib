@@ -10,20 +10,7 @@
 #include <cstddef>
 #include <limits>
 
-// set DLLAPI if we're using VC
-#ifdef _MSC_VER
-	#pragma warning(disable: 4996)
-
-	#ifdef BUILD_IMAGE_DLL
-		#define DLLAPI __declspec(dllexport)
-	#elif defined(LINK_IMAGE_DLL)
-		#define DLLAPI __declspec(dllimport)
-	#else
-		#define DLLAPI
-	#endif // BUILD_IMAGE_DLL
-#else
-	#define DLLAPI
-#endif // _MSC_VER
+#include <cmlib/common.h>
 
 namespace cmlib {
 namespace image {

@@ -32,7 +32,7 @@ project cmlib
 	: requirements 
 	  <conditional>@handle-static-runtime
 	  <tag>@tag 
-	  <toolset>msvc,<link>shared:<define>BUILD_IMAGE_DLL
+	  <toolset>msvc,<link>shared:<define>CMLIB_BUILD_DLL
 	:
 	: build-dir bin
 	: default-build $(default-build)
@@ -60,7 +60,7 @@ install dist
     ;
 
 # Make project ids of all libraries known.
-for local l in $(all-libraries)
+for local l in $(all-libs)
 {
     use-project /cmlib/$(l) : $(l) ;
 }

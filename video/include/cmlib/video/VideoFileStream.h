@@ -27,7 +27,7 @@ namespace video {
 	/** @brief The base class of VideoStream
 	 *
 	 */
-	class VideoFileStream: public VideoStream<cmlib::image::ByteImage3> {
+	class DLLAPI VideoFileStream: public VideoStream<cmlib::image::ByteImage3> {
 
 	public:
 
