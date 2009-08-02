@@ -238,7 +238,8 @@ protected:
 		}
 
 
-		VideoStream& operator=(const VideoStream&);
+		// comment this to pass the DLL build ...
+		// VideoStream& operator=(const VideoStream&);
 	private:
     };
 
