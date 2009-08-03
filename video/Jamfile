@@ -1,15 +1,22 @@
 import os ;
 
-project video
-	: default-build debug debug_static release release_static
-	;
+#project video
+#	: default-build debug debug_static release release_static
+#	;
 
 if [ os.name ] = NT
 {
+	alias ffmpeg
+		:
+		:
+		:
+		: <include>c:\usr\local\ffmpeg\include
+		  <linkflags>"-L c:\usr\local\ffmpeg\lib -lavcodec-52 -lavdevice-52 -lavformat-52 -lavutil-49 -lswscale-0"
+		;
 
 } else {
 
-	alias EXTRA_LIBS 
+	alias ffmpeg
 		: 
 		: 
 		:
@@ -17,12 +24,11 @@ if [ os.name ] = NT
 		  <include>"`pkg-config --cflags libswscale`"
 		  <linkflags>"-lavformat -lavcodec -lavutil -lz -m -lpthread `pkg-config --libs libswscale`"
 		;
-
-	lib cmlib-videostream
-		: [ glob src/*.cpp ] .//EXTRA_LIBS
-		: <include>include <include>../image/include
-		:
-		: <include>include
-		;	
-
 }
+
+lib cmlib-videostream
+	: [ glob src/*.cpp ] ffmpeg
+	: <include>include <include>../image/include <include>$(TOP)/common/include
+	:
+	: <include>include <include>$(TOP)/common/include
+	;	
