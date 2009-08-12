@@ -40,14 +40,15 @@ lib png # {{{
 
 JPEG_SYSDEPMEM = jmemnobs.c ;
 lib jpeg # {{{
-	: [ prefix jpeg : jcapimin.c jcapistd.c jccoefct.c jccolor.c 
-	    jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c 
-	    jcomapi.c jcparam.c jcphuff.c jcprepct.c jcsample.c jctrans.c 
-	    jdapimin.c jdapistd.c jdatadst.c jdatasrc.c jdcoefct.c 
-	    jdcolor.c jddctmgr.c jdhuff.c jdinput.c jdmainct.c jdmarker.c 
-	    jdmaster.c jdmerge.c jdphuff.c jdpostct.c jdsample.c jdtrans.c
-	    jerror.c jfdctflt.c jfdctfst.c jfdctint.c jidctflt.c jidctfst.c 
-	    jidctint.c jidctred.c jquant1.c jquant2.c jutils.c jmemmgr.c 
+	: [ prefix jpeg : 
+	    jaricom.c jcapimin.c jcapistd.c jcarith.c jccoefct.c jccolor.c 
+	    jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c
+	    jcomapi.c jcparam.c jcprepct.c jcsample.c jctrans.c jdapimin.c
+	    jdapistd.c jdarith.c jdatadst.c jdatasrc.c jdcoefct.c jdcolor.c
+	    jddctmgr.c jdhuff.c jdinput.c jdmainct.c jdmarker.c jdmaster.c
+	    jdmerge.c jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c
+	    jfdctfst.c jfdctint.c jidctflt.c jidctfst.c jidctint.c jquant1.c
+	    jquant2.c jutils.c jmemmgr.c
 	    $(JPEG_SYSDEPMEM) 
 	  ]
 	: <toolset>msvc:<define>WIN32
@@ -57,6 +58,7 @@ lib jpeg # {{{
 	: <include>jpeg
 	  <toolset>msvc,<link>shared:<define>JPEG_USE_DLL
 	; # }}}
+
 
 TIFF_SYSDEP_MODULE = tif_unix.c ;
 TIFF_STRIP_SIZE_DEFAULT = 8192 ;
