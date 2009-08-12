@@ -24,7 +24,6 @@ path-constant TOP : . ;
 default-build =
 	<variant>debug <variant>release
 	<link>shared <link>static
-	<runtime-link>shared <runtime-link>static
 	<threading>multi
 	;
 
