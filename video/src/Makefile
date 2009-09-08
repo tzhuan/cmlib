@@ -5,7 +5,8 @@ INSTALL_INCLUDE = $(PREFIX)/include/cmlib
 INSTALL_LIB = $(PREFIX)/lib
 TARGET = libcmlib-videostream.so
 HEADERS = -I../include -I/usr/include/ffmpeg -I/usr/local/include/ffmpeg \
-		  -I../../image/include `pkg-config --cflags libswscale`
+		  -I../../image/include -I../../common/include \
+		  `pkg-config --cflags libswscale`
 CXXFLAGS = -g $(HEADERS) -DDEBUG -I/usr/local/include -fPIC -Wall -pipe
 LIBS =    -L/usr/local/lib -lavformat -lavcodec -lavutil -lz -lm -lpthread `pkg-config --libs libswscale`
 
