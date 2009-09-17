@@ -191,6 +191,15 @@ namespace image {
 			return r;
 		}
 
+		bool operator ==(const self_type& v) const
+		{
+			for(size_t i = 0; i < Channel; ++i)
+				if(my_data[i] != v[i])
+					return false;
+
+			return true;
+		}
+
 		iterator begin() { return my_data; }
 		const_iterator begin() const { return my_data; }
 		iterator end() { return my_data+Channel; }
