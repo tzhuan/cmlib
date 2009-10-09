@@ -47,7 +47,7 @@ if --with-system-libs in [ modules.peek : ARGV ]
 }
 
 # cmlib-libs = image video dip ;
-cmlib-libs = image ;
+cmlib-libs = image video ;
 all-libs = $(other-libs) $(cmlib-libs) ;
 ECHO $(all-libs) ;
 

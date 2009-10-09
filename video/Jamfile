@@ -1,17 +1,63 @@
 import os ;
 
-#project video
-#	: default-build debug debug_static release release_static
-#	;
-
 if [ os.name ] = NT
 {
+	local ffmpeg_prefix = "c:/usr/local/ffmpeg" ;
+	local ffmpeg_version1 = "52" ;
+	local ffmpeg_version2 = "49" ;
+	local swscale_version = "0" ;
+
+	lib avcodec
+	 	:
+		:
+		  <file>"$(ffmpeg_prefix)/lib/avcodec-$(ffmpeg_version1).lib"
+		  <file>"$(ffmpeg_prefix)/bin/avcodec-$(ffmpeg_version1).dll"
+		:
+		: <include>"$(ffmpeg_prefix)/include"
+		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		;
+	lib avdevice
+	 	:
+		:
+		  <file>"$(ffmpeg_prefix)/lib/avdevice-$(ffmpeg_version1).lib"
+		  <file>"$(ffmpeg_prefix)/bin/avdevice-$(ffmpeg_version1).dll"
+		:
+		: <include>"$(ffmpeg_prefix)/include"
+		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		;
+	lib avformat
+	 	:
+		:
+		  <file>"$(ffmpeg_prefix)/lib/avformat-$(ffmpeg_version1).lib"
+		  <file>"$(ffmpeg_prefix)/bin/avformat-$(ffmpeg_version1).dll"
+		:
+		: <include>"$(ffmpeg_prefix)/include"
+		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		;
+	lib avutil
+	 	:
+		:
+		  <file>"$(ffmpeg_prefix)/lib/avutil-$(ffmpeg_version2).lib"
+		  <file>"$(ffmpeg_prefix)/bin/avutil-$(ffmpeg_version2).dll"
+		:
+		: <include>"$(ffmpeg_prefix)/include"
+		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		;
+	lib swscale
+	 	:
+		:
+		  <file>"$(ffmpeg_prefix)/lib/swscale-$(swscale_version).lib"
+		  <file>"$(ffmpeg_prefix)/bin/swscale-$(swscale_version).dll"
+		:
+		: <include>"$(ffmpeg_prefix)/include"
+		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		;
+
 	alias ffmpeg
+	 	: avcodec avdevice avformat avutil swscale
 		:
 		:
-		:
-		: <include>c:\usr\local\ffmpeg\include
-		  <linkflags>"-L c:\usr\local\ffmpeg\lib -lavcodec-52 -lavdevice-52 -lavformat-52 -lavutil-49 -lswscale-0"
+		: 
 		;
 
 } else {
@@ -20,15 +66,14 @@ if [ os.name ] = NT
 		: 
 		: 
 		:
-		: <include>/usr/include/ffmpeg <include>/usr/local/include/ffmpeg
-		  <include>"`pkg-config --cflags libswscale`"
-		  <linkflags>"-lavformat -lavcodec -lavutil -lz -m -lpthread `pkg-config --libs libswscale`"
+		: <include>"`pkg-config --cflags libavformat libavdevice libavcodec libavutil libswscale`"
+		  <linkflags>"`pkg-config --libs libavformat libavdevice libavcodec libavutil libswscale`"
 		;
 }
 
 lib cmlib-videostream
 	: [ glob src/*.cpp ] ffmpeg
-	: <include>include <include>../image/include <include>$(TOP)/common/include
+	: <include>"include" <include>"$(TOP)/image/include" <include>"$(TOP)/common/include"
 	:
 	: <include>include <include>$(TOP)/common/include
 	;	
