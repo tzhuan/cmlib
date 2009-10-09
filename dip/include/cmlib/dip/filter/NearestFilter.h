@@ -21,22 +21,17 @@ namespace dip {
 		template<class SrcImage>
 		DstImage& operator()(const SrcImage& src, DstImage& dst) const
 		{
-			const Type ratio_x = src.width() / static_cast<Type>(my_width);
-			const Type ratio_y = src.height() / static_cast<Type>(my_height);
+			Type ratio_x = 1, ratio_y = 1;
+			if (my_width > 1)
+				ratio_y = (src.height()-1) / (static_cast<Type>(my_height)-1);
+			if (my_height > 1)
+				ratio_x = (src.width()-1) / (static_cast<Type>(my_width)-1);
+
 			for (size_type y = 0; y < dst.height(); ++y) {
 				for (size_type x = 0; x < dst.width(); ++x) {
-					int _x = static_cast<int>( x*ratio_x + 0.5 );
-					int _y = static_cast<int>( y*ratio_y + 0.5 );
-
-					_x = std::min( _x, static_cast<int>(src.width())-1 );
-					_x = std::max( _x, 0 );
-
-					_y = std::min( _y, static_cast<int>(src.height())-1 );
-					_y = std::max( _y, 0 );
-
-					dst(x, y) = src(
-						static_cast<size_type>(_x), static_cast<size_type>(_y)
-					);
+					size_type _x = static_cast<size_type>( x*ratio_x + 0.5 );
+					size_type _y = static_cast<size_type>( y*ratio_y + 0.5 );
+					dst(x, y) = src(_x, _y);
 				}
 			}
 			return dst;
