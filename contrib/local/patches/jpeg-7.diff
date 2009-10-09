@@ -1,0 +1,24 @@
+--- jpeg-7/jmorecfg.h	2009-04-10 11:05:40.000000000 +0800
++++ jpeg/jmorecfg.h	2009-08-12 23:23:20.000000000 +0800
+@@ -190,9 +190,19 @@
+ /* a function used only in its module: */
+ #define LOCAL(type)		static type
+ /* a function referenced thru EXTERNs: */
+-#define GLOBAL(type)		type
++/* #define GLOBAL(type)		type */
+ /* a reference to a GLOBAL function: */
+-#define EXTERN(type)		extern type
++/* #define EXTERN(type)		extern type */
++#if defined(JPEG_BUILD_DLL)
++  #define GLOBAL(type)		__declspec(dllexport) type
++  #define EXTERN(type)		extern __declspec(dllexport) type
++#elif defined(JPEG_USE_DLL)
++  #define GLOBAL(type)		__declspec(dllimport) type
++  #define EXTERN(type)		extern __declspec(dllimport) type
++#else
++  #define GLOBAL(type)		type
++  #define EXTERN(type)		extern type
++#endif
+ 
+ 
+ /* This macro is used to declare a "method", that is, a function pointer.

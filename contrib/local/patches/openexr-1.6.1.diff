@@ -1,0 +1,136 @@
+diff -urN openexr-1.6.1/IlmImf/ImfHeader.h openexr/IlmImf/ImfHeader.h
+--- openexr-1.6.1/IlmImf/ImfHeader.h	2007-09-29 14:50:58.000000000 +0800
++++ openexr/IlmImf/ImfHeader.h	2009-08-16 20:37:36.000000000 +0800
+@@ -64,7 +64,7 @@
+ class PreviewImage;
+ 
+ 
+-class Header
++class DLL_API Header
+ {
+   public:
+     
+@@ -345,7 +345,7 @@
+ // Iterators
+ //----------
+ 
+-class Header::Iterator
++class DLL_API Header::Iterator
+ {
+   public:
+ 
+@@ -366,7 +366,7 @@
+ };
+ 
+ 
+-class Header::ConstIterator
++class DLL_API Header::ConstIterator
+ {
+   public:
+ 
+diff -urN openexr-1.6.1/IlmImf/ImfIO.h openexr/IlmImf/ImfIO.h
+--- openexr-1.6.1/IlmImf/ImfIO.h	2006-02-18 07:43:59.000000000 +0800
++++ openexr/IlmImf/ImfIO.h	2009-08-16 20:35:04.000000000 +0800
+@@ -45,13 +45,15 @@
+ #include <ImfInt64.h>
+ #include <string>
+ 
++#include <OpenEXRConfig.h>
++
+ namespace Imf {
+ 
+ //-----------------------------------------------------------
+ // class IStream -- an abstract base class for input streams.
+ //-----------------------------------------------------------
+ 
+-class IStream
++class DLL_API IStream
+ {
+   public:
+ 
+@@ -148,7 +150,7 @@
+ // class OStream -- an abstract base class for output streams
+ //-----------------------------------------------------------
+ 
+-class OStream
++class DLL_API OStream
+ {
+   public:
+ 
+@@ -211,7 +213,7 @@
+ // Helper classes for Xdr
+ //-----------------------
+ 
+-struct StreamIO
++struct DLL_API StreamIO
+ {
+     static void
+     writeChars (OStream &os, const char c[/*n*/], int n)
+diff -urN openexr-1.6.1/IlmImf/ImfRgbaFile.h openexr/IlmImf/ImfRgbaFile.h
+--- openexr-1.6.1/IlmImf/ImfRgbaFile.h	2006-06-06 13:58:16.000000000 +0800
++++ openexr/IlmImf/ImfRgbaFile.h	2009-08-16 20:36:46.000000000 +0800
+@@ -66,7 +66,7 @@
+ // RGBA output file.
+ //
+ 
+-class RgbaOutputFile
++class DLL_API RgbaOutputFile
+ {
+   public:
+ 
+@@ -226,7 +226,7 @@
+ // RGBA input file
+ //
+ 
+-class RgbaInputFile
++class DLL_API RgbaInputFile
+ {
+   public:
+ 
+diff -urN openexr-1.6.1/IlmImf/ImfThreading.cpp openexr/IlmImf/ImfThreading.cpp
+--- openexr-1.6.1/IlmImf/ImfThreading.cpp	2006-06-06 13:58:16.000000000 +0800
++++ openexr/IlmImf/ImfThreading.cpp	2009-08-16 21:29:34.000000000 +0800
+@@ -39,6 +39,7 @@
+ //-----------------------------------------------------------------------------
+ 
+ #include "IlmThreadPool.h"
++#include "ImfThreading.h"
+ 
+ namespace Imf {
+ 
+diff -urN openexr-1.6.1/IlmImf/ImfThreading.h openexr/IlmImf/ImfThreading.h
+--- openexr-1.6.1/IlmImf/ImfThreading.h	2006-03-08 02:42:34.000000000 +0800
++++ openexr/IlmImf/ImfThreading.h	2009-08-16 21:28:50.000000000 +0800
+@@ -35,6 +35,8 @@
+ #ifndef INCLUDED_IMF_THREADING_H
+ #define INCLUDED_IMF_THREADING_H
+ 
++#include <OpenEXRConfig.h>
++
+ //-----------------------------------------------------------------------------
+ //
+ //	Threading support for the IlmImf library
+@@ -77,7 +79,7 @@
+ // compression and decompression of OpenEXR files.
+ //-----------------------------------------------------------------------------
+     
+-int     globalThreadCount ();
++DLL_API int     globalThreadCount ();
+ 
+ 
+ //-----------------------------------------------------------------------------
+diff -urN openexr-1.6.1/config.windows/OpenEXRConfig.h openexr/config.windows/OpenEXRConfig.h
+--- openexr-1.6.1/config.windows/OpenEXRConfig.h	2006-06-08 10:19:41.000000000 +0800
++++ openexr/config.windows/OpenEXRConfig.h	2009-08-16 20:32:14.000000000 +0800
+@@ -41,3 +41,11 @@
+ //
+ 
+ #define HAVE_COMPLETE_IOMANIP 1
++
++#if defined(OPENEXR_BUILD_DLL)
++	#define DLL_API __declspec(dllexport)
++#elif defined(OPENEXR_LINK_DLL)
++	#define DLL_API __declspec(dllimport)
++#else
++	#define DLL_API
++#endif
