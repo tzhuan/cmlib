@@ -95,8 +95,9 @@ lib tiff # {{{
     ; # }}}
 
 EXR_REQUIREMENTS = 
-	<toolset>gcc:<include>openexr/config 
-	<toolset>msvc:<include>openexr/config.windows
+	#<toolset>gcc:<include>openexr/config 
+	#<toolset>msvc:<include>openexr/config.windows
+	<include>openexr/config.windows
 	<toolset>msvc:<define>_CRT_SECURE_NO_DEPRECATE
 	<toolset>msvc:<define>WIN32
 	<toolset>msvc:<define>_WINDOWS
@@ -104,8 +105,9 @@ EXR_REQUIREMENTS =
 	<toolset>msvc:<cxxflags>"/wd4290"
 	<variant>debug:<define>_DEBUG
 	<variant>release:<define>NDEBUG
-	<link>shared:<define>_WINDLL
-	<link>shared:<define>OPENEXR_DLL 
+	<toolset>msvc,<link>shared:<define>_WINDLL
+	<toolset>msvc,<link>shared:<define>OPENEXR_DLL 
+	<toolset>msvc,<link>shared:<define>OPENEXR_BUILD_DLL 
 	<toolset>msvc,<link>shared:<linkflags>"/MAP /MAPINFO:EXPORTS"
 	<toolset>msvc:<define>_MBCS
 	<toolset>msvc:<undef>HAVE_LINUX_PROCFS
@@ -116,8 +118,9 @@ EXR_REQUIREMENTS =
 	;
 
 ILMBASE_REQUIREMENTS = 
-	<toolset>gcc:<include>ilmbase/config 
-	<toolset>msvc:<include>ilmbase/config.windows
+	#<toolset>gcc:<include>ilmbase/config 
+	#<toolset>msvc:<include>ilmbase/config.windows
+	<include>ilmbase/config.windows
 	<toolset>msvc:<undef>HAVE_PTHREAD
 	<toolset>msvc:<undef>HAVE_POSIX_SEMAPHORES
 	<toolset>msvc,<link>shared:<define>_USRDLL
@@ -149,10 +152,9 @@ lib IlmImf # {{{
 	  ] z ilmbase
 	: $(EXR_REQUIREMENTS) <include>openexr/IlmImf
 	  <toolset>msvc,<link>shared:<define>ILMIMF_EXPORTS
-	  <toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/IlmImf.def"
-	  <toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/IlmImf.def"
 	:
 	: <include>openexr/IlmImf
+	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
     ; # }}}
 
 lib IlmThread # {{{
@@ -164,10 +166,9 @@ lib IlmThread # {{{
 	  ] Half Iex
 	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS) 
 	  <toolset>msvc,<link>shared:<define>ILMTHREAD_EXPORTS
-	  <toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/IlmThread.def"
-	  <toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/IlmThread.def"
 	:
 	: <include>ilmbase/IlmThread $(ILMBASE_REQUIREMENTS)
+	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
 	; # }}}
 
 lib Imath # {{{
@@ -175,21 +176,18 @@ lib Imath # {{{
 	  ImathColorAlgo.cpp ImathFun.cpp ImathBox.cpp ImathRandom.cpp ] Half Iex 
 	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
 	  <toolset>msvc,<link>shared:<define>IMATH_EXPORTS
-	  <toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/Imath.def"
-	  <toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/Imath.def"
 	:
 	: <include>ilmbase/Imath
+	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
 	; # }}}
 
 lib Iex # {{{
 	: [ prefix ilmbase/Iex : IexBaseExc.cpp IexThrowErrnoExc.cpp ]
 	: $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
 	  <toolset>msvc,<link>shared:<define>IEX_EXPORTS
-	  <toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/Iex.def"
-	  <toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/Iex.def"
-	  # <toolset>msvc-8.0,<link>shared,<variant>release:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/release/Iex.def"
 	:
 	: <include>ilmbase/Iex
+	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
 	; # }}}
 
 actions gen_header
@@ -211,27 +209,17 @@ lib Half # {{{
 	: <implicit-dependency>HALF_EXTRA_HEADERS
 	  $(EXR_REQUIREMENTS) $(ILMBASE_REQUIREMENTS)
 	  <toolset>msvc,<link>shared:<define>HALF_EXPORTS
-	  #<toolset>msvc-7.1,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-7.1/Half.def"
-	  #<toolset>msvc-8.0,<link>shared,<variant>debug:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/debug/Half.def"
-	  #<toolset>msvc-8.0,<link>shared,<variant>release:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/msvc-8.0/release/Half.def"
 	:
 	: <include>$(HALF_DIR)
-	; # }}}
-
-exe createDLL # {{{
-	: [ prefix ilmbase/vc/createDLL : OptionParser.cpp OptionParser.h createDLL.cpp ]
-	: <toolset>msvc:<define>WIN32
-	  <toolset>msvc:<define>_CONSOLE
-	  <toolset>msvc:<linkflags>user32.lib
-	:
-	: 
+	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
 	; # }}}
 
 alias ilmbase # {{{
 	: /contrib//Half /contrib//Imath /contrib//IlmThread /contrib//Iex
 	:
 	:
-	:
+	: <toolset>msvc,<link>shared:<define>OPENEXR_DLL
+	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
 	; # }}}
 
 alias openexr # {{{
@@ -239,6 +227,6 @@ alias openexr # {{{
 	:
 	: 
 	: <toolset>msvc,<link>shared:<define>OPENEXR_DLL
+	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
+	  <include>openexr/config.windows
 	; # }}}
-
-
