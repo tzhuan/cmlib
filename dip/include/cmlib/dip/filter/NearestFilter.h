@@ -23,9 +23,9 @@ namespace dip {
 		{
 			Type ratio_x = 1, ratio_y = 1;
 			if (my_width > 1)
-				ratio_y = (src.height()-1) / (static_cast<Type>(my_height)-1);
-			if (my_height > 1)
 				ratio_x = (src.width()-1) / (static_cast<Type>(my_width)-1);
+			if (my_height > 1)
+				ratio_y = (src.height()-1) / (static_cast<Type>(my_height)-1);
 
 			for (size_type y = 0; y < dst.height(); ++y) {
 				for (size_type x = 0; x < dst.width(); ++x) {
