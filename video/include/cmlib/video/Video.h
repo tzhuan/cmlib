@@ -422,9 +422,17 @@ namespace video {
 			size_t my_height;
 			size_t my_stream_index;
 			
-			int64_t	my_start_time;
+			// 64bit integer is not listed in C++98 standard
+			// and we need special treatment
+#ifdef _MSC_VER // VC
+			typedef __int64 TimeType;
+#endif
+#ifdef __GNUC__ // gcc
+			typedef long long TimeType;
+#endif
+			TimeType my_start_time;
 			int my_duration;
-			int64_t	my_total_duration;
+			TimeType my_total_duration;
 			AVFormatContext* my_format_context;
 			AVCodecContext* my_codec_context;
 			AVRational my_frame_rate;
