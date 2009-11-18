@@ -29,6 +29,11 @@ namespace video {
 	 */
 	class DLLAPI VideoFileStream: public VideoStream<cmlib::image::ByteImage3> {
 
+#ifdef _MSC_VER
+		typedef __int64 int64_t;
+#endif // _MSC_VER
+
+
 	public:
 
 		typedef VideoStream<cmlib::image::ByteImage3> base_type;
@@ -115,10 +120,6 @@ namespace video {
 		virtual void get_keyframe(cmlib::image::ByteImage3& image);
 
 	private:
-#ifdef _MSC_VER
-		typedef __int64 int64_t;
-#endif // _MSC_VER
-
 		std::string my_filename;
 		size_t my_width;
 		size_t my_height;
