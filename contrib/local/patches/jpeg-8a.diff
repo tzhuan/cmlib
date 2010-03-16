@@ -1,0 +1,74 @@
+diff -urN jpeg-8a.orig/jconfig.h jpeg-8a/jconfig.h
+--- jpeg-8a.orig/jconfig.h	1970-01-01 08:00:00.000000000 +0800
++++ jpeg-8a/jconfig.h	2010-03-16 15:25:15.952066572 +0800
+@@ -0,0 +1,45 @@
++/* jconfig.vc --- jconfig.h for Microsoft Visual C++ on Windows 95 or NT. */
++/* see jconfig.txt for explanations */
++
++#define HAVE_PROTOTYPES
++#define HAVE_UNSIGNED_CHAR
++#define HAVE_UNSIGNED_SHORT
++/* #define void char */
++/* #define const */
++#undef CHAR_IS_UNSIGNED
++#define HAVE_STDDEF_H
++#define HAVE_STDLIB_H
++#undef NEED_BSD_STRINGS
++#undef NEED_SYS_TYPES_H
++#undef NEED_FAR_POINTERS	/* we presume a 32-bit flat memory model */
++#undef NEED_SHORT_EXTERNAL_NAMES
++#undef INCOMPLETE_TYPES_BROKEN
++
++/* Define "boolean" as unsigned char, not int, per Windows custom */
++#ifndef __RPCNDR_H__		/* don't conflict if rpcndr.h already read */
++typedef unsigned char boolean;
++#endif
++#define HAVE_BOOLEAN		/* prevent jmorecfg.h from redefining it */
++
++
++#ifdef JPEG_INTERNALS
++
++#undef RIGHT_SHIFT_IS_UNSIGNED
++
++#endif /* JPEG_INTERNALS */
++
++#ifdef JPEG_CJPEG_DJPEG
++
++#define BMP_SUPPORTED		/* BMP image file format */
++#define GIF_SUPPORTED		/* GIF image file format */
++#define PPM_SUPPORTED		/* PBMPLUS PPM/PGM image file format */
++#undef RLE_SUPPORTED		/* Utah RLE image file format */
++#define TARGA_SUPPORTED		/* Targa image file format */
++
++#define TWO_FILE_COMMANDLINE	/* optional */
++#define USE_SETMODE		/* Microsoft has setmode() */
++#undef NEED_SIGNAL_CATCHER
++#undef DONT_USE_B_MODE
++#undef PROGRESS_REPORT		/* optional */
++
++#endif /* JPEG_CJPEG_DJPEG */
+diff -urN jpeg-8a.orig/jmorecfg.h jpeg-8a/jmorecfg.h
+--- jpeg-8a.orig/jmorecfg.h	2009-11-20 16:01:24.000000000 +0800
++++ jpeg-8a/jmorecfg.h	2010-03-16 15:26:26.083760893 +0800
+@@ -192,9 +192,19 @@
+ /* a function used only in its module: */
+ #define LOCAL(type)		static type
+ /* a function referenced thru EXTERNs: */
+-#define GLOBAL(type)		type
++/* #define GLOBAL(type)		type */
+ /* a reference to a GLOBAL function: */
+-#define EXTERN(type)		extern type
++/* #define EXTERN(type)		extern type */
++#if defined(JPEG_BUILD_DLL)
++  #define GLOBAL(type)     __declspec(dllexport) type
++  #define EXTERN(type)     extern __declspec(dllexport) type
++#elif defined(JPEG_USE_DLL)
++  #define GLOBAL(type)     __declspec(dllimport) type
++  #define EXTERN(type)     extern __declspec(dllimport) type
++#else
++  #define GLOBAL(type)     type
++  #define EXTERN(type)     extern type
++#endif
+ 
+ 
+ /* This macro is used to declare a "method", that is, a function pointer.

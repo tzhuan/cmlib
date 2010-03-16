@@ -1,18 +1,18 @@
-zlib-1.2.3:
+zlib-1.2.4:
   just compile
 
-jpeg-7:
-  cp jconfig.vc jconfig.h
-  patch jmorecfg.h
+jpeg-8a:
+  patch with jpeg-8a.diff
 
-libpng-1.2.40:
+libpng-1.4.1:
   cp config.h.in config.h
 
-libtiff-3.9.1:
-  cp tif_config.vc.h tif_config.h
+libtiff-3.9.2:
+  cp libtiff/tif_config.vc.h libtiff/tif_config.h
+  cp libtiff/tiffconf.vc.h libtiff/tiffconf.h
 
-ilmbase:
-  patch ilmbase-1.0.1.diff
+ilmbase-1.0.1:
+  patch with ilmbase-1.0.1.diff
 
-openexr:
-  patch openexr-1.6.1.diff
+openexr-1.6.1:
+  patch with openexr-1.6.1.diff
