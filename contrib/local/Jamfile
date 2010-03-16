@@ -10,8 +10,8 @@ rule prefix ( dir : sequences * ) {
 }
 
 lib z # {{{
-    : [ prefix z : adler32.c compress.c crc32.c gzio.c uncompr.c
-		deflate.c trees.c zutil.c inflate.c infback.c inftrees.c inffast.c 
+    : [ prefix z : adler32.c compress.c crc32.c deflate.c gzclose.c gzlib.c gzread.c 
+		gzwrite.c infback.c inffast.c inflate.c inftrees.c trees.c uncompr.c zutil.c
 	  ]
 	: <toolset>msvc:<define>WIN32
 	  <toolset>msvc,<link>shared:<define>ZLIB_DLL
@@ -30,7 +30,7 @@ lib png # {{{
 	  <toolset>msvc:<define>PNG_NO_MMX_CODE
 	  <toolset>msvc:<define>_CRT_SECURE_NO_WARNINGS
 	  <toolset>msvc,<link>shared:<define>PNG_BUILD_DLL
-	  <toolset>msvc,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/png/scripts/pngw32.def"
+	  <toolset>msvc,<link>shared:<linkflags>"/DEF:"$(CONTRIB-LOCAL)"/png/scripts/pngwin.def"
 	  <toolset>gcc:<cflags>"-falign-loops=2 -falign-functions=2 -funroll-loops -fomit-frame-pointer"
 	:
 	: <include>png

@@ -3,15 +3,11 @@ import os ;
 if [ os.name ] = NT
 {
 	local ffmpeg_prefix = "c:/usr/local/ffmpeg" ;
-	local ffmpeg_version1 = "52" ;
-	local ffmpeg_version2 = "49" ;
-	local swscale_version = "0" ;
 
 	lib avcodec
 	 	:
 		:
-		  <file>"$(ffmpeg_prefix)/lib/avcodec-$(ffmpeg_version1).lib"
-		  <file>"$(ffmpeg_prefix)/bin/avcodec-$(ffmpeg_version1).dll"
+		  <file>"$(ffmpeg_prefix)/lib/avcodec.lib"
 		:
 		: <include>"$(ffmpeg_prefix)/include"
 		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
@@ -19,8 +15,7 @@ if [ os.name ] = NT
 	lib avdevice
 	 	:
 		:
-		  <file>"$(ffmpeg_prefix)/lib/avdevice-$(ffmpeg_version1).lib"
-		  <file>"$(ffmpeg_prefix)/bin/avdevice-$(ffmpeg_version1).dll"
+		  <file>"$(ffmpeg_prefix)/lib/avdevice.lib"
 		:
 		: <include>"$(ffmpeg_prefix)/include"
 		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
@@ -28,8 +23,7 @@ if [ os.name ] = NT
 	lib avformat
 	 	:
 		:
-		  <file>"$(ffmpeg_prefix)/lib/avformat-$(ffmpeg_version1).lib"
-		  <file>"$(ffmpeg_prefix)/bin/avformat-$(ffmpeg_version1).dll"
+		  <file>"$(ffmpeg_prefix)/lib/avformat.lib"
 		:
 		: <include>"$(ffmpeg_prefix)/include"
 		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
@@ -37,8 +31,7 @@ if [ os.name ] = NT
 	lib avutil
 	 	:
 		:
-		  <file>"$(ffmpeg_prefix)/lib/avutil-$(ffmpeg_version2).lib"
-		  <file>"$(ffmpeg_prefix)/bin/avutil-$(ffmpeg_version2).dll"
+		  <file>"$(ffmpeg_prefix)/lib/avutil.lib"
 		:
 		: <include>"$(ffmpeg_prefix)/include"
 		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
@@ -46,8 +39,7 @@ if [ os.name ] = NT
 	lib swscale
 	 	:
 		:
-		  <file>"$(ffmpeg_prefix)/lib/swscale-$(swscale_version).lib"
-		  <file>"$(ffmpeg_prefix)/bin/swscale-$(swscale_version).dll"
+		  <file>"$(ffmpeg_prefix)/lib/swscale.lib"
 		:
 		: <include>"$(ffmpeg_prefix)/include"
 		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
