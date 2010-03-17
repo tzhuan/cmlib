@@ -48,7 +48,7 @@ if [ os.name ] = NT
 		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avutil.lib"
 		  <address-model>32:<file>"$(ffmpeg_prefix)-32bit/bin/avutil-$(ffmpeg_version2).dll"
 		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avutil.lib"
-		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avutil-$(ffmpeg_version2).dll"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/bin/avutil-$(ffmpeg_version2).dll"
 		:
 		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
 		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
