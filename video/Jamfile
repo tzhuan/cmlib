@@ -6,43 +6,53 @@ if [ os.name ] = NT
 
 	lib avcodec
 	 	:
+		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avcodec.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avcodec.lib"
 		:
-		  <file>"$(ffmpeg_prefix)/lib/avcodec.lib"
-		:
-		: <include>"$(ffmpeg_prefix)/include"
-		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
+		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
+		  <toolset>msvc,<address-model>32:<include>"$(ffmpeg_prefix)-32bit/include-msvc"
+		  <toolset>msvc,<address-model>64:<include>"$(ffmpeg_prefix)-64bit/include-msvc"
 		;
 	lib avdevice
 	 	:
+		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avdevice.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avdevice.lib"
 		:
-		  <file>"$(ffmpeg_prefix)/lib/avdevice.lib"
-		:
-		: <include>"$(ffmpeg_prefix)/include"
-		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
+		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
+		  <toolset>msvc,<address-model>32:<include>"$(ffmpeg_prefix)-32bit/include-msvc"
+		  <toolset>msvc,<address-model>64:<include>"$(ffmpeg_prefix)-64bit/include-msvc"
 		;
 	lib avformat
 	 	:
+		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avformat.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avformat.lib"
 		:
-		  <file>"$(ffmpeg_prefix)/lib/avformat.lib"
-		:
-		: <include>"$(ffmpeg_prefix)/include"
-		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
+		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
+		  <toolset>msvc,<address-model>32:<include>"$(ffmpeg_prefix)-32bit/include-msvc"
+		  <toolset>msvc,<address-model>64:<include>"$(ffmpeg_prefix)-64bit/include-msvc"
 		;
 	lib avutil
 	 	:
+		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avutil.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avutil.lib"
 		:
-		  <file>"$(ffmpeg_prefix)/lib/avutil.lib"
-		:
-		: <include>"$(ffmpeg_prefix)/include"
-		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
+		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
+		  <toolset>msvc,<address-model>32:<include>"$(ffmpeg_prefix)-32bit/include-msvc"
+		  <toolset>msvc,<address-model>64:<include>"$(ffmpeg_prefix)-64bit/include-msvc"
 		;
 	lib swscale
 	 	:
+		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/swscale.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/swscale.lib"
 		:
-		  <file>"$(ffmpeg_prefix)/lib/swscale.lib"
-		:
-		: <include>"$(ffmpeg_prefix)/include"
-		  <toolset>msvc:<include>"$(ffmpeg_prefix)/include-msvc"
+		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
+		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
+		  <toolset>msvc,<address-model>32:<include>"$(ffmpeg_prefix)-32bit/include-msvc"
+		  <toolset>msvc,<address-model>64:<include>"$(ffmpeg_prefix)-64bit/include-msvc"
 		;
 
 	alias ffmpeg

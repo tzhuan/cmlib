@@ -124,108 +124,118 @@ namespace video {
 	} // }}}
 
 	void VideoFileStream::open(std::string& name) // {{{
-	{
-		try { // {{{
+#ifdef _MSC_VER
+#if _MSC_VER < 1500
+// The function-try-block is not supportted by MSVC prior to 9.0 (15.00)
+	{ // {{{
+#endif
+#endif
+	try { // {{{
 
-			// if is_open(), close it first.
-			if (this->is_open())
-				this->close();
+		// if is_open(), close it first.
+		if (this->is_open())
+			this->close();
 
-			AVFormatContext* &fc = my_format_context;
+		AVFormatContext* &fc = my_format_context;
 
-			// open the video file
-			av_register_all();
-			if(av_open_input_file(&fc, name.c_str(), 0, 0, 0) != 0) {
+		// open the video file
+		av_register_all();
+		if(av_open_input_file(&fc, name.c_str(), 0, 0, 0) != 0) {
+			throw std::runtime_error("no video stream found");
+		}
+		
+		// check the stream exists or not
+		if( av_find_stream_info(fc) < 0 ) {
+			throw std::runtime_error("no video stream found");
+		}
+
+		// find the stream index
+		if (my_stream_index < 0) {
+			for(size_t i = 0; i < fc->nb_streams; ++i) {
+				CodecType &type = fc->streams[i]->codec->codec_type;
+				if(type == CODEC_TYPE_VIDEO) {
+					my_stream_index = i;                           
+					break;
+				}
+			}
+			if(my_stream_index < 0) {
 				throw std::runtime_error("no video stream found");
 			}
-			
-			// check the stream exists or not
-			if( av_find_stream_info(fc) < 0 ) {
-				throw std::runtime_error("no video stream found");
-			}
+		}
 
-			// find the stream index
-			if (my_stream_index < 0) {
-				for(size_t i = 0; i < fc->nb_streams; ++i) {
-					CodecType &type = fc->streams[i]->codec->codec_type;
-					if(type == CODEC_TYPE_VIDEO) {
-						my_stream_index = i;                           
-						break;
-					}
-				}
-				if(my_stream_index < 0) {
-					throw std::runtime_error("no video stream found");
-				}
-			}
+		// prepare the codec
+		AVStream* stream = fc->streams[my_stream_index];
+		AVCodecContext* &cc = my_codec_context;
+		cc = stream->codec;
+		AVCodec* codec = avcodec_find_decoder(cc->codec_id);
+		if(codec == 0) {
+			throw std::runtime_error("no codec found");
+		}
 
-			// prepare the codec
-			AVStream* stream = fc->streams[my_stream_index];
-			AVCodecContext* &cc = my_codec_context;
-			cc = stream->codec;
-			AVCodec* codec = avcodec_find_decoder(cc->codec_id);
-			if(codec == 0) {
-				throw std::runtime_error("no codec found");
-			}
-
-			if( avcodec_open(cc, codec) < 0 ) {
-				throw std::runtime_error("avcodec_open fail");
-			}
+		if( avcodec_open(cc, codec) < 0 ) {
+			throw std::runtime_error("avcodec_open fail");
+		}
 
 
-			// store the necessary info
-			my_start_time = stream->start_time;
-			my_total_duration = stream->duration;
+		// store the necessary info
+		my_start_time = stream->start_time;
+		my_total_duration = stream->duration;
 
-			my_frame_rate.first = stream->r_frame_rate.num;
-			my_frame_rate.second = stream->r_frame_rate.den;
-			my_time_base.first = stream->time_base.num;
-			my_time_base.second = stream->time_base.den;
+		my_frame_rate.first = stream->r_frame_rate.num;
+		my_frame_rate.second = stream->r_frame_rate.den;
+		my_time_base.first = stream->time_base.num;
+		my_time_base.second = stream->time_base.den;
 
-			my_width = cc->width;                         
-			my_height = cc->height;
+		my_width = cc->width;                         
+		my_height = cc->height;
 
-			// allocate video frame
-			if ( (my_frame = avcodec_alloc_frame()) == 0 ) {
-				throw std::runtime_error("avcodec_alloc_frame frame fail");
-			}
+		// allocate video frame
+		if ( (my_frame = avcodec_alloc_frame()) == 0 ) {
+			throw std::runtime_error("avcodec_alloc_frame frame fail");
+		}
 
-			// allocate sws context
-			my_sws_context = 
-				sws_getContext(
-					my_width, my_height, my_codec_context->pix_fmt, 
-					my_width, my_height, PIX_FMT_RGB24, SWS_POINT,
-					0, 0, 0
-				);
-
-			// scan the whole video to build the timestamp map
-			my_duration = 
-				my_time_base.second * my_frame_rate.second /
-				my_time_base.first / my_frame_rate.first;
-
-			size_t frame_no = 1.1 * (my_total_duration / my_duration);
-			my_timestamp_map.reserve(frame_no);
-			AVPacket packet;
-			while ( av_read_frame(fc, &packet) == 0 ) {
-				if ( packet.stream_index == my_stream_index )
-					my_timestamp_map.push_back(packet.dts);		
-				av_free_packet(&packet);
-			}
-			my_size = my_timestamp_map.size();
-			std::copy(
-				my_timestamp_map.begin(), 
-				my_timestamp_map.begin()+10, 
-				ostream_iterator<int64_t>(cerr, "\n")
+		// allocate sws context
+		my_sws_context = 
+			sws_getContext(
+				my_width, my_height, my_codec_context->pix_fmt, 
+				my_width, my_height, PIX_FMT_RGB24, SWS_POINT,
+				0, 0, 0
 			);
 
-			// reset the reading pointer
-			int flag = AVSEEK_FLAG_ANY | AVSEEK_FLAG_BACKWARD;
-			av_seek_frame(fc, my_stream_index, my_timestamp_map[0], flag);
-		} // }}} 
-		catch (std::exception& e) { // {{{
-			this->close();
-			throw e;
-		} // }}}
+		// scan the whole video to build the timestamp map
+		my_duration = 
+			my_time_base.second * my_frame_rate.second /
+			my_time_base.first / my_frame_rate.first;
+
+		size_t frame_no = 1.1 * (my_total_duration / my_duration);
+		my_timestamp_map.reserve(frame_no);
+		AVPacket packet;
+		while ( av_read_frame(fc, &packet) == 0 ) {
+			if ( packet.stream_index == my_stream_index )
+				my_timestamp_map.push_back(packet.dts);		
+			av_free_packet(&packet);
+		}
+		my_size = my_timestamp_map.size();
+		std::copy(
+			my_timestamp_map.begin(), 
+			my_timestamp_map.begin()+10, 
+			ostream_iterator<int64_t>(cerr, "\n")
+		);
+
+		// reset the reading pointer
+		int flag = AVSEEK_FLAG_ANY | AVSEEK_FLAG_BACKWARD;
+		av_seek_frame(fc, my_stream_index, my_timestamp_map[0], flag);
+	} // }}} 
+	catch (std::exception& e) { // {{{
+		this->close();
+		throw e;
 	} // }}}
+#ifdef _MSC_VER
+#if _MSC_VER < 1500
+	} // }}}
+#endif
+#endif
+	// }}}
 
 	void VideoFileStream::close(void) // {{{
 	{

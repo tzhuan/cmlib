@@ -24,6 +24,7 @@ path-constant TOP : . ;
 default-build =
 	<variant>debug <variant>release
 	<link>shared <link>static
+	<address-model>32 <address-model>64
 	<threading>multi
 	;
 
@@ -104,8 +105,9 @@ rule location ( properties * )
 	local version = [ $(pset).get <toolset-$(toolset):version> ] ;
 	local variant = [ $(pset).get <variant> ] ;
 	local link = [ $(pset).get <link> ] ;
+	local bit = [ $(pset).get <address-model> ] ;
 	# local path = <location>$(toolset)-$(version)/$(variant)/$(link) ;
 
-	local path = <location>$(prefix)/$(toolset)-$(version)/$(variant)/$(link) ;
+	local path = <location>$(prefix)/$(toolset)-$(version)-$(bit)bit/$(variant)/$(link) ;
 	return $(path) ;
 }
