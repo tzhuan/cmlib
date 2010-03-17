@@ -3,11 +3,16 @@ import os ;
 if [ os.name ] = NT
 {
 	local ffmpeg_prefix = "c:/usr/local/ffmpeg" ;
+	local ffmpeg_version1 = "52" ;
+	local ffmpeg_version2 = "50" ;
+	local swscale_version = "0" ;
 
 	lib avcodec
 	 	:
 		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avcodec.lib"
+		  <address-model>32:<file>"$(ffmpeg_prefix)-32bit/bin/avcodec-$(ffmpeg_version1).dll"
 		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avcodec.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/bin/avcodec-$(ffmpeg_version1).dll"
 		:
 		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
 		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
@@ -17,7 +22,9 @@ if [ os.name ] = NT
 	lib avdevice
 	 	:
 		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avdevice.lib"
+		  <address-model>32:<file>"$(ffmpeg_prefix)-32bit/bin/avdevice-$(ffmpeg_version1).dll"
 		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avdevice.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/bin/avdevice-$(ffmpeg_version1).dll"
 		:
 		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
 		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
@@ -27,7 +34,9 @@ if [ os.name ] = NT
 	lib avformat
 	 	:
 		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avformat.lib"
+		  <address-model>32:<file>"$(ffmpeg_prefix)-32bit/bin/avformat-$(ffmpeg_version1).dll"
 		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avformat.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/bin/avformat-$(ffmpeg_version1).dll"
 		:
 		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
 		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
@@ -37,7 +46,9 @@ if [ os.name ] = NT
 	lib avutil
 	 	:
 		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/avutil.lib"
+		  <address-model>32:<file>"$(ffmpeg_prefix)-32bit/bin/avutil-$(ffmpeg_version2).dll"
 		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avutil.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/avutil-$(ffmpeg_version2).dll"
 		:
 		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
 		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
@@ -47,7 +58,9 @@ if [ os.name ] = NT
 	lib swscale
 	 	:
 		: <address-model>32:<file>"$(ffmpeg_prefix)-32bit/lib/swscale.lib"
+		  <address-model>32:<file>"$(ffmpeg_prefix)-32bit/bin/swscale-$(swscale_version).dll"
 		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/lib/swscale.lib"
+		  <address-model>64:<file>"$(ffmpeg_prefix)-64bit/bin/swscale-$(swscale_version).dll"
 		:
 		: <address-model>32:<include>"$(ffmpeg_prefix)-32bit/include"
 		  <address-model>64:<include>"$(ffmpeg_prefix)-64bit/include"
