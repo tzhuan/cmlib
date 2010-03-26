@@ -81,7 +81,7 @@ if [ os.name ] = NT
 		: 
 		: 
 		:
-		: <include>"`pkg-config --cflags libavformat libavdevice libavcodec libavutil libswscale`"
+		: <cxxflags>"`pkg-config --cflags libavformat libavdevice libavcodec libavutil libswscale`"
 		  <linkflags>"`pkg-config --libs libavformat libavdevice libavcodec libavutil libswscale`"
 		;
 }
