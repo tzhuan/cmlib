@@ -18,6 +18,7 @@
 import common ;
 import modules ;
 import property-set ;
+import os ;
 
 path-constant TOP : . ;
 
@@ -105,9 +106,10 @@ rule location ( properties * )
 	local version = [ $(pset).get <toolset-$(toolset):version> ] ;
 	local variant = [ $(pset).get <variant> ] ;
 	local link = [ $(pset).get <link> ] ;
+	local uname = [ os.name ] ;
 	local bit = [ $(pset).get <address-model> ] ;
 	# local path = <location>$(toolset)-$(version)/$(variant)/$(link) ;
 
-	local path = <location>$(prefix)/$(toolset)-$(version)-$(bit)bit/$(variant)/$(link) ;
+	local path = <location>$(prefix)/$(toolset)-$(version)-$(uname:L)-$(bit)bit/$(variant)/$(link) ;
 	return $(path) ;
 }

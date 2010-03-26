@@ -1,13 +1,14 @@
 #include <iostream>
 #include <sstream>
 
-#include <gilio/all.h>
-#include <gil.h>
-#include <gvl.h>
+#include <cmlib/imageio/all.h>
+#include <cmlib/imageio.h>
+#include <cmlib/image.h>
+#include <cmlib/video.h>
 
 using namespace std;
-using namespace cmlib::gil;
-using namespace cmlib::gvl;
+using namespace cmlib::image;
+using namespace cmlib::video;
 
 int
 main(int argc, char **argv)
@@ -24,7 +25,7 @@ main(int argc, char **argv)
 		return 1;
 	}
 
-	vfs.info(cerr);
+	// vfs.info(cerr);
 
 	ByteImage3 img;
 	/*
@@ -40,7 +41,7 @@ main(int argc, char **argv)
 	}
 	*/
 
-	vfs.seekg(130);
+	// vfs.seekg(130);
 	if (!vfs) {
 		cerr << "seek fail" << endl;
 		return 1;
@@ -52,9 +53,9 @@ main(int argc, char **argv)
 			cerr << "fail, i: " << i << endl;
 			vfs.clear();
 		}
-//		stringstream ss;
-//		ss << "test-" << i << ".png";
-//		write(img, ss.str());
+		stringstream ss;
+		ss << "test-" << i << ".png";
+		write(img, ss.str());
 	}
 
 	return 0;
