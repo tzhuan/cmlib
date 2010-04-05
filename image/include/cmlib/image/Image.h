@@ -7,17 +7,20 @@
 #include <cstddef>
 #include <cassert>
 #include <vector>
+#include <functional>
 
 #include "Color.h"
+#include "ColorSelector.h"
 
 namespace cmlib {
 namespace image {
 
-	template<typename, template<typename> class> class Image;
-
 	template<typename Type, template<typename> class Allocator>
 	void swap(Image<Type, Allocator>& a, Image<Type, Allocator>& b);
 
+	/**
+	 * @brief Image is the basic image type in cmlib.
+	 */
 	template<typename Type, template<typename> class Allocator=std::allocator>
 	class Image {
 	public:
@@ -69,7 +72,8 @@ namespace image {
 			*this = img;
 		}
 
-		~Image() { 
+		~Image() 
+		{
 			my_data.resize(0);
 			my_row.resize(0);
 		}
@@ -187,7 +191,7 @@ namespace image {
 		template<typename T>
 		const value_type lerp(T x, T y) const
 		{
-			// we assert that 0 <= x <= width-1 and 0 <= y <= height-1
+			// we assume that 0 <= x <= width-1 and 0 <= y <= height-1
 			int x0 = static_cast<int>(x);
 			int y0 = static_cast<int>(y);
 			double xf = x - x0;
@@ -258,6 +262,62 @@ namespace image {
 		const_reverse_iterator rend() const
 		{
 			return my_data.rend();
+		}
+
+		template<template<typename> class Op, typename T, typename Tag> struct Operator {};
+		template<template<typename> class Op, typename T>
+		struct Operator<Op, T, ColorTag> { // {{{
+			Image& operator()(Image& image, T& value) const
+			{
+				std::transform(
+					image.begin(), image.end(), image.begin(), 
+					std::bind2nd(
+						Op<typename ColorSelector<value_type, T>::value_type>(),
+						value
+					)
+				);
+				return image;
+			}
+		}; // }}}
+		template<template<typename> class Op, typename T>
+		struct Operator<Op, T, ImageTag> { // {{{
+			Image& operator()(Image& image, T& rhs) const
+			{
+				typedef 
+					typename ColorSelector<
+						value_type, typename T::value_type
+					>::value_type
+					type;
+				std::transform(
+					image.begin(), image.end(), rhs.begin(), image.begin(), 
+					Op<type>()
+				);
+				return image;
+			}
+		}; // }}}
+
+		template<typename T>
+		self_type& operator+=(T rhs) 
+		{
+			return Operator<std::plus, T, typename ColorImageTrait<T>::tag>()(*this, rhs);
+		}
+
+		template<typename T>
+		self_type& operator-=(T rhs) 
+		{
+			return Operator<std::minus, T, typename ColorImageTrait<T>::tag>()(*this, rhs);
+		}
+
+		template<typename T>
+		self_type& operator*=(T rhs) 
+		{
+			return Operator<std::multiplies, T, typename ColorImageTrait<T>::tag>()(*this, rhs);
+		}
+
+		template<typename T>
+		self_type& operator/=(T rhs) 
+		{
+			return Operator<std::divides, T, typename ColorImageTrait<T>::tag>()(*this, rhs);
 		}
 
 	protected:

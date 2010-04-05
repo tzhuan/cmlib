@@ -14,9 +14,18 @@
 
 #include "Type.h"
 #include "ColorTrait.h"
+#include "ColorSelector.h"
+#include "Functional.h"
+#include "Algorithm.h"
 
 namespace cmlib {
 namespace image {
+
+	template<typename Type>
+	typename TypeTrait<Type>::OutputType output(const Type& value)
+	{
+		return static_cast<typename TypeTrait<Type>::OutputType>(value);
+	}
 
 	/** @class Color
 	 *  @brief Color is the type of a pixel
@@ -25,11 +34,9 @@ namespace image {
 	 *  @tparam Channel the channel number of color
 	 */
 	template <typename Type, size_t Channel>
-	class Color {
+	class Color { // {{{
 	public:
 		typedef Color ColorType;
-
-		typedef Color<Type, Channel> self_type;
 
 		// STL-compliance
 		typedef Type value_type;
@@ -106,14 +113,14 @@ namespace image {
 		}
 
 		template<typename T>
-		self_type& operator =(const Color<T, 3>& color)
+		Color& operator =(const Color<T, 3>& color)
 		{
 			set(color[0], color[1], color[2]);
 			return (*this);
 		}
 
 		template<typename T>
-		self_type& operator =(const Color<T, 4>& color)
+		Color& operator =(const Color<T, 4>& color)
 		{
 			set(color[0], color[1], color[2], color[3]);
 			return (*this);
@@ -121,77 +128,73 @@ namespace image {
 
 		// some calculations...
 		template<typename T>
-		self_type& operator +=(const Color<T, Channel>& color)
+		Color& operator +=(const Color<T, Channel>& color)
 		{
-			for (size_type i = 0; i < Channel; ++i)
-				(*this)[i] += static_cast<Type>(color[i]);
-			return (*this);
+			return op_assigns_color(color, PlusAssigns<value_type, T>());
 		}
 
 		template<typename T>
-		self_type& operator -=(const Color<T, Channel>& color)
+		Color& operator -=(const Color<T, Channel>& color)
 		{
-			for (size_type i = 0; i < Channel; ++i)
-				(*this)[i] -= static_cast<Type>(color[i]);
-			return (*this);
+			return op_assigns_color(color, MinusAssigns<value_type, T>());
 		}
 
 		template<typename T>
-		self_type& operator *=(T v)
+		Color& operator *=(const Color<T, Channel>& color)
 		{
-			for (size_type i = 0; i < Channel; ++i)
-				(*this)[i] *= static_cast<Type>(v);
-			return (*this);
+			return op_assigns_color(color, MultiplyAssigns<value_type, T>());
 		}
 
 		template<typename T>
-		self_type& operator /=(T v)
+		Color& operator /=(const Color<T, Channel>& color)
 		{
-			for (size_type i = 0; i < Channel; ++i)
-				(*this)[i] /= static_cast<Type>(v);
-			return (*this);
+			return op_assigns_color(color, DivideAssigns<value_type, T>());
 		}
 
-		const self_type operator -() const
+		template<typename T>
+		Color& operator %=(const Color<T, Channel>& color)
 		{
-			self_type r;
+			return op_assigns_color(color, ModuluAssigns<value_type, T>());
+		}
+
+		template<typename T>
+		Color& operator +=(T value)
+		{
+			return op_assigns_constant(value, PlusAssigns<value_type, T>());
+		}
+
+		template<typename T>
+		Color& operator -=(T value)
+		{
+			return op_assigns_constant(value, MinusAssigns<value_type, T>());
+		}
+
+		template<typename T>
+		Color& operator *=(T value)
+		{
+			return op_assigns_constant(value, MultiplyAssigns<value_type, T>());
+		}
+
+		template<typename T>
+		Color& operator /=(T value)
+		{
+			return op_assigns_constant(value, DivideAssigns<value_type, T>());
+		}
+
+		template<typename T>
+		Color& operator %=(T value)
+		{
+			return op_assigns_constant(value, ModuluAssigns<value_type, T>());
+		}
+
+		Color operator -() const
+		{
+			Color r;
 			std::transform(begin(), end(), r.begin(), std::negate<Type>());
 			return r;
 		}
 
-		template<typename T>
-		const self_type operator +(const Color<T, Channel>& c) const
-		{
-			self_type r(*this);
-			r += c;
-			return r;
-		}
-
-		template<typename T>
-		const self_type operator -(const Color<T, Channel>& c) const
-		{
-			self_type r(*this);
-			r -= c;
-			return r;
-		}
-
-		template<typename T>
-		const self_type operator *(T v) const
-		{
-			self_type r(*this);
-			r *= v;
-			return r;
-		}
-
-		template<typename T>
-		const self_type operator /(T v) const
-		{
-			self_type r(*this);
-			r /= v;
-			return r;
-		}
-
-		bool operator ==(const self_type& v) const
+		bool operator ==(const Color& v) const
 		{
 			for(size_t i = 0; i < Channel; ++i)
 				if(my_data[i] != v[i])
@@ -207,9 +210,32 @@ namespace image {
 
 		static size_type channels() { return Channel; }
 
+		virtual std::ostream& output(std::ostream& os) const
+		{
+			os << cmlib::image::output(*begin());
+			for (const_iterator v = begin()+1; v != end(); ++v)
+				os << ' ' << cmlib::image::output(*v);
+			return os;
+		}
+
 	protected:
+		template<typename T, typename Op>
+		Color& op_assigns_color(const Color<T, Channel>& color, const Op& op)
+		{
+			cmlib::image::transform(begin(), end(), color.begin(), op);
+			return *this;
+		}
+
+		template<typename T, typename Op>
+		Color& op_assigns_constant(const T& value, const Op& op)
+		{
+			std::for_each(begin(), end(), std::bind2nd(op, value));
+			return *this;
+		}
+
+	private:
 		Type my_data[Channel];
-	};
+	}; // }}}
 
 	// VC will produce warning if I use struct here.
 	template <typename T>
@@ -218,50 +244,172 @@ namespace image {
 		typedef T ColorType;
 	};
 
-	// Scalar * Color
-	template <typename S, typename T, size_t C>
-	const Color<T,C> operator *(S v, const Color<T,C>& c)
+	//@{
+	/**
+	 *  @defgroup Color<Type, Channel> arithmetic functions.
+	 */
+	// Color + constant, constant + Color, Color + Color {{{
+	// Color + constant
+	template<typename ColorType, size_t Channel, typename Type>
+	Color<ColorType, Channel> operator+(const Color<ColorType, Channel>& color, const Type& value)
 	{
-		return (c * v);
+		Color<ColorType, Channel> tmp(color);
+		tmp += value;
+		return tmp;
 	}
+	// constant + Color
+	template<typename Type, typename ColorType, size_t Channel>
+	Color<ColorType, Channel> operator+(const Type& value, const Color<ColorType, Channel>& color)
+	{
+		Color<ColorType, Channel> tmp(color);
+		tmp += value;
+		return tmp;
+	}
+	// Color + Color
+	template<typename Type1, typename Type2, size_t Channel>
+	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
+	operator+(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
+	{
+		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		tmp += color2;
+		return tmp;
+	}
+	// }}}
 
-	// Scalar / Color
-	template <typename S, typename T, size_t C>
-	const Color<T,C> operator /(S v, const Color<T,C>& c)
+	// Color - constant, constant - Color, Color - Color {{{
+	// Color - constant
+	template<typename ColorType, size_t Channel, typename Type>
+	Color<ColorType, Channel> operator-(const Color<ColorType, Channel>& color, const Type& value)
 	{
-		Color<T,C> r;
-		for (size_t i = 0; i < C; ++i)
-			r[i] = v / c[i];
-		return r;
+		Color<ColorType, Channel> tmp(color);
+		tmp -= value;
+		return tmp;
 	}
+	// constant - Color
+	template<typename Type, typename ColorType, size_t Channel>
+	Color<ColorType, Channel> operator-(const Type& value, const Color<ColorType, Channel>& color)
+	{
+		Color<ColorType, Channel> tmp(color);
+		std::transform(tmp.begin(), tmp.end(), tmp.begin(), bind1st(std::minus<ColorType>(), value));
+		return tmp;
+	}
+	// Color - Color
+	template<typename Type1, typename Type2, size_t Channel>
+	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
+	operator-(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
+	{
+		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		tmp -= color2;
+		return tmp;
+	}
+	// }}}
 
-	// default behavior to print all channels in a pixel
-	// to avoid unprintable characters, values are converted
-	// to OutputType defined in TypeTrait.
-	/*
-	template <typename T>
-	std::ostream& operator <<(std::ostream& out, const T& color)
+	// Color * constant, constant * Color, Color * Color {{{
+	// Color * constant
+	template<typename ColorType, size_t Channel, typename Type>
+	Color<ColorType, Channel> operator*(const Color<ColorType, Channel>& color, const Type& value)
 	{
-		typedef typename TypeTrait<T>::DebugType DebugType;
-		out << static_cast<DebugType>(color);
-		return out;
+		Color<ColorType, Channel> tmp(color);
+		tmp *= value;
+		return tmp;
 	}
-	*/
+	// constant * Color
+	template<typename Type, typename ColorType, size_t Channel>
+	Color<ColorType, Channel> operator*(const Type& value, const Color<ColorType, Channel>& color)
+	{
+		Color<ColorType, Channel> tmp(color);
+		tmp *= value;
+		return tmp;
+	}
+	// Color * Color
+	template<typename Type1, typename Type2, size_t Channel>
+	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
+	operator*(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
+	{
+		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		tmp *= color2;
+		return tmp;
+	}
+	// }}}
+
+	// Color / constant, constant / Color, Color / Color {{{
+	// Color / constant
+	template<typename ColorType, size_t Channel, typename Type>
+	Color<ColorType, Channel> operator/(const Color<ColorType, Channel>& color, const Type& value)
+	{
+		Color<ColorType, Channel> tmp(color);
+		tmp /= value;
+		return tmp;
+	}
+	// constant / Color
+	template<typename Type, typename ColorType, size_t Channel>
+	Color<ColorType, Channel> operator/(const Type& value, const Color<ColorType, Channel>& color)
+	{
+		Color<ColorType, Channel> tmp(color);
+		std::transform(tmp.begin(), tmp.end(), tmp.begin(), bind1st(std::divides<ColorType>(), value));
+		return tmp;
+	}
+	// Color / Color
+	template<typename Type1, typename Type2, size_t Channel>
+	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
+	operator/(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
+	{
+		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		tmp /= color2;
+		return tmp;
+	}
+	// }}}
+
+	// Color % constant, constant % Color, Color % Color {{{
+	// Color % constant
+	template<typename ColorType, size_t Channel, typename Type>
+	Color<ColorType, Channel> operator%(const Color<ColorType, Channel>& color, const Type& value)
+	{
+		Color<ColorType, Channel> tmp(color);
+		tmp %= value;
+		return tmp;
+	}
+	// constant % Color
+	template<typename Type, typename ColorType, size_t Channel>
+	Color<ColorType, Channel> operator%(const Type& value, const Color<ColorType, Channel>& color)
+	{
+		Color<ColorType, Channel> tmp(color);
+		std::transform(tmp.begin(), tmp.end(), tmp.begin(), bind1st(std::modulus<ColorType>(), value));
+		return tmp;
+	}
+	// Color % Color
+	template<typename Type1, typename Type2, size_t Channel>
+	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
+	operator%(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
+	{
+		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		tmp %= color2;
+		return tmp;
+	}
+	// }}}
+	//@}
+
+	//@{
+	/**
+	 *  @defgroup Color<Type, Channel> output functions.
+	 */
+	template<typename Type, size_t Channel>
+	Color<Type, Channel> output(const Color<Type, Channel>& color)
+	{
+		return color;
+	}
 
 	template <typename T, size_t C>
-	std::ostream& operator <<(std::ostream& out, const Color<T, C>& color)
+	std::ostream& operator<<(std::ostream& os, const Color<T, C>& color)
 	{
-		typedef typename TypeTrait<T>::OutputType OutputType;
-		std::copy(color.begin(),
-				color.end(),
-				std::ostream_iterator<OutputType>(out, " "));
-		return out;
+		return color.output(os);
 	}
+	//@}
 
 	// other utilities
 	// minimal and maximal
 	template <typename T, size_t C>
-	const Color<T,C> min(const Color<T,C>& a, const Color<T,C>& b)
+	Color<T,C> min(const Color<T,C>& a, const Color<T,C>& b)
 	{
 		Color<T,C> result;
 		for(size_t i = 0; i < C; i++)
@@ -270,7 +418,7 @@ namespace image {
 	}
 
 	template <typename T, size_t C>
-	const Color<T,C> max(const Color<T,C>& a, const Color<T,C>& b)
+	Color<T,C> max(const Color<T,C>& a, const Color<T,C>& b)
 	{
 		Color<T,C> result;
 		for(size_t i = 0; i < C; i++)
@@ -279,7 +427,7 @@ namespace image {
 	}
 
 	template <typename T, size_t C>
-	const Color<T,C> clamp(
+	Color<T,C> clamp(
 		const Color<T,C>& value, 
 		const Color<T,C>& lower, 
 		const Color<T,C>& upper)
@@ -293,7 +441,7 @@ namespace image {
 
 	// linear interpolation
 	template <typename T, size_t C>
-	const Color<T,C> mix(const Color<T,C>& a, const Color<T,C>& b, T w)
+	Color<T,C> mix(const Color<T,C>& a, const Color<T,C>& b, T w)
 	{
 		Color<T,C> result;
 		for(size_t i = 0; i < C; i++)
@@ -302,7 +450,7 @@ namespace image {
 	}
 
 	template <typename T, size_t C, typename W>
-	const Color<T,C> mix(const Color<T,C>& a, const Color<T,C>& b, W w)
+	Color<T,C> mix(const Color<T,C>& a, const Color<T,C>& b, W w)
 	{
 		Color<T,C> result;
 		typedef TypeTrait<W> TTW;

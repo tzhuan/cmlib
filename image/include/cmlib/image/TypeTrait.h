@@ -15,14 +15,29 @@
 namespace cmlib {
 namespace image {
 
+	//@{
+	/**
+	 *  @defgroup type_tags Type Tags
+	 *  These are empty types, used to distinguish different types.
+	 */
+	/// Marking integer type.
+	struct IntegerTag {};
+	/// Marking	floating point type.
+	struct FloatingPointTag {};
+	/// Marking Color type.
+	struct ColorTag {};
+	/// Marking Image type.
+	struct ImageTag {};
+	//@}
+
 	/** @brief clamp the value to be between lower and upper
 	 *
 	 *  @param value the value to be clamp
 	 *  @param lower minimum value
 	 *  @param upper maximum value
 	 */
-	template <typename T>
-	T clamp(T value, T lower, T upper){
+	template <typename Type>
+	Type clamp(Type value, Type lower, Type upper){
 		return std::min( std::max(value, lower), upper );
 	}
 
@@ -31,56 +46,65 @@ namespace image {
 	 *
 	 *  @tparam T the type to be get properties
 	 */
-	template <typename T>
-	class TypeTrait {
+	template <typename Type>
+	class TypeTrait { // {{{
 	public:
+		typedef Type type;
+		typedef Type channel_type;
+		typedef Type color_type;
+		typedef float extended_type; ///< for pixel value arithmetic
+		typedef float math_type; ///< for pixel value arithmetic
+		typedef float output_type; ///< for pixel value output
+		typedef IntegerTag type_category;
+
+		// XXX deprecated
 		typedef float ExtendedType; ///< for pixel value arithmetic
 		typedef float MathType; ///< for pixel value arithmetic
 		typedef float OutputType; ///< for pixel value output
 
 		/** @brief min value
 		 */
-		static T min()
+		static Type min()
 		{
-			return std::numeric_limits<T>::min();
+			return std::numeric_limits<Type>::min();
 		}
 
 		/** @brief max value
 		 */
-		static T max()
+		static Type max()
 		{
-			return std::numeric_limits<T>::max();
+			return std::numeric_limits<Type>::max();
 		}
 
 		/** @brief domain of the Type, max() - min()
 		 */
-		static T domain()
+		static Type domain()
 		{
 			return max() - min();
 		}
 
-		static T zero() 
+		static Type zero() 
 		{ 
 			return 0; 
 		}
 
 		// XXX deprecated
-		static T transparent() 
+		static Type transparent() 
 		{ 
 			return zero(); 
 		}
 
 		// XXX deprecated
-		static T opaque() 
+		static Type opaque() 
 		{
 			return max();
 		}
 
-		static T mix(T a, T b, T w)
+		static Type mix(Type a, Type b, Type w)
 		{
 			return ( a * (max()-w) + b * (w-min()) ) / domain();
 		}
-	};
+	}; // }}}
 
 } // namespace image
 } // namespace cmlib
