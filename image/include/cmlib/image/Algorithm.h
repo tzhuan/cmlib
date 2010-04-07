@@ -10,6 +10,7 @@ namespace image{
 			op(*begin1, *begin2);
 		return begin1;
 	}
+
 } // namespace image
 } // namespace cmlib
 

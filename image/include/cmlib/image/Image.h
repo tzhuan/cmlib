@@ -103,6 +103,12 @@ namespace image {
 			std::fill(begin(), end(), pixel);
 		}
 
+		template<typename T>
+		void fill(const T& pixel)
+		{
+			std::fill(begin(), end(), pixel);
+		}
+
 		// deprecated
 		void allocate(size_type w, size_type h)
 		{
@@ -125,37 +131,37 @@ namespace image {
 			}
 		}
 
-		reference operator ()(size_type x, size_type y)
+		reference operator()(size_type x, size_type y)
 		{
 			return my_row[y][x];
 		}
 
-		const_reference operator ()(size_type x, size_type y) const
+		const_reference operator()(size_type x, size_type y) const
 		{
 			return my_row[y][x];
 		}
 
-		reference operator ()(size_type i)
+		reference operator()(size_type i)
 		{
 			return (*this)[i];
 		}
 
-		const_reference operator ()(size_type i) const
+		const_reference operator()(size_type i) const
 		{
 			return (*this)[i];
 		}
 
-		reference operator [](size_type i)
+		reference operator[](size_type i)
 		{
 			return my_data[i];
 		}
 
-		const_reference operator [](size_type i) const
+		const_reference operator[](size_type i) const
 		{
 			return my_data[i];
 		}
 
-		self_type& operator =(const self_type& img)
+		self_type& operator=(const self_type& img)
 		{
 			if (this != &img) {
 				resize(img.width(), img.height());
@@ -165,7 +171,7 @@ namespace image {
 		}
 
 		template <typename ImageType>
-		self_type& operator =(const ImageType& img)
+		self_type& operator=(const ImageType& img)
 		{
 			resize(img.width(), img.height());
 			std::copy(img.begin(), img.end(), begin());
@@ -264,60 +270,67 @@ namespace image {
 			return my_data.rend();
 		}
 
-		template<template<typename> class Op, typename T, typename Tag> struct Operator {};
-		template<template<typename> class Op, typename T>
-		struct Operator<Op, T, ColorTag> { // {{{
-			Image& operator()(Image& image, T& value) const
-			{
-				std::transform(
-					image.begin(), image.end(), image.begin(), 
-					std::bind2nd(
-						Op<typename ColorSelector<value_type, T>::value_type>(),
-						value
-					)
-				);
-				return image;
+		template<typename T>
+		self_type& operator+=(const T& rhs) 
+		{
+			return 
+				OperatorAssigns<
+					typename TypeTrait<T>::type_category, 
+					T, PlusAssigns
+				>()(*this, rhs);
+		}
+
+		template<typename T>
+		self_type& operator-=(const T& rhs) 
+		{
+			return 
+				OperatorAssigns<
+					typename TypeTrait<T>::type_category, 
+					T, MinusAssigns
+				>()(*this, rhs);
+		}
+
+		template<typename T>
+		self_type& operator*=(const T& rhs) 
+		{
+			return
+				OperatorAssigns<
+					typename TypeTrait<T>::type_category, T, 
+					MultiplyAssigns
+				>()(*this, rhs);
+		}
+
+		template<typename T>
+		self_type& operator/=(const T& rhs) 
+		{
+			return 
+				OperatorAssigns<
+					typename TypeTrait<T>::type_category, T,
+					DivideAssigns
+				>()(*this, rhs);
+		}
+
+		template<typename T>
+		self_type& operator%=(const T& rhs) 
+		{
+			return
+				OperatorAssigns<
+					typename TypeTrait<T>::type_category, T, 
+					ModuluAssigns
+				>()(*this, rhs);
+		}
+
+		std::ostream& output(std::ostream& os) const
+		{
+			os << '(' << cmlib::image::output((*this)(0, 0)) << ')';
+			for (size_type w = 1; w < width(); ++w)
+				os << " (" << cmlib::image::output((*this)(w, 0)) << ')';
+			for (size_type h = 1; h < height(); ++h) {
+				os << std::endl << '(' << cmlib::image::output((*this)(0, h)) << ')';
+				for (size_type w = 1; w < width(); ++w)
+					os << " (" << cmlib::image::output((*this)(w, h)) << ')';
 			}
-		}; // }}}
-		template<template<typename> class Op, typename T>
-		struct Operator<Op, T, ImageTag> { // {{{
-			Image& operator()(Image& image, T& rhs) const
-			{
-				typedef 
-					typename ColorSelector<
-						value_type, typename T::value_type
-					>::value_type
-					type;
-				std::transform(
-					image.begin(), image.end(), rhs.begin(), image.begin(), 
-					Op<type>()
-				);
-				return image;
-			}
-		}; // }}}
-
-		template<typename T>
-		self_type& operator+=(T rhs) 
-		{
-			return Operator<std::plus, T, typename ColorImageTrait<T>::tag>()(*this, rhs);
-		}
-
-		template<typename T>
-		self_type& operator-=(T rhs) 
-		{
-			return Operator<std::minus, T, typename ColorImageTrait<T>::tag>()(*this, rhs);
-		}
-
-		template<typename T>
-		self_type& operator*=(T rhs) 
-		{
-			return Operator<std::multiplies, T, typename ColorImageTrait<T>::tag>()(*this, rhs);
-		}
-
-		template<typename T>
-		self_type& operator/=(T rhs) 
-		{
-			return Operator<std::divides, T, typename ColorImageTrait<T>::tag>()(*this, rhs);
+			return os;
 		}
 
 	protected:
@@ -327,6 +340,37 @@ namespace image {
 			for (size_type i = 1; i < height(); ++i)
 				my_row[i] = my_row[i-1] + width();
 		}
+
+		//@{
+		/**
+		 *  @defgroup OperatorAssigns<Op, T, ImageTag>, the help function
+		 *  object to distinguish between image op= color and image op= image.
+		 */
+		// image op= color
+		template<typename Tag, typename RhsType, template<typename, typename> class Op> 
+		struct OperatorAssigns { // {{{
+			Image& operator()(Image& lhs, const RhsType& rhs) const
+			{
+				std::for_each(
+					lhs.begin(), lhs.end(), 
+					std::bind2nd(Op<value_type, RhsType>(), rhs)
+				);
+				return lhs;
+			}
+		}; // }}}
+		// image op= image
+		template<typename RhsType, template<typename, typename> class Op>
+		struct OperatorAssigns<ImageTag, RhsType, Op> { // {{{
+			Image& operator()(Image& lhs, const RhsType& rhs) const
+			{
+				cmlib::image::transform(
+					lhs.begin(), lhs.end(), rhs.begin(), 
+					Op<value_type, typename RhsType::value_type>()
+				);
+				return lhs;
+			}
+		}; // }}}
+		//@}
 
 	private:
 		size_type my_width;
@@ -341,6 +385,18 @@ namespace image {
 		a.swap(b);
 	}
 
+	template<typename Type, template<typename> class Allocator>
+	const Image<Type, Allocator>& output(const Image<Type, Allocator>& image)
+	{
+		return image;
+	}
+
+	template<typename Type, template<typename> class Allocator>
+	std::ostream& operator<<(std::ostream& os, const Image<Type, Allocator>& image)
+	{
+		return image.output(os);
+	}
+
 	typedef Image<Byte1> ByteImage1;
 	typedef Image<Byte3> ByteImage3;
 	typedef Image<Byte4> ByteImage4;
@@ -350,6 +406,9 @@ namespace image {
 	typedef Image<Float1> FloatImage1;
 	typedef Image<Float3> FloatImage3;
 	typedef Image<Float4> FloatImage4;
+	typedef Image<Double1> DoubleImage1;
+	typedef Image<Double3> DoubleImage3;
+	typedef Image<Double4> DoubleImage4;
 
 } // namespace image
 } // namespace cmlib

@@ -50,12 +50,12 @@ namespace image {
 
 		typedef typename TypeTrait<Type>::MathType MathType;
 
-		reference operator [](size_type i)
+		reference operator[](size_type i)
 		{
 			return my_data[i]; 
 		}
 
-		const_reference operator [](size_type i) const 
+		const_reference operator[](size_type i) const 
 		{ 
 			return my_data[i];
 		}
@@ -113,14 +113,21 @@ namespace image {
 		}
 
 		template<typename T>
-		Color& operator =(const Color<T, 3>& color)
+		Color& operator=(const T& value)
+		{
+			fill(value);
+			return *this;
+		}
+
+		template<typename T>
+		Color& operator=(const Color<T, 3>& color)
 		{
 			set(color[0], color[1], color[2]);
 			return (*this);
 		}
 
 		template<typename T>
-		Color& operator =(const Color<T, 4>& color)
+		Color& operator=(const Color<T, 4>& color)
 		{
 			set(color[0], color[1], color[2], color[3]);
 			return (*this);
@@ -128,73 +135,83 @@ namespace image {
 
 		// some calculations...
 		template<typename T>
-		Color& operator +=(const Color<T, Channel>& color)
+		Color& operator+=(const Color<T, Channel>& color)
 		{
-			return op_assigns_color(color, PlusAssigns<value_type, T>());
+			cmlib::image::transform(begin(), end(), color.begin(), PlusAssigns<value_type, T>());
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator -=(const Color<T, Channel>& color)
+		Color& operator-=(const Color<T, Channel>& color)
 		{
-			return op_assigns_color(color, MinusAssigns<value_type, T>());
+			cmlib::image::transform(begin(), end(), color.begin(), MinusAssigns<value_type, T>());
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator *=(const Color<T, Channel>& color)
+		Color& operator*=(const Color<T, Channel>& color)
 		{
-			return op_assigns_color(color, MultiplyAssigns<value_type, T>());
+			cmlib::image::transform(begin(), end(), color.begin(), MultiplyAssigns<value_type, T>());
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator /=(const Color<T, Channel>& color)
+		Color& operator/=(const Color<T, Channel>& color)
 		{
-			return op_assigns_color(color, DivideAssigns<value_type, T>());
+			cmlib::image::transform(begin(), end(), color.begin(), DivideAssigns<value_type, T>());
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator %=(const Color<T, Channel>& color)
+		Color& operator%=(const Color<T, Channel>& color)
 		{
-			return op_assigns_color(color, ModuluAssigns<value_type, T>());
+			cmlib::image::transform(begin(), end(), color.begin(), ModuluAssigns<value_type, T>());
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator +=(T value)
+		Color& operator+=(T value)
 		{
-			return op_assigns_constant(value, PlusAssigns<value_type, T>());
+			std::for_each(begin(), end(), std::bind2nd(PlusAssigns<value_type, T>(), value));
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator -=(T value)
+		Color& operator-=(T value)
 		{
-			return op_assigns_constant(value, MinusAssigns<value_type, T>());
+			std::for_each(begin(), end(), std::bind2nd(MinusAssigns<value_type, T>(), value));
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator *=(T value)
+		Color& operator*=(T value)
 		{
-			return op_assigns_constant(value, MultiplyAssigns<value_type, T>());
+			std::for_each(begin(), end(), std::bind2nd(MultiplyAssigns<value_type, T>(), value));
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator /=(T value)
+		Color& operator/=(T value)
 		{
-			return op_assigns_constant(value, DivideAssigns<value_type, T>());
+			std::for_each(begin(), end(), std::bind2nd(DivideAssigns<value_type, T>(), value));
+			return *this;
 		}
 
 		template<typename T>
-		Color& operator %=(T value)
+		Color& operator%=(T value)
 		{
-			return op_assigns_constant(value, ModuluAssigns<value_type, T>());
+			std::for_each(begin(), end(), std::bind2nd(ModuluAssigns<value_type, T>(), value));
+			return *this;
 		}
 
-		Color operator -() const
+		Color operator-() const
 		{
 			Color r;
 			std::transform(begin(), end(), r.begin(), std::negate<Type>());
 			return r;
 		}
 
-		bool operator ==(const Color& v) const
+		bool operator==(const Color& v) const
 		{
 			for(size_t i = 0; i < Channel; ++i)
 				if(my_data[i] != v[i])
@@ -210,7 +227,7 @@ namespace image {
 
 		static size_type channels() { return Channel; }
 
-		virtual std::ostream& output(std::ostream& os) const
+		std::ostream& output(std::ostream& os) const
 		{
 			os << cmlib::image::output(*begin());
 			for (const_iterator v = begin()+1; v != end(); ++v)
@@ -219,19 +236,6 @@ namespace image {
 		}
 
 	protected:
-		template<typename T, typename Op>
-		Color& op_assigns_color(const Color<T, Channel>& color, const Op& op)
-		{
-			cmlib::image::transform(begin(), end(), color.begin(), op);
-			return *this;
-		}
-
-		template<typename T, typename Op>
-		Color& op_assigns_constant(const T& value, const Op& op)
-		{
-			std::for_each(begin(), end(), std::bind2nd(op, value));
-			return *this;
-		}
 
 	private:
 		Type my_data[Channel];
@@ -394,7 +398,7 @@ namespace image {
 	 *  @defgroup Color<Type, Channel> output functions.
 	 */
 	template<typename Type, size_t Channel>
-	Color<Type, Channel> output(const Color<Type, Channel>& color)
+	const Color<Type, Channel>& output(const Color<Type, Channel>& color)
 	{
 		return color;
 	}
