@@ -270,6 +270,38 @@ namespace image {
 			return my_data.rend();
 		}
 
+		//@{
+		/**
+		 *  @defgroup OperatorAssigns<Op, T, ImageTag>, the help function
+		 *  object to distinguish between image op= color and image op= image.
+		 */
+		// image op= color
+		template<typename Tag, typename RhsType, template<typename, typename> class Op> 
+		struct OperatorAssigns { // {{{
+			Image& operator()(Image& lhs, const RhsType& rhs) const
+			{
+				std::for_each(
+					lhs.begin(), lhs.end(), 
+					std::bind2nd(Op<value_type, RhsType>(), rhs)
+				);
+				return lhs;
+			}
+		}; // }}}
+		// image op= image
+		template<typename RhsType, template<typename, typename> class Op>
+		struct OperatorAssigns<ImageTag, RhsType, Op> { // {{{
+			Image& operator()(Image& lhs, const RhsType& rhs) const
+			{
+				cmlib::image::inplace_transform(
+					lhs.begin(), lhs.end(), rhs.begin(), 
+					Op<value_type, typename RhsType::value_type>()
+				);
+				return lhs;
+			}
+		}; // }}}
+		//@}
+
+
 		template<typename T>
 		self_type& operator+=(const T& rhs) 
 		{
@@ -341,37 +373,6 @@ namespace image {
 				my_row[i] = my_row[i-1] + width();
 		}
 
-		//@{
-		/**
-		 *  @defgroup OperatorAssigns<Op, T, ImageTag>, the help function
-		 *  object to distinguish between image op= color and image op= image.
-		 */
-		// image op= color
-		template<typename Tag, typename RhsType, template<typename, typename> class Op> 
-		struct OperatorAssigns { // {{{
-			Image& operator()(Image& lhs, const RhsType& rhs) const
-			{
-				std::for_each(
-					lhs.begin(), lhs.end(), 
-					std::bind2nd(Op<value_type, RhsType>(), rhs)
-				);
-				return lhs;
-			}
-		}; // }}}
-		// image op= image
-		template<typename RhsType, template<typename, typename> class Op>
-		struct OperatorAssigns<ImageTag, RhsType, Op> { // {{{
-			Image& operator()(Image& lhs, const RhsType& rhs) const
-			{
-				cmlib::image::transform(
-					lhs.begin(), lhs.end(), rhs.begin(), 
-					Op<value_type, typename RhsType::value_type>()
-				);
-				return lhs;
-			}
-		}; // }}}
-		//@}
-
 	private:
 		size_type my_width;
 		size_type my_height;
@@ -384,6 +385,41 @@ namespace image {
 	{
 		a.swap(b);
 	}
+
+	//@{
+	/**
+	 *  @defgroup Image<Type, Allocator> arithmetic functions.
+	 */
+	// Image + constant, constant + Image, Image + Image {{{
+	// Image + Image
+	/*
+	template<typename Type1, template<typename> class Allocator1, typename Type2, template<typename> class Allocator2>
+	Image<typename ColorSelector<Type1, Type2>::priority_type>
+	operator+(const Image<Type1, Allocator1>& image1, const Image<Type2, Allocator1>& image2)
+	{
+		Image<typename ColorSelector<Type1, Type2>::priority_type> tmp(image1);
+		tmp += image2;
+		return tmp;
+	}
+	// Image + constant
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator+(const Image<ColorType, Allocator>& image, const Type& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp += value;
+		return tmp;
+	}
+	// constant + Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator+(const Type& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp += value;
+		return tmp;
+	}
+	*/
+	// }}}
+	//@}
 
 	template<typename Type, template<typename> class Allocator>
 	const Image<Type, Allocator>& output(const Image<Type, Allocator>& image)

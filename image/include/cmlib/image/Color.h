@@ -137,35 +137,35 @@ namespace image {
 		template<typename T>
 		Color& operator+=(const Color<T, Channel>& color)
 		{
-			cmlib::image::transform(begin(), end(), color.begin(), PlusAssigns<value_type, T>());
+			cmlib::image::inplace_transform(begin(), end(), color.begin(), PlusAssigns<value_type, T>());
 			return *this;
 		}
 
 		template<typename T>
 		Color& operator-=(const Color<T, Channel>& color)
 		{
-			cmlib::image::transform(begin(), end(), color.begin(), MinusAssigns<value_type, T>());
+			cmlib::image::inplace_transform(begin(), end(), color.begin(), MinusAssigns<value_type, T>());
 			return *this;
 		}
 
 		template<typename T>
 		Color& operator*=(const Color<T, Channel>& color)
 		{
-			cmlib::image::transform(begin(), end(), color.begin(), MultiplyAssigns<value_type, T>());
+			cmlib::image::inplace_transform(begin(), end(), color.begin(), MultiplyAssigns<value_type, T>());
 			return *this;
 		}
 
 		template<typename T>
 		Color& operator/=(const Color<T, Channel>& color)
 		{
-			cmlib::image::transform(begin(), end(), color.begin(), DivideAssigns<value_type, T>());
+			cmlib::image::inplace_transform(begin(), end(), color.begin(), DivideAssigns<value_type, T>());
 			return *this;
 		}
 
 		template<typename T>
 		Color& operator%=(const Color<T, Channel>& color)
 		{
-			cmlib::image::transform(begin(), end(), color.begin(), ModuluAssigns<value_type, T>());
+			cmlib::image::inplace_transform(begin(), end(), color.begin(), ModuluAssigns<value_type, T>());
 			return *this;
 		}
 
