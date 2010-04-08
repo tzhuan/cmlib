@@ -21,11 +21,13 @@
 #include <complex>
 #include <iostream>
 
+#include <cmlib/image/Converter.h>
+
 namespace cmlib {
 namespace dip {
 
 	template<class DstColor>
-	struct RgbToGray {
+	struct RgbToGray { // {{{
 		template<class SrcColor>
 		DstColor operator()(const SrcColor& src) const
 		{
@@ -36,12 +38,12 @@ namespace dip {
 				0.299*src[0] + 0.587*src[1] + 0.114*src[2]
 			);
 		}
-	};
+	}; // }}}
 
 	template<class DstColor>
-	struct RgbToXyz {
+	struct RgbToXyz { // {{{
 		template<typename SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// OpenCV:
 			// |X|    |0.412453  0.357580  0.180423| |R|
@@ -56,12 +58,12 @@ namespace dip {
 				)
 			);
 		}
-	};
+	}; // }}}
 
 	template<class DstColor>
-	struct XyzToRgb {
+	struct XyzToRgb { // {{{
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// OpenCV:
 			// |R|    | 3.240479  -1.53715  -0.498535| |X|
@@ -76,10 +78,10 @@ namespace dip {
 				)
 			);
 		}
-	};
+	}; // }}}
 
 	template<class DstColor>
-	struct RgbToYCrCb {
+	struct RgbToYCbCr { // {{{
 		template<class SrcColor>
 		const DstColor operator()(const SrcColor& src) const 
 		{
@@ -96,22 +98,21 @@ namespace dip {
 			typedef typename ColorTrait<SrcColor>::BaseType value_type;
 
 			const value_type &R = src[0];
-			const value_type &G = src[1];
+			// const value_type &G = src[1];
 			const value_type &B = src[2];
 			const value_type delta = TypeTrait<value_type>::opaque() / 2;
-                        //printf("%g \n",delta);
 			value_type Y = RgbToGray<value_type>()(src);
 			value_type Cr = static_cast<value_type>( (R-Y) * 0.713 + delta );
 			value_type Cb = static_cast<value_type>( (B-Y) * 0.564 + delta );
 
-			return cmlib::image::DefaultConvert<DstColor>()(SrcColor(Y, Cr, Cb));
+			return cmlib::image::DefaultConvert<DstColor>()(SrcColor(Y, Cb, Cr));
 		}
-	};
+	}; // }}}
 	
 	template<class DstColor>
-	struct YCrCbToRgb {
+	struct YCbCrToRgb { // {{{
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// OpenCV:
 			// R <- Y + 1.403*(Cr - delta)
@@ -127,8 +128,8 @@ namespace dip {
 			typedef typename ColorTrait<SrcColor>::BaseType value_type;
 
 			const value_type &Y = src[0];
-			const value_type &Cr = src[1];
-			const value_type &Cb = src[2];
+			const value_type &Cb = src[1];
+			const value_type &Cr = src[2];
 
 			const value_type delta = TypeTrait<value_type>::opaque() / 2;
 
@@ -138,12 +139,12 @@ namespace dip {
 
 			return cmlib::image::DefaultConvert<DstColor>()(SrcColor(R, G, B));
 		}
-	};
+	}; // }}}
 	
 	template<class DstColor>
-	struct RgbToHsv {
+	struct RgbToHsv { // {{{
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// OpenCV: 
 			// R, G and B are converted to floating-point format and 
@@ -177,8 +178,8 @@ namespace dip {
 			const tmp_type &G = tmp[1];
 			const tmp_type &B = tmp[2];
 
-			tmp_type V = max( max(R, G), max(G, B) );
-			tmp_type S = V ? ( (V-min( min(R, G), min(G, B) ) ) / V ) : 0;
+			tmp_type V = std::max( std::max(R, G), std::max(G, B) );
+			tmp_type S = V ? ( (V-std::min( std::min(R, G), std::min(G, B) ) ) / V ) : 0;
 			tmp_type H;
 
 			if (V == R)
@@ -198,12 +199,12 @@ namespace dip {
 				)
 			);
 		}
-	};
+	}; // }}}
 	
 	template<class DstColor>
 	struct HsvToRgb {
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// TODO
 			assert(0);
@@ -211,9 +212,9 @@ namespace dip {
 	};
 	
 	template<class DstColor>
-	struct RgbToHsl {
+	struct RgbToHsl { // {{{
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// OpenCV:
 			// R, G and B are converted to floating-point format and 
@@ -252,8 +253,8 @@ namespace dip {
 			const tmp_type &G = tmp[1];
 			const tmp_type &B = tmp[2];
 
-			tmp_type Vmax = max( max(R, G), max(G, B) );
-			tmp_type Vmin = min( min(R, G), min(G, B) );
+			tmp_type Vmax = std::max( std::max(R, G), std::max(G, B) );
+			tmp_type Vmin = std::min( std::min(R, G), std::min(G, B) );
 
 			tmp_type L = (Vmax+Vmin) / 2;
 			tmp_type S = (L < 0.5) ? 
@@ -278,12 +279,12 @@ namespace dip {
 				)
 			);
 		}
-	};
+	}; // }}}
 
 	template<class DstColor>
 	struct HslToRgb {
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// TODO
 			assert(0);
@@ -291,8 +292,7 @@ namespace dip {
 	};
 	
 	template<class DstColor>
-	struct RgbToLab {
-
+	struct RgbToLab { // {{{
 
 		template<class SrcColor>
 		const DstColor operator()(const SrcColor& src) const 
@@ -334,9 +334,9 @@ namespace dip {
 
 			tmp_color tmp = RgbToXyz<tmp_color>()(cmlib::image::DefaultConvert<tmp_color>()(src));
 
-			const tmp_type &X = tmp[0];
-			const tmp_type &Y = tmp[1];
-			const tmp_type &Z = tmp[2];
+			tmp_type X = tmp[0];
+			tmp_type Y = tmp[1];
+			tmp_type Z = tmp[2];
 
 			X /= 0.950456;
 			Z /= 1.088754;
@@ -367,12 +367,12 @@ namespace dip {
 					std::pow(t, static_cast<Type>(1/3.)) :
 					7.787*t + 16./116;
 			}
-	};
+	}; // }}}
 	
 	template<class DstColor>
 	struct LabToRgb {
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const
+		DstColor operator()(const SrcColor& src) const
 		{
 			// TODO
 			assert(0);
@@ -380,9 +380,9 @@ namespace dip {
 	};
 	
 	template<class DstColor>
-	struct RgbToLuv {
+	struct RgbToLuv { // {{{
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// R, G and B are converted to floating-point format and 
 			// scaled to fit 0..1 range
@@ -440,17 +440,125 @@ namespace dip {
 				)
 			);
 		}
-	};
+	}; // }}}
 	
 	template<class DstColor>
 	struct LuvToRgb {
 		template<class SrcColor>
-		const DstColor operator()(const SrcColor& src) const 
+		DstColor operator()(const SrcColor& src) const 
 		{
 			// TODO
 			assert(0);
 		}
 	};
+
+	template<class SrcImage, class DstImage>
+	DstImage& rgb_to_gray(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, RgbToGray>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage rgb_to_gray(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, RgbToGray>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& rgb_to_xyz(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, RgbToXyz>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage rgb_to_xyz(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, RgbToXyz>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& rgb_to_ycbcr(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, RgbToYCbCr>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage rgb_to_ycbcr(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, RgbToYCbCr>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& rgb_to_hsv(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, RgbToHsv>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage rgb_to_hsv(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, RgbToHsv>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& rgb_to_hsl(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, RgbToHsl>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage rgb_to_hsl(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, RgbToHsl>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& rgb_to_lab(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, RgbToLab>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage rgb_to_lab(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, RgbToLab>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& rgb_to_luv(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, RgbToLuv>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage rgb_to_luv(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, RgbToLuv>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& xyz_to_rgb(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, XyzToRgb>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage xyz_to_rgb(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, XyzToRgb>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& ycbcr_to_rgb(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, YCbCrToRgb>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage ycbcr_to_rgb(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, YCbCrToRgb>()(src);
+	}
 
 } // namespace dip
 } // namespace cmlib
