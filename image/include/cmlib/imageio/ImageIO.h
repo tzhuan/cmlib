@@ -156,13 +156,13 @@ namespace image {
 
 #ifdef CMLIB_IMAGE_IO_PPM
 			case FF_PPM:
-				read<Converter, PpmReader<Byte3, '6'> >(image, f);
+				read<Converter, PpmReader<Byte3, Short3, '6'> >(image, f);
 				break;
 #endif // CMLIB_IMAGE_IO_PPM
 
 #ifdef CMLIB_IMAGE_IO_PGM
 			case FF_PGM:
-				read<Converter, PpmReader<Byte1, '5'> >(image, f);
+				read<Converter, PpmReader<Byte1, Short1, '5'> >(image, f);
 				break;
 #endif // CMLIB_IMAGE_IO_PGM
 
