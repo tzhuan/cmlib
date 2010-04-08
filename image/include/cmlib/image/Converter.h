@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "Color.h"
+#include "ColorSelector.h"
 
 namespace cmlib {
 namespace image {
@@ -14,83 +15,16 @@ namespace image {
 		typedef Tf From;
 		To operator()(const From &from) const
 		{
-			return static_cast<To>(from);
-		}
-	};
-
-	// Float1 -> Byte1
-	template <>
-	struct DefaultConverter<Float1, Byte1> {
-		typedef Float1 From;
-		typedef Byte1 To;
-		To operator()(From from) const
-		{
-			const From ratio = 
-				static_cast<From>(TypeTrait<To>::domain());
+			typedef typename TypeTrait<
+				typename ColorSelector<
+					typename TypeTrait<From>::channel_type, 
+					typename TypeTrait<To>::channel_type
+				>::priority_type
+			>::extended_type ratio_type;
+			const ratio_type ratio = 
+				static_cast<ratio_type>(TypeTrait<To>::domain()) / 
+				static_cast<ratio_type>(TypeTrait<From>::domain());
 			return static_cast<To>(from * ratio);
-		}
-	};
-
-	// Byte1 -> Float1
-	template <>
-	struct DefaultConverter<Byte1, Float1> {
-		typedef Byte1 From;
-		typedef Float1 To;
-		To operator()(From from) const
-		{
-			const To ratio = 
-				static_cast<To>(TypeTrait<From>::domain());
-			return static_cast<To>(from) / ratio;
-		}
-	};
-
-	// Byte1 -> Short1
-	template <>
-	struct DefaultConverter<Byte1, Short1> {
-		typedef Byte1 From;
-		typedef Short1 To;
-		To operator()(From from) const
-		{
-			const To ratio = 
-				TypeTrait<To>::domain() / TypeTrait<From>::domain();
-			return static_cast<To>(from * ratio);
-		}
-	};
-
-	// Short1 -> Byte1
-	template <>
-	struct DefaultConverter<Short1, Byte1> {
-		typedef Short1 From;
-		typedef Byte1 To;
-		To operator()(From from) const
-		{
-			const From ratio = 
-				TypeTrait<From>::domain() / TypeTrait<To>::domain();
-			return static_cast<To>(from / ratio);
-		}
-	};
-
-	// Float1 -> Short1
-	template <>
-	struct DefaultConverter<Float1, Short1> {
-		typedef Float1 From;
-		typedef Short1 To;
-		To operator()(From from) const
-		{
-			const To ratio = TypeTrait<To>::domain();
-			return static_cast<To>(from * ratio);
-		}
-	};
-
-	// Short1 -> Float1
-	template <>
-	struct DefaultConverter<Short1, Float1> {
-		typedef Short1 From;
-		typedef Float1 To;
-		To operator()(From from) const
-		{
-			const To ratio = TypeTrait<From>::domain();
-			return static_cast<To>(from) / ratio;
 		}
 	};
 
@@ -257,13 +191,13 @@ namespace image {
 	public:
 
 		template<class SrcColor>
-		const DstColor operator ()(const SrcColor& src) const
+		DstColor operator()(const SrcColor& src) const
 		{
 			return DefaultConverter<SrcColor, DstColor>()(src);
 		}
 
 		template<class SrcColor>
-		DstColor& operator ()(const SrcColor& src, DstColor& dst) const
+		DstColor& operator()(const SrcColor& src, DstColor& dst) const
 		{
 			return (dst = DefaultConverter<SrcColor, DstColor>()(src));
 		}
@@ -275,22 +209,18 @@ namespace image {
 	public:
 
 		template<class SrcImage>
-		DstImage& operator ()(const SrcImage& src, DstImage& dst) const
+		DstImage& operator()(const SrcImage& src, DstImage& dst) const
 		{
 			typedef typename DstImage::value_type DstColor;
-			// std::transform(src.begin(), src.end(), dst.begin(), Conv<DstColor>());
-			Conv<DstColor> conv;
-			for (typename DstImage::size_type i = 0; i < dst.size(); ++i)
-				dst[i] = conv(src[i]);
+			std::transform(src.begin(), src.end(), dst.begin(), Conv<DstColor>());
 			return dst;
 		}
 
 		template<class SrcImage>
-		const DstImage operator ()(const SrcImage& src) const
+		DstImage operator()(const SrcImage& src) const
 		{
 			DstImage dst(src.width(), src.height());
-			(*this)(src, dst);
-			return dst;
+			return (*this)(src, dst);
 		}
 
 	};
@@ -298,13 +228,25 @@ namespace image {
 	template<class SrcColor, class DstColor>
 	DstColor& default_convert(const SrcColor& src, DstColor& dst)
 	{
-		return DefaultConvert<DstColor>()(src);
+		return (dst = DefaultConvert<DstColor>()(src));
 	}
 
 	template<class SrcColor, class DstColor>
-	const DstColor default_convert(const SrcColor& src)
+	DstColor default_convert(const SrcColor& src)
 	{
 		return DefaultConvert<DstColor>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& convert(const SrcImage& src, DstImage& dst)
+	{
+		return Convert<DstImage>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage convert(const SrcImage& src)
+	{
+		return Convert<DstImage>()(src);
 	}
 
 } // namespace image
