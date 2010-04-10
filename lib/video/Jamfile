@@ -88,7 +88,7 @@ if [ os.name ] = NT
 
 lib cmlib-videostream
 	: [ glob src/*.cpp ] ffmpeg
-	: <include>"include" <include>"$(TOP)/image/include" <include>"$(TOP)/common/include"
+	: 
 	:
-	: <include>include <include>$(TOP)/common/include
+	: 
 	;	

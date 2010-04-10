@@ -4,7 +4,7 @@ lib cmlib-imageio
 	: [ glob src/io/*.cpp : src/io/crw.cpp ]
 	  /contrib//png /contrib//jpeg /contrib//z /contrib//tiff 
 	  /contrib//ilmbase /contrib//openexr
-	: <include>"include" <include>"$(TOP)/common/include"
+	: 
 	:
-	: <include>"include" <include>"$(TOP)/common/include"
+	: 
 	;	

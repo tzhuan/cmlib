@@ -30,11 +30,11 @@ default-build =
 	;
 
 project cmlib 
-	: requirements 
+	: requirements <include>.
 	  <conditional>@handle-static-runtime
 	  <tag>@tag 
 	  <toolset>msvc,<link>shared:<define>CMLIB_BUILD_DLL
-	:
+	: usage-requirements <include>.
 	: build-dir bin
 	: default-build $(default-build)
 	;
@@ -50,7 +50,7 @@ if --with-system-libs in [ modules.peek : ARGV ]
 
 # cmlib-libs = image video dip ;
 cmlib-libs = image video ;
-all-libs = $(other-libs) $(cmlib-libs) ;
+all-libs = $(other-libs) lib/$(cmlib-libs) ;
 ECHO $(all-libs) ;
 
 # Install just library.
