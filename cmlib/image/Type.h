@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <limits>
 
-#include "TypeTrait.h"
+#include <cmlib/image/TypeTrait.h>
 
 namespace cmlib {
 namespace image {

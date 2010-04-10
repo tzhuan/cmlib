@@ -3,8 +3,8 @@
 
 #define NO_XML
 
-#include "truncated_kernel_bf/geom.h"
-#include "truncated_kernel_bf/fast_lbf.h"
+#include <cmlib/dip/filter/truncated_kernel_bf/geom.h>
+#include <cmlib/dip/filter/truncated_kernel_bf/fast_lbf.h>
 
 namespace {
 	template<class Image>

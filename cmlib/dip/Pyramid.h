@@ -6,9 +6,8 @@
 #include <stdexcept>
 #include <cmath>
 
-#include "gil/Color.h"
-#include "NearestFilter.h"
-#include "GaussianFilter.h"
+#include <cmlib/image/Color.h>
+#include <cmlib/dip/filter.h>
 
 namespace cmlib {
 namespace dip {

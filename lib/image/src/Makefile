@@ -4,8 +4,7 @@ PREFIX = $(DESTDIR)/usr
 INSTALL_INCLUDE = $(PREFIX)/include
 INSTALL_LIB = $(PREFIX)/lib
 TARGET = libcmlib-imageio.so
-HEADERS = -I../include
-CXXFLAGS = -g $(HEADERS) -I ../include/include -I ../../common/include -I /usr/local/include -fPIC -Wall -pipe
+CXXFLAGS = -g -I../../.. -I /usr/local/include -fPIC -Wall -pipe
 LIBS =    -L/usr/local/lib -lpng -ljpeg -ltiff -lz
 
 CXXFLAGS += $(shell pkg-config --cflags OpenEXR)

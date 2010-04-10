@@ -8,7 +8,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-#include "cmlib/imageio/io/jpeg.h"
+#include <cmlib/imageio/io/jpeg.h>
 
 using namespace std;
 using namespace cmlib::image;

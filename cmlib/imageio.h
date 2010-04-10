@@ -7,12 +7,8 @@
  *  @author littleshan, tzhuan
  */
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4996)
-#endif // _MSC_VER
-
-
-#include "imageio/ImageIO.h"
-#include "image.h"
+#include <cmlib/common.h>
+#include <cmlib/imageio/ImageIO.h>
+#include <cmlib/image.h>
 
 #endif // CMLIB_IMAGEIO_H

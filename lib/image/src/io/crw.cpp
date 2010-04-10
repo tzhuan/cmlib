@@ -1,8 +1,8 @@
 #include <cstdio>
 #include <cassert>
 
-#include "cmlib/imageio/Exception.h"
-#include "cmlib/imageio/io/crw.h"
+#include <cmlib/imageio/Exception.h>
+#include <cmlib/imageio/io/crw.h>
 
 extern "C" {
 extern int ext_identify(FILE *f);

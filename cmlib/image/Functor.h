@@ -2,7 +2,7 @@
 #define CMLIB_IMAGE_FUNCTOR_H
 
 #include <cstddef>
-#include "ImageProxy.h"
+#include <cmlib/image/ImageProxy.h>
 
 namespace cmlib {
 namespace image {

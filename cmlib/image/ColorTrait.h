@@ -8,7 +8,7 @@
  *  @author littleshan, tzhuan
  */
 
-#include "TypeTrait.h"
+#include <cmlib/image/TypeTrait.h>
 
 namespace cmlib {
 namespace image {

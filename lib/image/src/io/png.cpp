@@ -1,8 +1,8 @@
 #include <cassert>
 #include <png.h>
 
-#include "cmlib/imageio/Exception.h"
-#include "cmlib/imageio/io/png.h"
+#include <cmlib/imageio/Exception.h>
+#include <cmlib/imageio/io/png.h>
 
 using namespace cmlib::image;
 

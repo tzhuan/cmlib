@@ -5,7 +5,7 @@ namespace cmlib {
 namespace algorithm {
 namespace graphcut {
 
-#include "graphcut/graph.h"
+#include <cmlib/algorithm/graphcut/graph.h>
 
 } // namespace graphcut
 } // namespace algorithm

@@ -3,8 +3,8 @@
 
 #include <algorithm>
 
-#include "Color.h"
-#include "ColorSelector.h"
+#include <cmlib/image/Color.h>
+#include <cmlib/image/ColorSelector.h>
 
 namespace cmlib {
 namespace image {

@@ -14,7 +14,7 @@
 #include <utility>
 #include <vector>
 
-#include "VideoStream.h"
+#include <cmlib/video/VideoStream.h>
 
 struct AVFormatContext;
 struct AVCodecContext;

@@ -1,7 +1,7 @@
 #ifndef CMLIB_IMAGE_COLORSELECT_H
 #define CMLIB_IMAGE_COLORSELECT_H
 
-#include "Type.h"
+#include <cmlib/image/Type.h>
 
 namespace cmlib {
 namespace image {

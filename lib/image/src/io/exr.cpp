@@ -12,8 +12,8 @@
 #include <ImfIO.h>
 #include <half.h>
 
-#include "cmlib/imageio/Exception.h"
-#include "cmlib/imageio/io/exr.h"
+#include <cmlib/imageio/Exception.h>
+#include <cmlib/imageio/io/exr.h>
 
 using namespace std;
 using namespace cmlib::image;

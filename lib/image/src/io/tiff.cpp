@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "cmlib/imageio/io/tiff.h"
+#include <cmlib/imageio/io/tiff.h>
 
 // must include tiffio.h after image/io/tiff.h
 // or you will failed to compile under VC++

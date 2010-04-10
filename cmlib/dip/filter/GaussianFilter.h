@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-#include "Filter.h"
+#include <cmlib/dip/filter/Filter.h>
 
 namespace cmlib {
 namespace dip {

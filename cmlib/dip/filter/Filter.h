@@ -1,8 +1,7 @@
 #ifndef CMLIB_DIP_FILTER_FILTER_H
 #define CMLIB_DIP_FILTER_FILTER_H
 
-#include "algorithm"
-#include "Sampler.h"
+#include <cmlib/dip/filter/Sampler.h>
 
 namespace { // anonymous namesapce
 

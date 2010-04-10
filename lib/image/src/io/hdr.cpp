@@ -10,8 +10,8 @@
 #include <cstring>
 #include <cmath>
 
-#include "cmlib/imageio/Exception.h"
-#include "cmlib/imageio/io/hdr.h"
+#include <cmlib/imageio/Exception.h>
+#include <cmlib/imageio/io/hdr.h>
 
 using namespace std;
 using namespace cmlib::image;

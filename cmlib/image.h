@@ -7,13 +7,10 @@
  *  @author littleshan, tzhuan
  */
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4996)
-#endif // _MSC_VER
-
-#include "image/Image.h"
-#include "image/Converter.h"
-#include "image/SubImage.h"
-#include "image/SliceImage.h"
+#include <cmlib/common.h>
+#include <cmlib/image/Image.h>
+#include <cmlib/image/Converter.h>
+#include <cmlib/image/SubImage.h>
+#include <cmlib/image/SliceImage.h>
 
 #endif // CMLIB_IMAGE_H

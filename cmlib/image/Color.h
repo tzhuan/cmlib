@@ -12,11 +12,11 @@
 #include <algorithm>
 #include <functional>
 
-#include "Type.h"
-#include "ColorTrait.h"
-#include "ColorSelector.h"
-#include "Functional.h"
-#include "Algorithm.h"
+#include <cmlib/image/Type.h>
+#include <cmlib/image/ColorTrait.h>
+#include <cmlib/image/ColorSelector.h>
+#include <cmlib/image/Functional.h>
+#include <cmlib/image/Algorithm.h>
 
 namespace cmlib {
 namespace image {

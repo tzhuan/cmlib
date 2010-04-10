@@ -2,8 +2,8 @@
 #include <vector>
 #include <cstdio>
 
-#include "cmlib/imageio/io/bmp.h"
-#include "cmlib/imageio/Exception.h"
+#include <cmlib/imageio/io/bmp.h>
+#include <cmlib/imageio/Exception.h>
 
 using namespace std;
 using namespace cmlib::image;

@@ -1,7 +1,7 @@
 #ifndef CMLIB_DIP_ONE_PASS_FILTER_H
 #define CMLIB_DIP_ONE_PASS_FILTER_H
 
-#include <gil/Color.h>
+#include <cmlib/image/Color.h>
 
 namespace cmlib {
 namespace dip {

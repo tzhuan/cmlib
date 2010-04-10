@@ -1,7 +1,7 @@
 #ifndef CMLIB_DIP_FILTER_BOXFILTER_H
 #define CMLIB_DIP_FILTER_BOXFILTER_H
 
-#include "Filter.h"
+#include <cmlib/dip/filter/Filter.h>
 
 namespace cmlib {
 namespace dip {
