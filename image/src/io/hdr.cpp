@@ -465,7 +465,7 @@ namespace image {
 		throw InvalidFormat("invalid HDR format in HdrReader::init()");
 			
 		if(fgetresolu(&x, &y, my_file) < 0)
-		throw InvalidFormat("invalid HDR format in HdrReader::init()");
+		throw InvalidFormat("invalid HDR resolution in HdrReader::init()");
 		
 		w = x;
 		h = y;

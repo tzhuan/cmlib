@@ -13,7 +13,12 @@
 namespace cmlib {
 namespace dip {
 	
-	template<class ImageType, typename Type = float>
+	template<
+		class ImageType, 
+		typename Type = float, 
+		template<typename, typename> Filter, 
+		template<typename, typename> class Sampler 
+	>
 	class Pyramid {
 	public:
 		typedef ImageType image_type;
@@ -21,6 +26,11 @@ namespace dip {
 
 		Pyramid()
 		{
+		}
+
+		Pyramid(const ImageType& image)
+		{
+			reset(image);
 		}
 
 		/*
@@ -41,10 +51,10 @@ namespace dip {
 		}
 		*/
 
-		template<template<class, typename>class Scaler, class Filter>
+		template<class Filter, class Sampler>
 		void reset(
 			const ImageType &image, 
-			const Filter& filter = GaussianFilter<ImageType, Type>(1.0, 1.0)
+			const Filter& filter = GaussianFilter<ImageType>(1.0, 1.0)
 		) {
 			size_t width = image.width();
 			size_t height = image.height();
