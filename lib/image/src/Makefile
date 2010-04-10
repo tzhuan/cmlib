@@ -4,7 +4,8 @@ PREFIX = $(DESTDIR)/usr
 INSTALL_INCLUDE = $(PREFIX)/include
 INSTALL_LIB = $(PREFIX)/lib
 TARGET = libcmlib-imageio.so
-CXXFLAGS = -g -I../../.. -I /usr/local/include -fPIC -Wall -pipe
+HEADERS = -I ../../.. 
+CXXFLAGS = -g $(HEADERS) -I /usr/local/include -fPIC -Wall -pipe
 LIBS =    -L/usr/local/lib -lpng -ljpeg -ltiff -lz
 
 CXXFLAGS += $(shell pkg-config --cflags OpenEXR)
@@ -56,36 +57,45 @@ depend:
 	makedepend -Y $(HEADERS) $(SRCS) $(IO_SRCS) 2>/dev/null
 # DO NOT DELETE
 
-io/jpeg.o: ../include/cmlib/imageio/io/jpeg.h
-io/jpeg.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
-io/jpeg.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
-io/jpeg.o: ../include/cmlib/image/ColorTrait.h
-io/jpeg.o: ../include/cmlib/imageio/Exception.h
-io/png.o: ../include/cmlib/imageio/Exception.h
-io/png.o: ../include/cmlib/imageio/io/png.h
-io/png.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
-io/png.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
-io/png.o: ../include/cmlib/image/ColorTrait.h
-io/png.o: ../include/cmlib/imageio/Exception.h
-io/tiff.o: ../include/cmlib/imageio/io/tiff.h
-io/tiff.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
-io/tiff.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
-io/tiff.o: ../include/cmlib/image/ColorTrait.h
-io/tiff.o: ../include/cmlib/imageio/Exception.h
-io/exr.o: ../include/cmlib/imageio/Exception.h
-io/exr.o: ../include/cmlib/imageio/io/exr.h
-io/exr.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
-io/exr.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
-io/exr.o: ../include/cmlib/image/ColorTrait.h
-io/exr.o: ../include/cmlib/imageio/Exception.h
-io/hdr.o: ../include/cmlib/imageio/Exception.h
-io/hdr.o: ../include/cmlib/imageio/io/hdr.h
-io/hdr.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
-io/hdr.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
-io/hdr.o: ../include/cmlib/image/ColorTrait.h
-io/bmp.o: ../include/cmlib/imageio/io/bmp.h
-io/bmp.o: ../include/cmlib/image/Converter.h ../include/cmlib/image/Color.h
-io/bmp.o: ../include/cmlib/image/Type.h ../include/cmlib/image/TypeTrait.h
-io/bmp.o: ../include/cmlib/image/ColorTrait.h
-io/bmp.o: ../include/cmlib/imageio/Exception.h
-io/bmp.o: ../include/cmlib/imageio/Exception.h
+io/jpeg.o: ../../../cmlib/imageio/io/jpeg.h ../../../cmlib/image/Converter.h
+io/jpeg.o: ../../../cmlib/image/Color.h ../../../cmlib/image/Type.h
+io/jpeg.o: ../../../cmlib/image/TypeTrait.h ../../../cmlib/common.h
+io/jpeg.o: ../../../cmlib/image/ColorTrait.h
+io/jpeg.o: ../../../cmlib/image/ColorSelector.h
+io/jpeg.o: ../../../cmlib/image/Functional.h ../../../cmlib/image/Algorithm.h
+io/jpeg.o: ../../../cmlib/imageio/Exception.h
+io/png.o: ../../../cmlib/imageio/Exception.h ../../../cmlib/imageio/io/png.h
+io/png.o: ../../../cmlib/image/Converter.h ../../../cmlib/image/Color.h
+io/png.o: ../../../cmlib/image/Type.h ../../../cmlib/image/TypeTrait.h
+io/png.o: ../../../cmlib/common.h ../../../cmlib/image/ColorTrait.h
+io/png.o: ../../../cmlib/image/ColorSelector.h
+io/png.o: ../../../cmlib/image/Functional.h ../../../cmlib/image/Algorithm.h
+io/png.o: ../../../cmlib/imageio/Exception.h
+io/tiff.o: ../../../cmlib/imageio/io/tiff.h ../../../cmlib/image/Converter.h
+io/tiff.o: ../../../cmlib/image/Color.h ../../../cmlib/image/Type.h
+io/tiff.o: ../../../cmlib/image/TypeTrait.h ../../../cmlib/common.h
+io/tiff.o: ../../../cmlib/image/ColorTrait.h
+io/tiff.o: ../../../cmlib/image/ColorSelector.h
+io/tiff.o: ../../../cmlib/image/Functional.h ../../../cmlib/image/Algorithm.h
+io/tiff.o: ../../../cmlib/imageio/Exception.h
+io/exr.o: ../../../cmlib/imageio/Exception.h ../../../cmlib/imageio/io/exr.h
+io/exr.o: ../../../cmlib/image/Converter.h ../../../cmlib/image/Color.h
+io/exr.o: ../../../cmlib/image/Type.h ../../../cmlib/image/TypeTrait.h
+io/exr.o: ../../../cmlib/common.h ../../../cmlib/image/ColorTrait.h
+io/exr.o: ../../../cmlib/image/ColorSelector.h
+io/exr.o: ../../../cmlib/image/Functional.h ../../../cmlib/image/Algorithm.h
+io/exr.o: ../../../cmlib/imageio/Exception.h
+io/hdr.o: ../../../cmlib/imageio/Exception.h ../../../cmlib/imageio/io/hdr.h
+io/hdr.o: ../../../cmlib/image/Converter.h ../../../cmlib/image/Color.h
+io/hdr.o: ../../../cmlib/image/Type.h ../../../cmlib/image/TypeTrait.h
+io/hdr.o: ../../../cmlib/common.h ../../../cmlib/image/ColorTrait.h
+io/hdr.o: ../../../cmlib/image/ColorSelector.h
+io/hdr.o: ../../../cmlib/image/Functional.h ../../../cmlib/image/Algorithm.h
+io/bmp.o: ../../../cmlib/imageio/io/bmp.h ../../../cmlib/image/Converter.h
+io/bmp.o: ../../../cmlib/image/Color.h ../../../cmlib/image/Type.h
+io/bmp.o: ../../../cmlib/image/TypeTrait.h ../../../cmlib/common.h
+io/bmp.o: ../../../cmlib/image/ColorTrait.h
+io/bmp.o: ../../../cmlib/image/ColorSelector.h
+io/bmp.o: ../../../cmlib/image/Functional.h ../../../cmlib/image/Algorithm.h
+io/bmp.o: ../../../cmlib/imageio/Exception.h
+io/bmp.o: ../../../cmlib/imageio/Exception.h
