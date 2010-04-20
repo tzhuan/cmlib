@@ -72,6 +72,12 @@ namespace image {
 		}
 
 		template<typename T>
+		explicit Color(const Color<T, Channel>& color)
+		{
+			(*this) = color;
+		}
+
+		template<typename T>
 		Color(T c0, T c1, T c2)
 		{
 			set(c0, c1, c2);
@@ -119,17 +125,17 @@ namespace image {
 			return *this;
 		}
 
-		template<typename T>
-		Color& operator=(const Color<T, 3>& color)
+		template<typename T, size_t C>
+		Color& operator=(const Color<T, C>& color)
 		{
-			set(color[0], color[1], color[2]);
-			return (*this);
-		}
-
-		template<typename T>
-		Color& operator=(const Color<T, 4>& color)
-		{
-			set(color[0], color[1], color[2], color[3]);
+			if (C == 3)
+				set(color[0], color[1], color[2]);
+			else if (C == 4)
+				set(color[0], color[1], color[2], color[3]);
+			else {
+				size_t m = std::min(Channel, C);
+				copy(color.begin(), color.begin()+m, begin());
+			}
 			return (*this);
 		}
 
@@ -252,6 +258,15 @@ namespace image {
 	/**
 	 *  @defgroup Color<Type, Channel> arithmetic functions.
 	 */
+	// -Color {{{
+	template<typename ColorType, size_t Channel>
+	Color<ColorType, Channel> operator-(const Color<ColorType, Channel>& color)
+	{
+		Color<ColorType, Channel> tmp;
+		std::transform(color.begin(), color.end(), tmp.begin(), std::negate<ColorType>());
+		return tmp;
+	} // }}}
+
 	// Color + constant, constant + Color, Color + Color {{{
 	// Color + constant
 	template<typename ColorType, size_t Channel, typename Type>
@@ -274,7 +289,7 @@ namespace image {
 	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
 	operator+(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
 	{
-		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type tmp(color1);
 		tmp += color2;
 		return tmp;
 	}
@@ -293,8 +308,11 @@ namespace image {
 	template<typename Type, typename ColorType, size_t Channel>
 	Color<ColorType, Channel> operator-(const Type& value, const Color<ColorType, Channel>& color)
 	{
-		Color<ColorType, Channel> tmp(color);
-		std::transform(tmp.begin(), tmp.end(), tmp.begin(), bind1st(std::minus<ColorType>(), value));
+		Color<ColorType, Channel> tmp;
+		std::transform(
+			color.begin(), color.end(), tmp.begin(), 
+			bind1st(Minus<Type, ColorType, ColorType>(), value)
+		);
 		return tmp;
 	}
 	// Color - Color
@@ -302,7 +320,7 @@ namespace image {
 	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
 	operator-(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
 	{
-		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type tmp(color1);
 		tmp -= color2;
 		return tmp;
 	}
@@ -330,7 +348,7 @@ namespace image {
 	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
 	operator*(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
 	{
-		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type tmp(color1);
 		tmp *= color2;
 		return tmp;
 	}
@@ -349,8 +367,11 @@ namespace image {
 	template<typename Type, typename ColorType, size_t Channel>
 	Color<ColorType, Channel> operator/(const Type& value, const Color<ColorType, Channel>& color)
 	{
-		Color<ColorType, Channel> tmp(color);
-		std::transform(tmp.begin(), tmp.end(), tmp.begin(), bind1st(std::divides<ColorType>(), value));
+		Color<ColorType, Channel> tmp;
+		std::transform(
+			color.begin(), color.end(), tmp.begin(), 
+			bind1st(Divides<Type, ColorType, ColorType>(), value)
+		);
 		return tmp;
 	}
 	// Color / Color
@@ -358,7 +379,7 @@ namespace image {
 	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
 	operator/(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
 	{
-		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type tmp(color1);
 		tmp /= color2;
 		return tmp;
 	}
@@ -377,8 +398,11 @@ namespace image {
 	template<typename Type, typename ColorType, size_t Channel>
 	Color<ColorType, Channel> operator%(const Type& value, const Color<ColorType, Channel>& color)
 	{
-		Color<ColorType, Channel> tmp(color);
-		std::transform(tmp.begin(), tmp.end(), tmp.begin(), bind1st(std::modulus<ColorType>(), value));
+		Color<ColorType, Channel> tmp;
+		std::transform(
+			color.begin(), color.end(), tmp.begin(), 
+			bind1st(Modulus<Type, ColorType, ColorType>(), value)
+		);
 		return tmp;
 	}
 	// Color % Color
@@ -386,7 +410,7 @@ namespace image {
 	typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type 
 	operator%(const Color<Type1, Channel>& color1, const Color<Type2, Channel>& color2)
 	{
-		Color<typename ColorSelector<Type1, Type2>::priority_type, Channel> tmp(color1);
+		typename ColorSelector< Color<Type1, Channel>, Color<Type2, Channel> >::priority_type tmp(color1);
 		tmp %= color2;
 		return tmp;
 	}

@@ -66,7 +66,7 @@ namespace image {
 		}
 
 		template <typename I>
-		Image(const I& img)
+		explicit Image(const I& img)
 			: my_width(0), my_height(0), my_data(0), my_row(0)
 		{
 			*this = img;
@@ -390,12 +390,20 @@ namespace image {
 	/**
 	 *  @defgroup Image<Type, Allocator> arithmetic functions.
 	 */
-	// Image + constant, constant + Image, Image + Image {{{
+	// -Image {{{
+	template<typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator-(const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image.width(), image.height());
+		std::transform(image.begin(), image.end(), tmp.begin(), std::negate<ColorType>());
+		return tmp;
+	} // }}}
+
+	// Image + {Color, constant}, {Color, constant} + Image, Image + Image {{{
 	// Image + Image
-	/*
 	template<typename Type1, template<typename> class Allocator1, typename Type2, template<typename> class Allocator2>
 	Image<typename ColorSelector<Type1, Type2>::priority_type>
-	operator+(const Image<Type1, Allocator1>& image1, const Image<Type2, Allocator1>& image2)
+	operator+(const Image<Type1, Allocator1>& image1, const Image<Type2, Allocator2>& image2)
 	{
 		Image<typename ColorSelector<Type1, Type2>::priority_type> tmp(image1);
 		tmp += image2;
@@ -417,7 +425,216 @@ namespace image {
 		tmp += value;
 		return tmp;
 	}
-	*/
+	// Image + Color
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator+(const Image<ColorType, Allocator>& image, const Color<Type, ColorTrait<ColorType>::Channels>& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp += value;
+		return tmp;
+	}
+	// Color + Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator+(const Color<Type, ColorTrait<ColorType>::Channels>& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp += value;
+		return tmp;
+	}
+	// }}}
+
+	// Image - {Color, constant}, {Color, constant} - Image, Image - Image {{{
+	// Image - Image
+	template<typename Type1, template<typename> class Allocator1, typename Type2, template<typename> class Allocator2>
+	Image<typename ColorSelector<Type1, Type2>::priority_type>
+	operator-(const Image<Type1, Allocator1>& image1, const Image<Type2, Allocator2>& image2)
+	{
+		Image<typename ColorSelector<Type1, Type2>::priority_type> tmp(image1);
+		tmp -= image2;
+		return tmp;
+	}
+	// Image - constant
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator-(const Image<ColorType, Allocator>& image, const Type& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp -= value;
+		return tmp;
+	}
+	// constant - Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator-(const Type& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image.width(), image.height());
+		std::transform(
+			image.begin(), image.end(), tmp.begin(), 
+			bind1st(Minus<Type, ColorType, ColorType>(), value)
+		);
+		return tmp;
+	}
+	// Image - Color
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator-(const Image<ColorType, Allocator>& image, const Color<Type, ColorTrait<ColorType>::Channels>& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp -= value;
+		return tmp;
+	}
+	// Color - Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator-(const Color<Type, ColorTrait<ColorType>::Channels>& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image.width(), image.height());
+		std::transform(
+			image.begin(), image.end(), tmp.begin(), 
+			bind1st(Minus<Color<Type, ColorTrait<ColorType>::Channels>, ColorType, ColorType>(), value)
+		);
+		return tmp;
+	}
+	// }}}
+	
+	// Image * {Color, constant}, {Color, constant} * Image, Image * Image {{{
+	// Image * Image
+	template<typename Type1, template<typename> class Allocator1, typename Type2, template<typename> class Allocator2>
+	Image<typename ColorSelector<Type1, Type2>::priority_type>
+	operator*(const Image<Type1, Allocator1>& image1, const Image<Type2, Allocator2>& image2)
+	{
+		Image<typename ColorSelector<Type1, Type2>::priority_type> tmp(image1);
+		tmp *= image2;
+		return tmp;
+	}
+	// Image * constant
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator*(const Image<ColorType, Allocator>& image, const Type& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp *= value;
+		return tmp;
+	}
+	// constant * Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator*(const Type& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp *= value;
+		return tmp;
+	}
+	// Image * Color
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator*(const Image<ColorType, Allocator>& image, const Color<Type, ColorTrait<ColorType>::Channels>& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp *= value;
+		return tmp;
+	}
+	// Color * Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator*(const Color<Type, ColorTrait<ColorType>::Channels>& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp *= value;
+		return tmp;
+	}
+	// }}}
+
+	// Image / {Color, constant}, {Color, constant} / Image, Image / Image {{{
+	// Image / Image
+	template<typename Type1, template<typename> class Allocator1, typename Type2, template<typename> class Allocator2>
+	Image<typename ColorSelector<Type1, Type2>::priority_type>
+	operator/(const Image<Type1, Allocator1>& image1, const Image<Type2, Allocator2>& image2)
+	{
+		Image<typename ColorSelector<Type1, Type2>::priority_type> tmp(image1);
+		tmp /= image2;
+		return tmp;
+	}
+	// Image / constant
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator/(const Image<ColorType, Allocator>& image, const Type& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp /= value;
+		return tmp;
+	}
+	// constant / Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator/(const Type& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image.width(), image.height());
+		std::transform(
+			image.begin(), image.end(), tmp.begin(), 
+			bind1st(Divides<Type, ColorType, ColorType>(), value)
+		);
+		return tmp;
+	}
+	// Image / Color
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator/(const Image<ColorType, Allocator>& image, const Color<Type, ColorTrait<ColorType>::Channels>& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp /= value;
+		return tmp;
+	}
+	// Color / Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator/(const Color<Type, ColorTrait<ColorType>::Channels>& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image.width(), image.height());
+		std::transform(
+			image.begin(), image.end(), tmp.begin(), 
+			bind1st(Divides<Color<Type, ColorTrait<ColorType>::Channels>, ColorType, ColorType>(), value)
+		);
+		return tmp;
+	}
+	// }}}
+
+	// Image % {Color, constant}, {Color, constant} % Image, Image % Image {{{
+	// Image % Image
+	template<typename Type1, template<typename> class Allocator1, typename Type2, template<typename> class Allocator2>
+	Image<typename ColorSelector<Type1, Type2>::priority_type>
+	operator%(const Image<Type1, Allocator1>& image1, const Image<Type2, Allocator2>& image2)
+	{
+		Image<typename ColorSelector<Type1, Type2>::priority_type> tmp(image1);
+		tmp %= image2;
+		return tmp;
+	}
+	// Image % constant
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator%(const Image<ColorType, Allocator>& image, const Type& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp %= value;
+		return tmp;
+	}
+	// constant % Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator%(const Type& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image.width(), image.height());
+		std::transform(
+			image.begin(), image.end(), tmp.begin(), 
+			bind1st(Modulus<Type, ColorType, ColorType>(), value)
+		);
+		return tmp;
+	}
+	// Image % Color
+	template<typename ColorType, template<typename> class Allocator, typename Type>
+	Image<ColorType, Allocator> operator%(const Image<ColorType, Allocator>& image, const Color<Type, ColorTrait<ColorType>::Channels>& value)
+	{
+		Image<ColorType, Allocator> tmp(image);
+		tmp %= value;
+		return tmp;
+	}
+	// Color % Image
+	template<typename Type, typename ColorType, template<typename> class Allocator>
+	Image<ColorType, Allocator> operator%(const Color<Type, ColorTrait<ColorType>::Channels>& value, const Image<ColorType, Allocator>& image)
+	{
+		Image<ColorType, Allocator> tmp(image.width(), image.height());
+		std::transform(
+			image.begin(), image.end(), tmp.begin(), 
+			bind1st(Modulus<Color<Type, ColorTrait<ColorType>::Channels>, ColorType, ColorType>(), value)
+		);
+		return tmp;
+	}
 	// }}}
 	//@}
 

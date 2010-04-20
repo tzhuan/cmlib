@@ -97,57 +97,42 @@ int main()
 	ByteImage3 b3(3, 1);
 	b3.fill(7);
 
-	test_plus_assign(f3, b3);
-	test_plus(f3, b3);
-	// test_plus(f3, 5);
-	// test_plus(f3, Float3(2, 3, 4));
-	/*
-	test_minus_assign(f3, b3);
-	test_multiply_assign(f3, b3);
-	test_divide_assign(f3, b3);
-	test_modulus_assign(s3, b3);
-	*/
-
-	/*
-	Byte1 b1 = random<Byte1>();
-	Byte3 b3(random<Byte1>(), random<Byte1>(), random<Byte1>());
-	Byte4 b4(random<Byte1>(), random<Byte1>(), random<Byte1>(), random<Byte1>());
-	Short1 s1 = random<Short1>();
-	Short3 s3(random<Short1>(), random<Short1>(), random<Short1>());
-	Short4 s4(random<Short1>(), random<Short1>(), random<Short1>(), random<Short1>());
-	Float1 f1 = random<Float1>();
-	Float3 f3(random<Float1>(), random<Float1>(), random<Float1>());
-	Float4 f4(random<Float1>(), random<Float1>(), random<Float1>(), random<Float1>());
+	ShortImage3 s3(3, 1);
+	s3.fill(123);
 
 	test_plus_assign(f3, b3);
-	test_minus_assign(f3, b3);
-	test_multiply_assign(f3, b3);
-	test_divide_assign(f3, b3);
-	test_modulus_assign(s3, b3);
-
-	test_plus_assign(f3, random<Short1>());
-	test_minus_assign(f3, random<Short1>());
-	test_multiply_assign(f3, random<Short1>());
-	test_divide_assign(f3, random<Short1>());
-	test_modulus_assign(s3, random<Short1>());
-
 	test_plus(f3, b3);
-	test_minus(f3, b3);
+	test_plus(f3, 5);
+	test_plus(f3, Byte3(2, 3, 4));
+	test_plus(6, f3);
+	test_plus(Byte3(2, 3, 4), f3);
+
+	test_multiply_assign(f3, b3);
 	test_multiply(f3, b3);
+	test_multiply(f3, 5);
+	test_multiply(f3, Byte3(2, 3, 4));
+	test_multiply(6, f3);
+	test_multiply(Byte3(2, 3, 4), f3);
+
+	test_minus_assign(f3, b3);
+	test_minus(f3, b3);
+	test_minus(f3, 5);
+	test_minus(f3, Byte3(2, 3, 4));
+	test_minus(6, f3);
+	test_minus(Byte3(2, 3, 4), f3);
+
+	test_divide_assign(f3, b3);
 	test_divide(f3, b3);
+	test_divide(f3, 5);
+	test_divide(f3, Byte3(2, 3, 4));
+	test_divide(6, f3);
+	test_divide(Byte3(2, 3, 4), f3);
+
+	test_modulus_assign(s3, b3);
 	test_modulus(s3, b3);
-
-	test_plus(f3, random<Short1>());
-	test_minus(f3, random<Short1>());
-	test_multiply(f3, random<Short1>());
-	test_divide(f3, random<Short1>());
-	test_modulus(s3, random<Short1>());
-
-	test_plus(random<Short1>(), f3);
-	test_minus(random<Short1>(), f3);
-	test_multiply(random<Short1>(), f3);
-	test_divide(random<Short1>(), f3);
-	test_modulus(random<Short1>(), s3);
-	*/
+	test_modulus(s3, 5);
+	test_modulus(s3, Byte3(2, 3, 4));
+	test_modulus(6, s3);
+	test_modulus(Byte3(2, 3, 4), s3);
 	return 0;
 }

@@ -22,6 +22,70 @@ namespace image {
 		}
 	};
 
+	template<typename Arg1, typename Arg2, typename Result>
+	struct Plus: public std::binary_function<Arg1, Arg2, Result> {
+		Result operator()(const Arg1& arg1, const Arg2& arg2) const
+		{ 
+			return Result(arg1 + arg2); 
+		}
+	};
+
+	template<typename Arg1, typename Arg2, typename Result>
+	struct Minus: public std::binary_function<Arg1, Arg2, Result> {
+		Result operator()(const Arg1& arg1, const Arg2& arg2) const
+		{ 
+			return Result(arg1 - arg2); 
+		}
+	};
+
+	template<typename Arg1, typename Arg2, typename Result>
+	struct Multiplies: public std::binary_function<Arg1, Arg2, Result> {
+		Result operator()(const Arg1& arg1, const Arg2& arg2) const
+		{ 
+			return Result(arg1  * arg2); 
+		}
+	};
+
+	template<typename Arg1, typename Arg2, typename Result>
+	struct Divides: public std::binary_function<Arg1, Arg2, Result> {
+		Result operator()(const Arg1& arg1, const Arg2& arg2) const
+		{ 
+			return Result(arg1 / arg2); 
+		}
+	};
+
+	template<typename Arg1, typename Arg2, typename Result>
+	struct Modulus: public std::binary_function<Arg1, Arg2, Result> {
+		Result operator()(const Arg1& arg1, const Arg2& arg2) const
+		{ 
+			return Result(arg1 % arg2); 
+		}
+	};
+
+	template<typename Arg1, typename Arg2, typename Result>
+	struct LogicalAnd: public std::binary_function<Arg1, Arg2, Result> {
+		Result operator()(const Arg1& arg1, const Arg2& arg2) const
+		{ 
+			return Result(arg1 & arg2); 
+		}
+	};
+
+	template<typename Arg1, typename Arg2, typename Result>
+	struct LogicalOr: public std::binary_function<Arg1, Arg2, Result> {
+		Result operator()(const Arg1& arg1, const Arg2& arg2) const
+		{ 
+			return Result(arg1 | arg2); 
+		}
+	};
+
+	template<typename Arg1, typename Arg2, typename Result>
+	struct LogicalXor: public std::binary_function<Arg1, Arg2, Result> {
+		Result operator()(const Arg1& arg1, const Arg2& arg2) const
+		{ 
+			return Result(arg1 ^ arg2); 
+		}
+	};
+
 	template<typename Arg1, typename Arg2>
 	struct PlusAssigns: public std::binary_function<Arg1, Arg2, Arg1> {
 		Arg1& operator()(Arg1& arg1, const Arg2& arg2) const
@@ -63,7 +127,7 @@ namespace image {
 	};
 
 	template<typename Arg1, typename Arg2>
-	struct LogicAndAssigns: public std::binary_function<Arg1, Arg2, Arg1> {
+	struct LogicalAndAssigns: public std::binary_function<Arg1, Arg2, Arg1> {
 		Arg1& operator()(Arg1& arg1, const Arg2& arg2) const
 		{ 
 			return (arg1 &= arg2); 
@@ -71,7 +135,7 @@ namespace image {
 	};
 
 	template<typename Arg1, typename Arg2>
-	struct LogicOrAssigns: public std::binary_function<Arg1, Arg2, Arg1> {
+	struct LogicalOrAssigns: public std::binary_function<Arg1, Arg2, Arg1> {
 		Arg1& operator()(Arg1& arg1, const Arg2& arg2) const
 		{ 
 			return (arg1 |= arg2); 
@@ -79,10 +143,10 @@ namespace image {
 	};
 
 	template<typename Arg1, typename Arg2>
-	struct LogicXorAssigns: public std::binary_function<Arg1, Arg2, Arg1> {
+	struct LogicalXorAssigns: public std::binary_function<Arg1, Arg2, Arg1> {
 		Arg1& operator()(Arg1& arg1, const Arg2& arg2) const
 		{ 
-			return (arg1 &= arg2); 
+			return (arg1 ^= arg2); 
 		}
 	};
 

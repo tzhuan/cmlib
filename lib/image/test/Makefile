@@ -1,4 +1,4 @@
-CFLAGS = -I../include -I../../common/include -I /usr/local/include -Wall -O3 -g
+CFLAGS = -I../../.. -I /usr/local/include -Wall -O3 -g
 GIL_LIBS = -L../src -L../lib -lcmlib-imageio
 BOOST_LIBS = -L /usr/local/lib -lboost_unit_test_framework-gcc
 LIBS = $(GIL_LIBS)

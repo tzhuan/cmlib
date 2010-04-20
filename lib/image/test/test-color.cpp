@@ -129,5 +129,7 @@ int main()
 	test_multiply(random<Short1>(), f3);
 	test_divide(random<Short1>(), f3);
 	test_modulus(random<Short1>(), s3);
+
+	test_minus(random<Float1>(), b3);
 	return 0;
 }
