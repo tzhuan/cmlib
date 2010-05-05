@@ -159,7 +159,7 @@ namespace dip {
 		{
 			T dx = x2 - x1;
 			T dy = y2 - y1;
-			return dx*dx* + dy*dy;
+			return dx*dx + dy*dy;
 		}
 
 	private:
