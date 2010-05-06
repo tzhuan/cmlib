@@ -21,11 +21,11 @@ namespace image {
 		{
 			check_and_init(image, f);
 			if (my_channels == 1)
-				read<Converter, Byte1>(image, f);
+				read<Converter, Float1>(image, f);
 			else if (my_channels == 3)
-				read<Converter, Byte3>(image, f);
+				read<Converter, Float3>(image, f);
 			else if (my_channels == 4)
-				read<Converter, Byte4>(image, f);
+				read<Converter, Float4>(image, f);
 			else
 				throw InvalidFormat("unexpected number of channels");
 		}
@@ -44,7 +44,7 @@ namespace image {
 				throw IOError("unknown ftell error");
 
 			// rewind, use fseek to check the return value.
-			if (fseek(f, 0, SEEK_SET) == -1)
+			if (fseek(f, 2*sizeof(int), SEEK_SET) == -1)
 				throw IOError("unknown fseek error");
 			return size;
 		}
@@ -111,12 +111,15 @@ namespace image {
 			if (fwrite(&height, sizeof(int), 1, f) != 1)
 				throw IOError("unknown write error");
 
-			if (image.channels() >= 4)
-				write<Converter, Byte4>(image, f);
-			else if (image.channels() == 3)
-				write<Converter, Byte3>(image, f);
-			else 
-				write<Converter, Byte1>(image, f);
+			typedef typename I::value_type color;
+			const size_t channels = ColorTrait<color>::Channels;
+			if (channels == 1) {
+				write<Converter, Float1>(image, f);
+			} else if (channels == 3 || channels == 4) {
+				write<Converter, Color<float, channels> >(image, f);
+			} else {
+				throw InvalidFormat("unexpected number of channels");
+			}
 		}
 		template <typename I>
 		void operator ()(I& image, FILE* f)

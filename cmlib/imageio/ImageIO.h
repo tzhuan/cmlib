@@ -185,6 +185,12 @@ namespace image {
 #endif // CMLIB_IMAGE_IO_FLT
 
 			default:
+#ifdef CMLIB_IMAGE_IO_FLT
+				if ( Formater::get_format(filename) == FF_FLT ) {
+					read<Converter, FltReader>(image, f);
+					break;
+				}
+#endif // CMLIB_IMAGE_IO_FLT
 				fclose(f);
 				return false;
 		}
