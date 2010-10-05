@@ -1,4 +1,4 @@
-# project cmlib/image ;
+project /cmlib/image ;
 
 lib cmlib-imageio
 	: [ glob src/io/*.cpp : src/io/crw.cpp ]

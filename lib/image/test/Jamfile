@@ -1,1 +1,12 @@
-exe convert : convert.cpp ..//gil : <include>../include ;
+import testing ;
+
+# exe convert : convert.cpp ..//gil : <include>../include ;
+
+# project
+# : requirements
+# <library>//image
+# <link>static
+# <variant>debug
+# ;
+
+unit-test io : test-io.cpp /cmlib/image//cmlib-imageio ;

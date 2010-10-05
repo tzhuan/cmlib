@@ -25,7 +25,7 @@ path-constant TOP : . ;
 default-build =
 	<variant>debug <variant>release
 	<link>shared <link>static
-	<address-model>32 <address-model>64
+# <address-model>32 <address-model>64
 	<threading>multi
 	;
 
@@ -35,6 +35,7 @@ project cmlib
 	  <tag>@tag 
 	  <toolset>msvc,<link>shared:<define>CMLIB_BUILD_DLL
 	: usage-requirements <include>.
+	  <toolset>msvc,<link>shared:<define>CMLIB_LINK_DLL
 	: build-dir bin
 	: default-build $(default-build)
 	;
@@ -48,10 +49,9 @@ if --with-system-libs in [ modules.peek : ARGV ]
 	other-libs = contrib/local ;
 }
 
-# cmlib-libs = image video dip ;
-cmlib-libs = image video ;
+cmlib-libs = image video dip ;
 all-libs = $(other-libs) lib/$(cmlib-libs) ;
-ECHO $(all-libs) ;
+ECHO lib/$(cmlib-libs)/test ;
 
 # Install just library.
 install dist
@@ -61,10 +61,18 @@ install dist
     ;
 
 # Make project ids of all libraries known.
-for local l in $(all-libs)
+#for local l in $(all-libs)
+#{
+#    use-project /cmlib/$(l) : $(l) ;
+#}
+
+# build all libs
+for local lib in $(all-libs)
 {
-    use-project /cmlib/$(l) : $(l) ;
+	build-project $(lib) ;
 }
+
+alias test : lib/$(cmlib-libs)/test ;
 
 rule handle-static-runtime ( properties * )
 {

@@ -49,6 +49,9 @@ void test_colorspace1()
 	rgb_to_hsv(src, dst);
 	dst = rgb_to_hsv<Type, Type>(src);
 
+	hsv_to_rgb(src, dst);
+	dst = hsv_to_rgb<Type, Type>(src);
+
 	rgb_to_hsl(src, dst);
 	dst = rgb_to_hsl<Type, Type>(src);
 

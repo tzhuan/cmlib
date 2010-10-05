@@ -1,3 +1,5 @@
+project /cmlib/video ;
+
 import os ;
 
 if [ os.name ] = NT

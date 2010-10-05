@@ -202,14 +202,45 @@ namespace dip {
 	}; // }}}
 	
 	template<class DstColor>
-	struct HsvToRgb {
+	struct HsvToRgb { // {{{
 		template<class SrcColor>
 		DstColor operator()(const SrcColor& src) const 
 		{
-			// TODO
-			assert(0);
+            typedef typename cmlib::image::ColorTrait<SrcColor>::BaseType Type;
+            const Type& H = src[0];
+            const Type& S = src[1];
+            const Type& V = src[2];
+            Type Hi = std::floor(H/60);
+            Type f = 6*H - Hi;
+            Type p = V * (1 - S);
+            Type q = V * (1 - f*S);
+            Type t = V * (1 - (1-f)*S);
+            Type R, G, B;
+            switch (static_cast<int>(Hi)) {
+                case 0:
+                    R = V; G = t; B = p;
+                    break;
+                case 1:
+                    R = q; G = V; B = p;
+                    break;
+                case 2:
+                    R = p; G = V; B = t;
+                    break;
+                case 3:
+                    R = p; G = q; B = V;
+                    break;
+                case 4:
+                    R = t; G = p; B = V;
+                    break;
+                case 5:
+                    R = V; G = p; B = q;
+                    break;
+                default:
+                    throw std::runtime_error("HsvToRgb error");
+            }
+            return cmlib::image::DefaultConvert<DstColor>()(SrcColor(R, G, B));
 		}
-	};
+	}; // }}}
 	
 	template<class DstColor>
 	struct RgbToHsl { // {{{
@@ -498,6 +529,18 @@ namespace dip {
 	DstImage rgb_to_hsv(const SrcImage& src)
 	{
 		return cmlib::image::Convert<DstImage, RgbToHsv>()(src);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage& hsv_to_rgb(const SrcImage& src, DstImage& dst)
+	{
+		return cmlib::image::Convert<DstImage, HsvToRgb>()(src, dst);
+	}
+
+	template<class SrcImage, class DstImage>
+	DstImage hsv_to_rgb(const SrcImage& src)
+	{
+		return cmlib::image::Convert<DstImage, HsvToRgb>()(src);
 	}
 
 	template<class SrcImage, class DstImage>
