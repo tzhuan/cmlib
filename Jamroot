@@ -14,7 +14,6 @@
 #                           useful only when --with-system-libs
 #	
 
-
 import common ;
 import modules ;
 import property-set ;
@@ -25,14 +24,14 @@ path-constant TOP : . ;
 default-build =
 	<variant>debug <variant>release
 	<link>shared <link>static
-# <address-model>32 <address-model>64
+	<address-model>32
 	<threading>multi
 	;
 
 project cmlib 
 	: requirements <include>.
 	  <conditional>@handle-static-runtime
-	  <tag>@tag 
+	  <tag>@handle-tag 
 	  <toolset>msvc,<link>shared:<define>CMLIB_BUILD_DLL
 	: usage-requirements <include>.
 	  <toolset>msvc,<link>shared:<define>CMLIB_LINK_DLL
@@ -46,33 +45,28 @@ if --with-system-libs in [ modules.peek : ARGV ]
 	other-libs = ;
 } else {
     use-project /contrib : contrib/local ;
-	other-libs = contrib/local ;
+	other-libs = /contrib ;
 }
 
 cmlib-libs = image video dip ;
-all-libs = $(other-libs) lib/$(cmlib-libs) ;
-ECHO lib/$(cmlib-libs)/test ;
+all-libs = $(other-libs) /cmlib/$(cmlib-libs) ;
+# ECHO lib/$(cmlib-libs)/test ;
 
 # Install just library.
 install dist
     : $(all-libs)
     : <install-type>LIB
-	  <conditional>@location
+	  <conditional>@handle-location
     ;
 
-# Make project ids of all libraries known.
-#for local l in $(all-libs)
-#{
-#    use-project /cmlib/$(l) : $(l) ;
-#}
-
 # build all libs
-for local lib in $(all-libs)
+for local lib in $(cmlib-libs)
 {
-	build-project $(lib) ;
+	use-project /cmlib/$(lib) : lib/$(lib) ;
 }
 
 alias test : lib/$(cmlib-libs)/test ;
+explicit test ;
 
 rule handle-static-runtime ( properties * )
 {
@@ -92,7 +86,7 @@ rule handle-static-runtime ( properties * )
     }
 }
 
-rule tag ( name : type ? : property-set )
+rule handle-tag ( name : type ? : property-set )
 {
     if $(type) in STATIC_LIB SHARED_LIB IMPORT_LIB
     {  
@@ -104,7 +98,7 @@ rule tag ( name : type ? : property-set )
     }
 }
 
-rule location ( properties * )
+rule handle-location ( properties * )
 {
 	local prefix = [ MATCH "^--prefix=(.*)" : [ modules.peek : ARGV ] ] ;
 	prefix ?= dist ;

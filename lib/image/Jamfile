@@ -1,5 +1,3 @@
-project /cmlib/image ;
-
 lib cmlib-imageio
 	: [ glob src/io/*.cpp : src/io/crw.cpp ]
 	  /contrib//png /contrib//jpeg /contrib//z /contrib//tiff 

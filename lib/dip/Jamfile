@@ -1,4 +1,2 @@
-project /cmlib/dip ;
-
 # header only
 alias dip : : : : ;
