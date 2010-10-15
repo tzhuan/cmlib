@@ -1,12 +1,17 @@
 import testing ;
 
+#project 
+#	: requirements 
+#	  <library>/cmlib/image
+#	  <variant>release
+#	  <link>shared
+#	  <threading>multi
+#	;
+
 # exe convert : convert.cpp ..//gil : <include>../include ;
 
-# project
-# : requirements
-# <library>//image
-# <link>static
-# <variant>debug
-# ;
+# unit-test io : io.cpp /cmlib/image//cmlib-imageio ;
 
-unit-test io : test-io.cpp /cmlib/image//cmlib-imageio ;
+run io.cpp /cmlib/image//cmlib-imageio : lib/image/test/lena.ppm bin ; 
+
+
