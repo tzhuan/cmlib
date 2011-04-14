@@ -155,6 +155,7 @@ lib IlmImf # {{{
 	:
 	: <include>openexr/IlmImf
 	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
+	  <toolset>msvc:<linkflags>/FORCE:MULTIPLE
     ; # }}}
 
 lib IlmThread # {{{
@@ -169,6 +170,7 @@ lib IlmThread # {{{
 	:
 	: <include>ilmbase/IlmThread $(ILMBASE_REQUIREMENTS)
 	  <toolset>msvc,<link>shared:<define>OPENEXR_LINK_DLL
+	  <toolset>msvc:<linkflags>/FORCE:MULTIPLE
 	; # }}}
 
 lib Imath # {{{

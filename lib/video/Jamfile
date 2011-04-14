@@ -72,7 +72,7 @@ if [ os.name ] = NT
 	 	: avcodec avdevice avformat avutil swscale
 		:
 		:
-		: 
+		: <define>__STDC_CONSTANT_MACROS
 		;
 
 } else {
