@@ -91,7 +91,7 @@ namespace Math_tools{
   
   // #########################################################
   
-  inline void init_random() {std::srand(std::time(NULL));}
+  inline void init_random() {std::srand(std::time(static_cast<time_t>(NULL)));}
 
   template<typename Real>
   inline Real random(const Real min_value_included,
