@@ -210,7 +210,7 @@ namespace dip {
             const Type& H = src[0];
             const Type& S = src[1];
             const Type& V = src[2];
-            Type Hi = std::floor(H/60);
+            Type Hi = std::floor(6*H);
             Type f = 6*H - Hi;
             Type p = V * (1 - S);
             Type q = V * (1 - f*S);
@@ -236,6 +236,9 @@ namespace dip {
                     R = V; G = p; B = q;
                     break;
                 default:
+					if (H == static_cast<Type>(1))
+						R = V; G = t; B = p;
+					else
                     throw std::runtime_error("HsvToRgb error");
             }
             return cmlib::image::DefaultConvert<DstColor>()(SrcColor(R, G, B));
