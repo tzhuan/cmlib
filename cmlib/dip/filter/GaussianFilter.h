@@ -49,9 +49,9 @@ namespace dip {
 			typedef typename Kernel::difference_type difference_type;
 
 			value_type sum(0);
-			difference_type dy = -(my_kernel.height()/2);
+			difference_type dy = -static_cast<difference_type>(my_kernel.height()/2);
 			for (size_type y = 0; y < my_kernel.height(); ++y, ++dy) {
-				difference_type dx = -(my_kernel.width()/2);
+				difference_type dx = -static_cast<difference_type>(my_kernel.width()/2);
 				for (size_type x = 0; x < my_kernel.width(); ++x, ++dx)
 					sum += my_kernel(x, y) = 
 						std::exp( -(dx*dx + dy*dy) / (2*sigma_x*sigma_y) );
