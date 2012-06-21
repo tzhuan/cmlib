@@ -140,12 +140,12 @@ namespace video {
 
 		// open the video file
 		av_register_all();
-		if(av_open_input_file(&fc, name.c_str(), 0, 0, 0) != 0) {
+		if (avformat_open_input_file(&fc, name.c_str(), 0, 0) != 0) {
 			throw std::runtime_error("no video stream found");
 		}
 		
 		// check the stream exists or not
-		if( av_find_stream_info(fc) < 0 ) {
+		if (av_find_stream_info(fc) < 0) {
 			throw std::runtime_error("no video stream found");
 		}
 
@@ -153,12 +153,12 @@ namespace video {
 		if (my_stream_index < 0) {
 			for(size_t i = 0; i < fc->nb_streams; ++i) {
 				CodecType &type = fc->streams[i]->codec->codec_type;
-				if(type == CODEC_TYPE_VIDEO) {
+				if (type == CODEC_TYPE_VIDEO) {
 					my_stream_index = i;                           
 					break;
 				}
 			}
-			if(my_stream_index < 0) {
+			if (my_stream_index < 0) {
 				throw std::runtime_error("no video stream found");
 			}
 		}
@@ -168,11 +168,11 @@ namespace video {
 		AVCodecContext* &cc = my_codec_context;
 		cc = stream->codec;
 		AVCodec* codec = avcodec_find_decoder(cc->codec_id);
-		if(codec == 0) {
+		if (codec == 0) {
 			throw std::runtime_error("no codec found");
 		}
 
-		if( avcodec_open(cc, codec) < 0 ) {
+		if (avcodec_open(cc, codec) < 0) {
 			throw std::runtime_error("avcodec_open fail");
 		}
 
@@ -190,7 +190,7 @@ namespace video {
 		my_height = cc->height;
 
 		// allocate video frame
-		if ( (my_frame = avcodec_alloc_frame()) == 0 ) {
+		if ((my_frame = avcodec_alloc_frame()) == 0) {
 			throw std::runtime_error("avcodec_alloc_frame frame fail");
 		}
 
@@ -210,8 +210,8 @@ namespace video {
 		size_t frame_no = 1.1 * (my_total_duration / my_duration);
 		my_timestamp_map.reserve(frame_no);
 		AVPacket packet;
-		while ( av_read_frame(fc, &packet) == 0 ) {
-			if ( packet.stream_index == my_stream_index )
+		while (av_read_frame(fc, &packet) == 0) {
+			if (packet.stream_index == my_stream_index)
 				my_timestamp_map.push_back(packet.dts);		
 			av_free_packet(&packet);
 		}
@@ -268,7 +268,7 @@ namespace video {
 				break;
 			}
 			
-			if ( packet.stream_index == my_stream_index ) {
+			if (packet.stream_index == my_stream_index) {
 				// debug
 				cerr << "current: " << my_current 
 					<< ", dts: " << packet.dts 
