@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cstddef>
 
+#include <cmlib/imageio/all.h>
+#include <cmlib/imageio.h>
 #include <cmlib/image.h>
 
 using namespace std;
