@@ -7,7 +7,7 @@ TARGET = libcmlib-videostream.so
 CMLIB_HEADERS = -I../../.. 
 FFMPEG_HEADERS = `pkg-config --cflags libavdevice libavcodec libavformat libavutil libswscale`
 FFMPEG_LIBS = `pkg-config --libs libavdevice libavcodec libavformat libavutil libswscale`
-CXXFLAGS = -g $(CMLIB_HEADERS) $(FFMPEG_HEADERS) -DDEBUG -fPIC -Wall -pipe
+CXXFLAGS = $(CMLIB_HEADERS) $(FFMPEG_HEADERS) -fPIC -Wall -pipe
 LIBS = $(FFMPEG_LIBS)
 
 SRCS = VideoFileStream.cpp

@@ -27,7 +27,7 @@ main(int argc, char **argv)
 
 	// vfs.info(cerr);
 
-	ByteImage3 img;
+	ByteImage4 img;
 	/*
 	while (true) {
 		vfs >> img;
@@ -47,15 +47,19 @@ main(int argc, char **argv)
 		return 1;
 	}
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 20; ++i) {
+		cerr << "decode frame " << i << " ... ";
 		vfs >> img;
 		if (!vfs) {
-			cerr << "fail, i: " << i << endl;
+			cerr << "fail." << endl;
 			vfs.clear();
+			continue;
 		}
 		stringstream ss;
 		ss << "test-" << i << ".png";
+		cerr << " write to " << ss.str() << " ... ";
 		write(img, ss.str());
+		cerr << "done." << endl;
 	}
 
 	return 0;

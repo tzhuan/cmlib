@@ -4,6 +4,7 @@
  * @author Tz-Huan Huang
  */
 
+#include <cstring>
 #include <stdexcept>
 #include <iostream>
 #include <algorithm>
@@ -20,7 +21,7 @@ extern "C" {
 namespace cmlib {
 namespace video {
 
-	using cmlib::image::ByteImage3;
+	using cmlib::image::ByteImage4;
 	using std::string;
 	using namespace std;
 
@@ -63,6 +64,7 @@ namespace video {
 		if (target >= my_size) {
 			this->setstate(failbit);
 		} else {
+#ifdef DEBUG
 			int64_t offset = 
 				my_timestamp_map[target] - my_timestamp_map[my_current];
 			cerr 
@@ -70,6 +72,7 @@ namespace video {
 				<< ") -> " 
 				<< target << "(" << my_timestamp_map[target] << ")" << endl;
 			cerr << "offset: " << offset << endl;
+#endif
 			if (av_seek_frame(
 				my_format_context, 
 				my_stream_index,
@@ -195,13 +198,19 @@ namespace video {
 			throw std::runtime_error("avcodec_alloc_frame frame fail");
 		}
 
+		// allocate av picture
+		my_picture = new AVPicture;
+		if (avpicture_alloc(my_picture, PIX_FMT_RGBA, my_width, my_height) < 0)
+			throw std::runtime_error("avpicture_alloc fail");
+
 		// allocate sws context
-		my_sws_context = 
-			sws_getContext(
-				my_width, my_height, my_codec_context->pix_fmt, 
-				my_width, my_height, PIX_FMT_RGB24, SWS_POINT,
-				0, 0, 0
-			);
+		my_sws_context = sws_getContext(
+			my_width, my_height, my_codec_context->pix_fmt, 
+			my_width, my_height, PIX_FMT_RGBA, SWS_POINT,
+			0, 0, 0
+		);
+		if (my_sws_context == 0)
+			throw std::runtime_error("sws_getContext fail");
 
 		// scan the whole video to build the timestamp map
 		my_duration = 
@@ -217,11 +226,13 @@ namespace video {
 			av_free_packet(&packet);
 		}
 		my_size = my_timestamp_map.size();
+#ifdef DEBUG
 		std::copy(
 			my_timestamp_map.begin(), 
 			my_timestamp_map.begin()+10, 
 			ostream_iterator<int64_t>(cerr, "\n")
 		);
+#endif
 
 		// reset the reading pointer
 		int flag = AVSEEK_FLAG_ANY | AVSEEK_FLAG_BACKWARD;
@@ -252,13 +263,17 @@ namespace video {
 			av_free(my_frame);
 			my_frame = 0;
 		}
+		if (my_picture) {
+			avpicture_free(my_picture);
+			delete my_picture;
+		}
 		if (my_sws_context) {
 			sws_freeContext(my_sws_context);
 			my_sws_context = 0;
 		}
 	} // }}}
 
-	void VideoFileStream::get(ByteImage3& image) // {{{
+	void VideoFileStream::get(ByteImage4& image) // {{{
 	{
 		AVPacket packet;
 		while (true) {
@@ -270,10 +285,11 @@ namespace video {
 			}
 			
 			if (packet.stream_index == my_stream_index) {
-				// debug
+#ifdef DEBUG
 				cerr << "current: " << my_current 
 					<< ", dts: " << packet.dts 
 					<< ", pts: " << packet.pts << endl;
+#endif
 				// decode the frame
 				++my_current;
 				int finished = 0;
@@ -295,22 +311,22 @@ namespace video {
 					this->setstate(failbit);	
 					break;
 				} else {
-					// allocate picture buffer
-					image.resize(my_width, my_height);
-					AVPicture picture;
-					avpicture_fill(
-						&picture, 
-						&(image(0, 0)[0]), 
-						PIX_FMT_RGB24, 
-						my_width, my_height
-					);
-
 					// get the picture
 					sws_scale(
 						my_sws_context, 
 						my_frame->data, my_frame->linesize, 0, my_height, 
-						picture.data, picture.linesize
+						my_picture->data, my_picture->linesize
 					);
+
+					image.resize(my_width, my_height);
+					for (ByteImage4::size_type h = 0; h < image.height(); ++h) {
+						memcpy(
+							&(image(0, h)[0]),
+							my_picture->data[0] + h*my_picture->linesize[0],
+							my_width*4 /* PIX_FMT_RGBA */
+						);
+					}
+
 					break;
 				}
 			}
@@ -319,7 +335,7 @@ namespace video {
 		av_free_packet(&packet);
 	}  // }}}
 
-	void VideoFileStream::get_keyframe(ByteImage3& image) // {{{
+	void VideoFileStream::get_keyframe(ByteImage4& image) // {{{
 	{
 		do {
 			this->get(image);
