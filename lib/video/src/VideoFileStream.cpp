@@ -9,6 +9,7 @@
 #include <algorithm>
 
 extern "C" {
+#define __STDC_CONSTANT_MACROS
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
@@ -140,20 +141,20 @@ namespace video {
 
 		// open the video file
 		av_register_all();
-		if (avformat_open_input_file(&fc, name.c_str(), 0, 0) != 0) {
+		if (avformat_open_input(&fc, name.c_str(), 0, 0) != 0) {
 			throw std::runtime_error("no video stream found");
 		}
 		
 		// check the stream exists or not
-		if (av_find_stream_info(fc) < 0) {
+		if (avformat_find_stream_info(fc, 0) < 0) {
 			throw std::runtime_error("no video stream found");
 		}
 
 		// find the stream index
 		if (my_stream_index < 0) {
 			for(size_t i = 0; i < fc->nb_streams; ++i) {
-				CodecType &type = fc->streams[i]->codec->codec_type;
-				if (type == CODEC_TYPE_VIDEO) {
+				AVMediaType &type = fc->streams[i]->codec->codec_type;
+				if (type == AVMEDIA_TYPE_VIDEO) {
 					my_stream_index = i;                           
 					break;
 				}
@@ -172,7 +173,7 @@ namespace video {
 			throw std::runtime_error("no codec found");
 		}
 
-		if (avcodec_open(cc, codec) < 0) {
+		if (avcodec_open2(cc, codec, 0) < 0) {
 			throw std::runtime_error("avcodec_open fail");
 		}
 
@@ -244,7 +245,7 @@ namespace video {
 			my_codec_context = 0;
 		}
 		if (my_format_context) {
-			av_close_input_file(my_format_context);
+			avformat_close_input(&my_format_context);
 			my_format_context = 0;
 		}
 		if (my_frame) {
@@ -276,9 +277,8 @@ namespace video {
 				// decode the frame
 				++my_current;
 				int finished = 0;
-				int ret = avcodec_decode_video(
-					my_codec_context, my_frame, &finished, 
-					packet.data, packet.size
+				int ret = avcodec_decode_video2(
+					my_codec_context, my_frame, &finished, &packet
 				);
 				if (ret == 0) {
 					// FIXME: no frame to be decode
