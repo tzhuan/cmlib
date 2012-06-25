@@ -17,7 +17,7 @@ using namespace boost;
 #include <memory>
 #include <stdexcept>
 
-#include "image.h"
+#include "cmlib/image.h"
 
 using namespace cmlib::image;
 

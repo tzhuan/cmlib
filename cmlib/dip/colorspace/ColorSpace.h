@@ -236,10 +236,12 @@ namespace dip {
                     R = V; G = p; B = q;
                     break;
                 default:
-					if (H == static_cast<Type>(1))
-						R = V; G = t; B = p;
-					else
-                    throw std::runtime_error("HsvToRgb error");
+					if (H == static_cast<Type>(1)) {
+						R = V;
+						G = t;
+						B = p;
+					} else
+						throw std::runtime_error("HsvToRgb error");
             }
             return cmlib::image::DefaultConvert<DstColor>()(SrcColor(R, G, B));
 		}
