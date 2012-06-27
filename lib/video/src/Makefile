@@ -1,3 +1,8 @@
+# Copyright NTU CSIE CMLAB 2005 - 2012
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file ../../../LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
 DESTDIR =
 
 PREFIX = $(DESTDIR)/usr
@@ -7,7 +12,7 @@ TARGET = libcmlib-videostream.so
 CMLIB_HEADERS = -I../../.. 
 FFMPEG_HEADERS = `pkg-config --cflags libavdevice libavcodec libavformat libavutil libswscale`
 FFMPEG_LIBS = `pkg-config --libs libavdevice libavcodec libavformat libavutil libswscale`
-CXXFLAGS = -g $(CMLIB_HEADERS) $(FFMPEG_HEADERS) -DDEBUG -fPIC -Wall -pipe
+CXXFLAGS = $(CMLIB_HEADERS) $(FFMPEG_HEADERS) -fPIC -Wall -pipe
 LIBS = $(FFMPEG_LIBS)
 
 SRCS = VideoFileStream.cpp

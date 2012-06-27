@@ -1,3 +1,8 @@
+# Copyright NTU CSIE CMLAB 2005 - 2012
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file ../../LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
 lib cmlib-imageio
 	: [ glob src/io/*.cpp : src/io/crw.cpp ]
 	  /contrib//png /contrib//jpeg /contrib//z /contrib//tiff 

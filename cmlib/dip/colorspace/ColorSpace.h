@@ -1,3 +1,10 @@
+/*
+Copyright NTU CSIE CMLAB 2005 - 2012
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file ../../../LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt)
+*/
+
 #ifndef CMLIB_DIP_COLORSPACE_COLORSPACE_H
 #define CMLIB_DIP_COLORSPACE_COLORSPACE_H
 
@@ -236,10 +243,12 @@ namespace dip {
                     R = V; G = p; B = q;
                     break;
                 default:
-					if (H == static_cast<Type>(1))
-						R = V; G = t; B = p;
-					else
-                    throw std::runtime_error("HsvToRgb error");
+					if (H == static_cast<Type>(1)) {
+						R = V;
+						G = t;
+						B = p;
+					} else
+						throw std::runtime_error("HsvToRgb error");
             }
             return cmlib::image::DefaultConvert<DstColor>()(SrcColor(R, G, B));
 		}

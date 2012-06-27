@@ -1,3 +1,10 @@
+/*
+Copyright NTU CSIE CMLAB 2005 - 2012
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file ../../LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt)
+*/
+
 #ifndef CMLIB_VIDEO_VIDEO_FILE_STREAM_H
 #define CMLIB_VIDEO_VIDEO_FILE_STREAM_H
 
@@ -20,6 +27,7 @@ struct AVFormatContext;
 struct AVCodecContext;
 struct AVFrame;
 struct SwsContext;
+struct AVPicture;
 
 namespace cmlib {
 namespace video {
@@ -27,7 +35,7 @@ namespace video {
 	/** @brief The base class of VideoStream
 	 *
 	 */
-	class DLLAPI VideoFileStream: public VideoStream<cmlib::image::ByteImage3> {
+	class DLLAPI VideoFileStream: public VideoStream<cmlib::image::ByteImage4> {
 
 #ifdef _MSC_VER
 		typedef __int64 int64_t;
@@ -36,7 +44,7 @@ namespace video {
 
 	public:
 
-		typedef VideoStream<cmlib::image::ByteImage3> base_type;
+		typedef VideoStream<cmlib::image::ByteImage4> base_type;
 
 		/**
 		 * @berif default constructor
@@ -116,8 +124,8 @@ namespace video {
 #endif
 	protected:
 		void init();
-		virtual void get(cmlib::image::ByteImage3& image);
-		virtual void get_keyframe(cmlib::image::ByteImage3& image);
+		virtual void get(cmlib::image::ByteImage4& image);
+		virtual void get_keyframe(cmlib::image::ByteImage4& image);
 
 	private:
 		std::string my_filename;
@@ -138,9 +146,10 @@ namespace video {
 		AVFormatContext* my_format_context;
 		AVCodecContext* my_codec_context;
 		AVFrame* my_frame;
+		AVPicture* my_picture;
 		SwsContext* my_sws_context;
 
-		cmlib::image::ByteImage3 my_buffer;	
+		cmlib::image::ByteImage4 my_buffer;	
     };
 
 } // namespace video

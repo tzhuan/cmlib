@@ -1,30 +1,21 @@
-CFLAGS+=-O2 
+# Copyright NTU CSIE CMLAB 2005 - 2012
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file ../../../LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
 
-GVL_CFLAGS=-I../include
-GIL_CFLAGS=-I ../../gil/include
-GVL_LIBS=-L../src -lgvl
-GIL_LIBS=-L../../gil/src -lgil
+CMLIB_VIDEO_CFLAGS=-I../../../
+CMLIB_IMAGE_CFLAGS=-I../../../
+CMLIB_VIDEO_LIBS=-L../src -lcmlib-videostream
+CMLIB_IMAGE_LIBS=-L../../image/src -lcmlib-imageio
+FFMPEG_CFLAGS=`pkg-config --cflags libavcodec libavdevice libavfilter libavformat libavutil libswscale`
+FFMPEG_LIBS=`pkg-config --libs libavcodec libavdevice libavfilter libavformat libavutil libswscale`
 
-CFLAGS+=-DDEBUG $(GIL_CFLAGS) $(GVL_CFLAGS)
-LDFLAGS=$(GIL_LIBS) $(GVL_LIBS) -lpthread
+CFLAGS+=-O2 -g -DDEBUG $(CMLIB_IMAGE_CFLAGS) $(CMLIB_VIDEO_CFLAGS) $(FFMPEG_CFLAGS)
+CXXFLAGS=$(CFLAGS)
+LDFLAGS=$(CMLIB_IMAGE_LIBS) $(CMLIB_VIDEO_LIBS) $(FFMPEG_LIBS)
 
-check_video: check_video.cpp
-	g++ -I/usr/local/include/ffmpeg $< -o $@ -L/usr/local/lib \
-		-lavformat -lavcodec -lavutil -lz -lm -lpthread
-
-test_picture: test_picture.cpp
-	g++ -I/usr/local/include/ffmpeg $< -o $@ -L/usr/local/lib \
-		-lavformat -lavcodec -lavutil -lz -lm -lpthread
-
-extract_picture: extract_picture.cpp
-	g++ -I/usr/local/include/ffmpeg $(GIL_CFLAGS) $< -o $@ -L/usr/local/lib \
-		$(GIL_LIBS) -lavformat -lavcodec -lavutil -lz -lm -lpthread
-
-test: test.cpp
-	g++ $(CFLAGS) $(GIL_CFLAGS) $< -o $@ $(LDFLAGS) 
-
-run: test
-	env LD_LIBRARY_PATH="../src:../../gil/src" ./test ccf19No04hr.mp4
+CC=gcc
+CXX=g++
 
 clean:
 	rm -f test check_video

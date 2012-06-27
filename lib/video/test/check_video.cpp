@@ -1,3 +1,10 @@
+/*
+Copyright NTU CSIE CMLAB 2005 - 2012
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file ../../../LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt)
+*/
+
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
@@ -5,9 +12,10 @@
 #include <vector>
 
 extern "C" {
-#include <avcodec.h>
-#include <avformat.h>
-#include <swscale.h>
+#define __STDC_CONSTANT_MACROS
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
 
 
@@ -34,30 +42,30 @@ try {
     av_register_all();
 
     // Open video file
-    AVFormatContext* format_context;
-    if( av_open_input_file(&format_context, file.c_str(), 0, 0, 0) != 0 )
+    AVFormatContext* format_context = 0;
+    if( avformat_open_input(&format_context, file.c_str(), 0, 0) != 0 )
 		throw runtime_error(string("could not open ") + file);
 
     // Retrieve stream information
-    if( av_find_stream_info(format_context) < 0 )
+    if( avformat_find_stream_info(format_context, 0) < 0 )
 		throw runtime_error("could not find stream information");
 
     // Dump information about file onto standard error
-    dump_format(format_context, 0, file.c_str(), 0);
+    av_dump_format(format_context, 0, file.c_str(), 0);
 
     // Find the first video stream
 	if (video_stream_index < 0) {
 		for(size_t i = 0; i < format_context->nb_streams; ++i) {
-			CodecType type = format_context->streams[i]->codec->codec_type;
-			if (type == CODEC_TYPE_VIDEO) {
+			AVMediaType type = format_context->streams[i]->codec->codec_type;
+			if (type == AVMEDIA_TYPE_VIDEO) {
 				video_stream_index = i;
 				break;
 			}
 		}
 	} else {
-		CodecType type = 
+		AVMediaType type = 
 			format_context->streams[video_stream_index]->codec->codec_type;
-		if (type != CODEC_TYPE_VIDEO)
+		if (type != AVMEDIA_TYPE_VIDEO)
 			throw runtime_error("invalid video stream index");
 	}
     if(video_stream_index < 0) 
@@ -72,7 +80,7 @@ try {
 		throw runtime_error("could not find codec");
 
     // Open codec
-    if( avcodec_open(codec_context, codec) < 0 )
+    if( avcodec_open2(codec_context, codec, 0) < 0 )
 		throw runtime_error("could not open codec");
 
     // Allocate video frame
@@ -113,11 +121,8 @@ try {
 		if ( packet.stream_index == video_stream_index ) {
 
 			// decode the frame
-			/*
 			int finished = 0;
-			avcodec_decode_video(
-				codec_context, frame, &finished, packet.data, packet.size
-			);
+			avcodec_decode_video2(codec_context, frame, &finished, &packet);
 			if (finished == 0) {
 				non_finished_index.push_back(count);
 			} else {
@@ -132,6 +137,7 @@ try {
 
 			av_free_packet(&packet);
 
+			/*
 			if (guess_count) {
 				int shift = dot ? 1 : 0;
 				if (dot && count % dot == 0) 
@@ -196,7 +202,7 @@ try {
 
     av_free(frame);
     avcodec_close(codec_context);
-    av_close_input_file(format_context);
+    avformat_close_input(&format_context);
 
     return 0;
 }

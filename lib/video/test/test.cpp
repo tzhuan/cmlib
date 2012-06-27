@@ -1,3 +1,10 @@
+/*
+Copyright NTU CSIE CMLAB 2005 - 2012
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file ../../../LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt)
+*/
+
 #include <iostream>
 #include <sstream>
 
@@ -27,7 +34,7 @@ main(int argc, char **argv)
 
 	// vfs.info(cerr);
 
-	ByteImage3 img;
+	ByteImage4 img;
 	/*
 	while (true) {
 		vfs >> img;
@@ -47,15 +54,19 @@ main(int argc, char **argv)
 		return 1;
 	}
 
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 20; ++i) {
+		cerr << "decode frame " << i << " ... ";
 		vfs >> img;
 		if (!vfs) {
-			cerr << "fail, i: " << i << endl;
+			cerr << "fail." << endl;
 			vfs.clear();
+			continue;
 		}
 		stringstream ss;
 		ss << "test-" << i << ".png";
+		cerr << " write to " << ss.str() << " ... ";
 		write(img, ss.str());
+		cerr << "done." << endl;
 	}
 
 	return 0;
