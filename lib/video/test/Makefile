@@ -1,3 +1,8 @@
+# Copyright NTU CSIE CMLAB 2005 - 2012
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file ../../../LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
 CMLIB_VIDEO_CFLAGS=-I../../../
 CMLIB_IMAGE_CFLAGS=-I../../../
 CMLIB_VIDEO_LIBS=-L../src -lcmlib-videostream
