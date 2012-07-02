@@ -3,16 +3,16 @@
 # (See accompanying file ../../../LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-CFLAGS = -I../../.. -I /usr/local/include -Wall -O3 -g
-GIL_LIBS = -L../src -L../lib -L../../image/src -lcmlib-imageio
+CXXFLAGS = -I../../.. -I /usr/local/include -Wall -O3 -g
+CMLIB_LIBS = -L../src -L../lib -L../../image/src -lcmlib-imageio
 BOOST_LIBS = -L /usr/local/lib -lboost_unit_test_framework-gcc
-LIBS = $(GIL_LIBS)
+LIBS = $(CMLIB_LIBS)
 
-%.o: %.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@ 
-
-test-colorspace: test-colorspace.o
-	$(CXX) $< -o $@
+#%.o: %.cpp
+#	$(CXX) $(CFLAGS) -c $< -o $@ 
+#
+#test-colorspace: test-colorspace.o
+#	$(CXX) $< -o $@
 
 clean:
 	rm -rf *.o *.core 

@@ -9,5 +9,7 @@ http://www.boost.org/LICENSE_1_0.txt)
 #define CMLIB_DIP_COLORSPACE_H
 
 #include <cmlib/dip/colorspace/ColorSpace.h>
+#include <cmlib/dip/colorspace/RgbToHsv.h>
+#include <cmlib/dip/colorspace/HsvToRgb.h>
 
 #endif // CMLIB_DIP_COLORSPACE_H
