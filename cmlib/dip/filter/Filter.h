@@ -29,7 +29,7 @@ namespace { // anonymous namesapce
 	 * @param ybegin y's begin index
 	 * @param yend y's end index plus one
 	 */
-	template<class Sampler, class DstImage, class Kernel, bool Normalize, bool Outside>
+	template<bool Normalize, bool Outside, class Sampler, class DstImage, class Kernel>
 	DstImage&
 	filter(
 		const Sampler& sampler, 
@@ -60,6 +60,72 @@ namespace { // anonymous namesapce
 							value += sampler(sx, sy) * kernel(ix, iy);
 
 						if (Normalize && Outside && countable)
+							weight += kernel(ix, iy);
+					}
+				}
+				dst(x, y) = value;
+				if (Normalize)
+					dst(x, y) /= weight;
+			}
+		}
+		return dst;
+	}
+
+	/**
+	 * @brief partial 2-D filter for BasicSampler
+	 *
+	 * This function filter the block of 2-D array (eg. image) with kernel, 
+	 * and store the result on dst. The block is (xbegin, xend, ybegin, yend)
+	 *
+	 * @tparam Normalize determine the filter should be normalized or not
+	 * @param sampler input image with specified sampling method
+	 * @param dst output image
+	 * @param kernel filter kernel
+	 * @param cx x coordinate of kernel center
+	 * @param cy y coordinate of kernel center
+	 * @param xbegin x's begin index
+	 * @param xend x' end index plus one
+	 * @param ybegin y's begin index
+	 * @param yend y's end index plus one
+	 */
+	template<bool Normalize, bool Outside, class SrcImage, class DstImage, class Kernel>
+	DstImage&
+	filter(
+		const cmlib::dip::BasicSampler<const SrcImage>& sampler, 
+		DstImage& dst, 
+		const Kernel& kernel, 
+		typename Kernel::size_type cx,
+		typename Kernel::size_type cy,
+		typename DstImage::size_type xbegin,
+		typename DstImage::size_type xend,
+		typename DstImage::size_type ybegin,
+		typename DstImage::size_type yend
+	)
+	{
+		typedef typename DstImage::size_type size_type;
+		typedef typename cmlib::dip::BasicSampler<SrcImage>::difference_type difference_type;
+		for (size_type y = ybegin; y < yend; ++y) {
+			for (size_type x = xbegin; x < xend; ++x) {
+				typename DstImage::value_type value(0);
+				typename Kernel::value_type weight(0);
+				for (difference_type iy = 0; iy < static_cast<difference_type>(kernel.height()); ++iy) {
+					difference_type sy = y + iy - cy;
+					if (Outside) {
+						if (sy < 0)
+							continue;
+						else if (sy >= static_cast<difference_type>(sampler.height()))
+							break;
+					}
+					for (difference_type ix = 0; ix < static_cast<difference_type>(kernel.width()); ++ix) {
+						difference_type sx = x + ix - cx;
+						if (Outside) {
+							if (sx < 0)
+								continue;
+							else if (sx >= static_cast<difference_type>(sampler.width()))
+								break;
+						}
+						value += sampler(sx, sy) * kernel(ix, iy);
+						if (Normalize)
 							weight += kernel(ix, iy);
 					}
 				}
@@ -112,23 +178,23 @@ namespace { // anonymous namesapce
 		 */
 
 		// 1
-		filter<Sampler, DstImage, Kernel, Normalize, true>
+		filter<Normalize, true>
 		(sampler, dst, kernel, cx, cy, 0, dst.width(), 0, cy);
 
 		// 2 
-		filter<Sampler, DstImage, Kernel, Normalize, true>
+		filter<Normalize, true>
 		(sampler, dst, kernel, cx, cy, 0, cx, cy, dst.height() - kernel.height() + cy);
 
 		// 3 
-		filter<Sampler, DstImage, Kernel, false, false>
+		filter<false, false>
 		(sampler, dst, kernel, cx, cy, cx, dst.width() - kernel.width() + cx, cy, dst.height() - kernel.height() + cy);
 
 		// 4 
-		filter<Sampler, DstImage, Kernel, Normalize, true>
+		filter<Normalize, true>
 		(sampler, dst, kernel, cx, cy, dst.width() - kernel.width() + cx, dst.width(), cy, dst.height() - kernel.height() + cy);
 
 		// 5 
-		filter<Sampler, DstImage, Kernel, Normalize, true>
+		filter<Normalize, true>
 		(sampler, dst, kernel, cx, cy, 0, dst.width(), dst.height() - kernel.height() + cy, dst.height());
 
 		return dst;
