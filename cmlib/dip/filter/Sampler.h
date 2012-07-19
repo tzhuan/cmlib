@@ -27,7 +27,8 @@ namespace dip {
 
 		const value_type operator ()(difference_type x, difference_type y, bool& countable) const
 		{
-			if (x < 0 || x >= width() || y < 0 || y >= height()) {
+			if (x < 0 || x >= static_cast<difference_type>(width()) ||
+				y < 0 || y >= static_cast<difference_type>(height())) {
 				countable = false;
 				return value_type(0);
 			}

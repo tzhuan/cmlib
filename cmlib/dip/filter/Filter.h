@@ -49,9 +49,9 @@ namespace { // anonymous namesapce
 			for (size_type x = xbegin; x < xend; ++x) {
 				typename DstImage::value_type value(0);
 				typename Kernel::value_type weight(0);
-				for (int iy = 0; iy < kernel.height(); ++iy) {
+				for (difference_type iy = 0; iy < static_cast<difference_type>(kernel.height()); ++iy) {
 					difference_type sy = y + iy - cy;
-					for (int ix = 0; ix < kernel.width(); ++ix) {
+					for (difference_type ix = 0; ix < static_cast<difference_type>(kernel.width()); ++ix) {
 						difference_type sx = x + ix - cx;
 						bool countable = true;
 						if (Outside)
