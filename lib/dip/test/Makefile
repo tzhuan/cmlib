@@ -4,9 +4,9 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 CXXFLAGS = -I../../.. -I /usr/local/include -Wall -O3 -g
-CMLIB_LIBS = -L../src -L../lib -L../../image/src -lcmlib-imageio
+CMLIB_LIBS = -L../../image/src -lcmlib-imageio
 BOOST_LIBS = -L /usr/local/lib -lboost_unit_test_framework-gcc
-LIBS = $(CMLIB_LIBS)
+LDFLAGS = $(CMLIB_LIBS)
 
 #%.o: %.cpp
 #	$(CXX) $(CFLAGS) -c $< -o $@ 
