@@ -53,8 +53,8 @@ namespace { // anonymous namesapce
 					difference_type sy = y + iy - cy;
 					for (difference_type ix = 0; ix < static_cast<difference_type>(kernel.width()); ++ix) {
 						difference_type sx = x + ix - cx;
-						bool countable = true;
 						if (Outside) {
+							bool countable = true;
 							value += sampler(sx, sy, countable) * kernel(ix, iy);
 							if (Normalize && countable)
 								weight += kernel(ix, iy);
@@ -152,7 +152,7 @@ namespace { // anonymous namesapce
 	 * @param cx x coordinate of kernel center
 	 * @param cy y coordinate of kernel center
 	 */
-	template<class Sampler, class DstImage, class Kernel, bool Normalize>
+	template<bool Normalize, bool Inplace, class Sampler, class DstImage, class Kernel>
 	DstImage& 
 	filter(
 		const Sampler& sampler, 
@@ -165,39 +165,47 @@ namespace { // anonymous namesapce
 		typedef typename DstImage::value_type value_type;
 		typedef typename Kernel::difference_type difference_type;
 
-
-		/* 
-		 * +---+---+---+
-		 * |     1     |
-		 * +---+---+---+
-		 * | 2 | 3 | 4 |
-		 * +---+---+---+
-		 * |     5     |
-		 * +---+---+---+
-		 *
-		 * In 1, 2, 4, 5, call sampler(x, y, countable)
-		 * In 3, call sampler(x, y)
+		/*
+		 * If use request inplace operation, or the sampler specify that
+		 * the area should be normalized when outside, then we should use
+		 * inplace filtering
 		 */
+		if (Inplace || Sampler::outside_normalize) {
+			/* 
+			 * +---+---+---+
+			 * |     1     |
+			 * +---+---+---+
+			 * | 2 | 3 | 4 |
+			 * +---+---+---+
+			 * |     5     |
+			 * +---+---+---+
+			 *
+			 * In 1, 2, 4, 5, call sampler(x, y, countable)
+			 * In 3, call sampler(x, y)
+			 */
 
-		// 1
-		filter<Normalize || Sampler::outside_normalize, true>
-		(sampler, dst, kernel, cx, cy, 0, dst.width(), 0, cy);
+			// 1
+			filter<Normalize || Sampler::outside_normalize, true>
+			(sampler, dst, kernel, cx, cy, 0, dst.width(), 0, cy);
 
-		// 2 
-		filter<Normalize || Sampler::outside_normalize, true>
-		(sampler, dst, kernel, cx, cy, 0, cx, cy, dst.height() - kernel.height() + cy);
+			// 2 
+			filter<Normalize || Sampler::outside_normalize, true>
+			(sampler, dst, kernel, cx, cy, 0, cx, cy, dst.height() - kernel.height() + cy);
 
-		// 3 
-		filter<Normalize, false>
-		(sampler, dst, kernel, cx, cy, cx, dst.width() - kernel.width() + cx, cy, dst.height() - kernel.height() + cy);
+			// 3 
+			filter<Normalize, false>
+			(sampler, dst, kernel, cx, cy, cx, dst.width() - kernel.width() + cx, cy, dst.height() - kernel.height() + cy);
 
-		// 4 
-		filter<Normalize || Sampler::outside_normalize, true>
-		(sampler, dst, kernel, cx, cy, dst.width() - kernel.width() + cx, dst.width(), cy, dst.height() - kernel.height() + cy);
+			// 4 
+			filter<Normalize || Sampler::outside_normalize, true>
+			(sampler, dst, kernel, cx, cy, dst.width() - kernel.width() + cx, dst.width(), cy, dst.height() - kernel.height() + cy);
 
-		// 5 
-		filter<Normalize || Sampler::outside_normalize, true>
-		(sampler, dst, kernel, cx, cy, 0, dst.width(), dst.height() - kernel.height() + cy, dst.height());
+			// 5 
+			filter<Normalize || Sampler::outside_normalize, true>
+			(sampler, dst, kernel, cx, cy, 0, dst.width(), dst.height() - kernel.height() + cy, dst.height());
+		} else {
+
+		}
 
 		return dst;
 	}
@@ -214,14 +222,14 @@ namespace { // anonymous namesapce
 	 * @param dst output image
 	 * @param kernel filter kernel
 	 */
-	template<class Sampler, class DstImage, class Kernel, bool Normalize>
+	template<bool Normalize, bool Inplace, class Sampler, class DstImage, class Kernel>
 	DstImage& 
 	filter(
 		const Sampler& sampler, 
 		DstImage& dst, 
 		const Kernel& kernel
 	) {
-		return filter<Sampler, DstImage, Kernel, Normalize>
+		return filter<Normalize, Inplace>
 			(sampler, dst, kernel, (kernel.width()-1)/2, (kernel.height()-1)/2);
 	}
 
@@ -238,7 +246,7 @@ namespace { // anonymous namesapce
 	 * @param cx x coordinate of kernel center
 	 * @param cy y coordinate of kernel center
 	 */
-	template<class Sampler, class DstImage, class Kernel, bool Normalize>
+	template<bool Normalize, bool Inplace, class Sampler, class DstImage, class Kernel>
 	DstImage& 
 	convolve(
 		const Sampler& sampler, 
@@ -253,7 +261,7 @@ namespace { // anonymous namesapce
 			for (size_type x1 = 0, x2 = kernel.width()-1; x1 < x2; ++x1, --x2)
 				std::swap(kernel(x1, y1), kernel(x2, y2)); 
 
-		return filter<Sampler, DstImage, Kernel, Normalize>
+		return filter<Normalize, Inplace>
 			(sampler, dst, kernel, kernel.width()-cx, kernel.height()-cy);
 	}
 
@@ -270,14 +278,14 @@ namespace { // anonymous namesapce
 	 * @param sampler used for sampling
 	 * @param kernel filter kernel
 	 */
-	template<class Sampler, class DstImage, class Kernel, bool Normalize>
+	template<bool Normalize, bool Inplace, class Sampler, class DstImage, class Kernel>
 	DstImage& 
 	convolve(
 		const Sampler& sampler, 
 		DstImage& dst, 
 		const Kernel& kernel
 	) {
-		return convolve<Sampler, DstImage, Kernel, Normalize>
+		return convolve<Normalize, Inplace>
 			(sampler, dst, kernel, (kernel.width()-1)/2, (kernel.height()-1)/2);
 	}
 
@@ -314,7 +322,7 @@ namespace dip {
 		template<class Sampler>
 		DstImage& operator ()(const Sampler& sampler, DstImage& dst) const
 		{
-			return convolve<Sampler, DstImage, Kernel, Normalize>
+			return convolve<Kernel, Normalize, true>
 				(sampler, dst, my_kernel, my_cx, my_cy);
 		}
 
@@ -353,7 +361,7 @@ namespace dip {
 		template<class Sampler>
 		DstImage& operator ()(const Sampler& sampler, DstImage& dst) const
 		{
-			return ::filter<Sampler, DstImage, Kernel, Normalize>
+			return ::filter<Normalize, true>
 				(sampler, dst, my_kernel, my_cx, my_cy);
 		}
 
