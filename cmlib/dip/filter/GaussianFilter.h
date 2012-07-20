@@ -33,18 +33,17 @@ namespace dip {
 			init_kernel(sigma_x, sigma_y);
 		}
 
-		template<class SrcImage>
-		const DstImage operator ()(const SrcImage& src) const
+		template<class Sampler>
+		const DstImage operator ()(const Sampler& sampler) const
 		{
-			DstImage dst(src.width(), src.height());
-			return (*this)(src, dst);
+			DstImage dst(sampler.width(), sampler.height());
+			return (*this)(sampler, dst);
 		}
 
-		template<class SrcImage>
-		DstImage& operator ()(const SrcImage& src, DstImage& dst) const
+		template<class Sampler>
+		DstImage& operator ()(const Sampler& sampler, DstImage& dst) const
 		{
-			return Filter<DstImage, Kernel, true>(my_kernel)
-				(basic_sampler(src), dst);
+			return Filter<DstImage, Kernel, false>(my_kernel)(sampler, dst);
 		}
 
 	protected:
@@ -55,19 +54,28 @@ namespace dip {
 			typedef typename Kernel::size_type size_type;
 			typedef typename Kernel::difference_type difference_type;
 
+			// value_type eps = 0.00000000000000022204460492503130808472633361816406;
+
 			value_type sum(0);
 			difference_type dy = -static_cast<difference_type>(my_kernel.height()/2);
 			for (size_type y = 0; y < my_kernel.height(); ++y, ++dy) {
 				difference_type dx = -static_cast<difference_type>(my_kernel.width()/2);
-				for (size_type x = 0; x < my_kernel.width(); ++x, ++dx)
-					sum += my_kernel(x, y) = 
+				for (size_type x = 0; x < my_kernel.width(); ++x, ++dx) {
+					my_kernel(x, y) =
 						std::exp( -(dx*dx + dy*dy) / (2*sigma_x*sigma_y) );
+
+					/*
+					if (my_kernel(x, y) < eps)
+						my_kernel(x, y) = 0;
+					*/
+
+					sum += my_kernel(x, y);
+				}	
 			}
 
 			sum = static_cast<value_type>(1)/sum;
 			for (size_type i = 0; i < my_kernel.size(); ++i)
 				my_kernel[i] *= sum;
-
 		}
 
 	private:
@@ -77,25 +85,33 @@ namespace dip {
 	template<class SrcImage, class DstImage>
 	DstImage& gaussian_filter(const SrcImage& src, DstImage& dst, float sigma)
 	{
-		return (GaussianFilter<DstImage>(sigma))(src, dst);
+		return (GaussianFilter<DstImage>(sigma))(
+			DefaultSampler<const SrcImage>(src), dst
+		);
 	}
 
 	template<class SrcImage, class DstImage>
 	DstImage& gaussian_filter(const SrcImage& src, DstImage& dst, float sigma_x, float sigma_y)
 	{
-		return (GaussianFilter<DstImage>(sigma_x, sigma_y))(src, dst);
+		return (GaussianFilter<DstImage>(sigma_x, sigma_y))(
+			DefaultSampler<const SrcImage>(src), dst
+		);
 	}
 
 	template<class SrcImage, class DstImage>
 	const DstImage gaussian_filter(const SrcImage& src, float sigma)
 	{
-		return (GaussianFilter<DstImage>(sigma))(src);
+		return (GaussianFilter<DstImage>(sigma))(
+			DefaultSampler<const SrcImage>(src)
+		);
 	}
 
 	template<class SrcImage, class DstImage>
 	const DstImage gaussian_filter(const SrcImage& src, float sigma_x, float sigma_y)
 	{
-		return (GaussianFilter<DstImage>(sigma_x, sigma_y))(src);
+		return (GaussianFilter<DstImage>(sigma_x, sigma_y))(
+			DefaultSampler<const SrcImage>(src)
+		);
 	}
 
 } // namespace dip
