@@ -12,8 +12,55 @@ namespace cmlib {
 namespace dip {
 
 	template<class Image>
+	class DefaultSampler {
+	public:
+
+		enum { outside_normalize = false };
+
+		typedef typename Image::value_type value_type;
+		typedef typename Image::size_type size_type;
+		typedef typename Image::difference_type difference_type;
+
+		explicit DefaultSampler(const Image& image, value_type value = value_type(0))
+			: my_image(image), my_default(value)
+		{
+			// empty
+		}
+
+		const value_type operator ()(difference_type x, difference_type y, bool& countable) const
+		{
+			countable = true;
+			if (x < 0 || x >= static_cast<difference_type>(width()) ||
+				y < 0 || y >= static_cast<difference_type>(height()))
+				return my_default;
+			return (*this)(x, y);
+		}
+
+		const value_type& operator ()(difference_type x, difference_type y) const
+		{
+			return my_image(x, y);
+		}
+
+		size_type width() const
+		{
+			return my_image.width();
+		}
+
+		size_type height() const
+		{
+			return my_image.height();
+		}
+
+	private:
+		const Image& my_image;
+		const value_type my_default;
+	};
+
+	template<class Image>
 	class BasicSampler {
 	public:
+
+		enum { outside_normalize = true };
 
 		typedef typename Image::value_type value_type;
 		typedef typename Image::size_type size_type;
@@ -58,6 +105,8 @@ namespace dip {
 	template<class Image>
 	class SymmetricSampler {
 	public:
+		enum { outside_normalize = false };
+
 		typedef typename Image::value_type size_type;
 		typedef typename Image::value_type value_type;
 		typedef typename Image::difference_type difference_type;
@@ -72,13 +121,13 @@ namespace dip {
 		{
 			countable = true;
 			if (x < 0)
-				x = -x;
-			else if (x >= width())
-				x = width() - x;
+				x = -x - 1;
+			else if (x >= static_cast<difference_type>(width()))
+				x = width() + width() - x - 1;
 			if (y < 0)
-				y = -y;
-			else if (y >= height())
-				y = height() - y;
+				y = -y - 1;
+			else if (y >= static_cast<difference_type>(height()))
+				y = height() + height() - y - 1;
 			return (*this)(x, y);
 		}
 
@@ -103,6 +152,7 @@ namespace dip {
 	template<class Image>
 	class ReplicateSampler {
 	public:
+		enum { outside_normalize = false };
 
 		typedef typename Image::size_type size_type;
 		typedef typename Image::value_type value_type;
@@ -119,11 +169,11 @@ namespace dip {
 			countable = true;
 			if (x < 0)
 				x = 0;
-			else if (x >= width())
+			else if (x >= static_cast<difference_type>(width()))
 				x = width() - 1;
 			if (y < 0)
 				y = 0;
-			else if (y >= height())
+			else if (y >= static_cast<difference_type>(height()))
 				y = height() - 1;
 			return (*this)(x, y);
 		}
@@ -151,6 +201,8 @@ namespace dip {
 	template<class Image>
 	class CircularSampler {
 	public:
+		enum { outside_normalize = false };
+
 		typedef typename Image::size_type size_type;
 		typedef typename Image::value_type value_type;
 		typedef typename Image::difference_type difference_type;
@@ -166,11 +218,11 @@ namespace dip {
 			countable = true;
 			if (x < 0)
 				x += width();
-			else if (x >= width())
+			else if (x >= static_cast<difference_type>(width()))
 				x -= width();
 			if (y < 0)
 				y += height();
-			else if (y >= height())
+			else if (y >= static_cast<difference_type>(height()))
 				y -= height();
 			return (*this)(x, y);
 		}
