@@ -14,62 +14,74 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 #include <cmlib/image.h>
 #include <cmlib/imageio/all.h>
 #include <cmlib/imageio.h>
 #include <cmlib/dip.h>
 
-#include "filter-groundtruth.cpp"
+#include "gaussian.h"
+
+// #include "filter-groundtruth.cpp"
 
 using namespace std;
 
 using namespace cmlib::image;
 using namespace cmlib::dip;
 
-template<class Image>
-bool equal(const Image& answer, const Image& image)
+template<typename Type, class Image>
+bool equal(const Type answer[], const Image& image)
 {
 	typedef typename Image::size_type size_type;
-	assert(image.size() == answer.size());
-	for (size_type i = 0; i < answer.size(); ++i)
-		if (fabs(static_cast<double>(image[i] - answer[i]))/answer[i] > 0.0001)
+	// assert(image.size() == answer.size());
+	for (size_type i = 0; i < image.size(); ++i) {
+		double error = fabs(static_cast<double>(image[i] - answer[i]))/answer[i];
+		if (error > 0.0001)
 			return false;
+	}
 	return true;
 }
 
+typedef cmlib::image::DoubleImage1 ImageType;
 
 int main()
 {
-	const int width = 100;
-	const int height = 100;
-	const float sigma = 2.0;
+	const int width = 10;
+	const int height = 10;
+	const double sigma = 1.0;
+	const double value = 0.1;
 
-	FloatImage1 src(width, width);
-	FloatImage1 answer(width, width);
+	ImageType src(width, height);
+	std::copy(gaussian_source, gaussian_source + src.size(), src.begin());
 
-	setup_image(src);
-	setup_answer(answer);
+	ImageType kernel(7, 7);
+	std::copy(gaussian_kernel, gaussian_kernel + kernel.size(), kernel.begin());
 
-	FloatImage1 dst(width, height);
-	gaussian_filter(src, dst, sigma);
+	ImageType dst(width, width);
 
-	cerr << equal(answer, dst) << endl;
+	cmlib::dip::Filter<ImageType, ImageType, false> f(kernel);
+	f(cmlib::dip::SymmetricSampler<ImageType>(src), dst);
 
-	/*
-	for (size_t i = 0; i < src.size(); ++i)
-		src[i] = static_cast<double>(rand())/RAND_MAX;
+	cmlib::dip::gaussian_filter(src, dst, sigma);
+	cerr << equal(gaussian_default_result, dst) << endl;
 
-	// write(src, "src.png");
-	for (size_t i = 0; i < src.size(); ++i)
-		cout << "image[" << setw(5) << i << "] = " << setprecision(18) << src[i] << ";" << endl;
+	cmlib::dip::GaussianFilter<ImageType, ImageType> filter(sigma);
 
-	FloatImage1 dst(src.width(), src.height());
-	gaussian_filter(src, dst, 2.0f);
+	filter(cmlib::dip::DefaultSampler<ImageType>(src), dst);
+	cerr << equal(gaussian_default_result, dst) << endl;
 
-	// write(dst, "dst.png");
-	for (size_t i = 0; i < src.size(); ++i)
-		cout << "answer[" << setw(5) << i << "] = " << setprecision(18) << dst[i] << ";" << endl;
-	*/
+	filter(cmlib::dip::DefaultSampler<ImageType>(src, value), dst);
+	cerr << equal(gaussian_default_0_1_result, dst) << endl;
+
+	filter(cmlib::dip::ReplicateSampler<ImageType>(src), dst);
+	cerr << equal(gaussian_replicate_result, dst) << endl;
+
+	filter(cmlib::dip::CircularSampler<ImageType>(src), dst);
+	cerr << equal(gaussian_circular_result, dst) << endl;
+
+	filter(cmlib::dip::SymmetricSampler<ImageType>(src), dst);
+	cerr << equal(gaussian_symmetric_result, dst) << endl;
+
 	return 0;
 }
