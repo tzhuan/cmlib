@@ -16,14 +16,15 @@ http://www.boost.org/LICENSE_1_0.txt)
 #include <iomanip>
 #include <algorithm>
 
+#define BOOST_TEST_MODULE cmlib::dip::filter test
+#include <boost/test/unit_test.hpp>
+
 #include <cmlib/image.h>
 #include <cmlib/imageio/all.h>
 #include <cmlib/imageio.h>
 #include <cmlib/dip.h>
 
 #include "gaussian.h"
-
-// #include "filter-groundtruth.cpp"
 
 using namespace std;
 
@@ -45,43 +46,119 @@ bool equal(const Type answer[], const Image& image)
 
 typedef cmlib::image::DoubleImage1 ImageType;
 
-int main()
+const int width = 10;
+const int height = 10;
+const int kernel_width = 7;
+const int kernel_height = 7;
+const double sigma = 1.0;
+const double value = 0.1;
+
+ImageType src(width, height);
+ImageType kernel(kernel_width, kernel_height);
+ImageType dst(width, height);
+
+struct FilterConfig {
+
+	FilterConfig()
+	{
+		std::copy(gaussian_source, gaussian_source + src.size(), src.begin());
+		std::copy(gaussian_kernel, gaussian_kernel + kernel.size(), kernel.begin());
+	}
+
+	~FilterConfig()
+	{
+	}
+};
+
+BOOST_GLOBAL_FIXTURE( FilterConfig );
+
+BOOST_AUTO_TEST_SUITE( filter_test_suite )
+
+BOOST_AUTO_TEST_CASE( filter_test_default )
 {
-	const int width = 10;
-	const int height = 10;
-	const double sigma = 1.0;
-	const double value = 0.1;
-
-	ImageType src(width, height);
-	std::copy(gaussian_source, gaussian_source + src.size(), src.begin());
-
-	ImageType kernel(7, 7);
-	std::copy(gaussian_kernel, gaussian_kernel + kernel.size(), kernel.begin());
-
-	ImageType dst(width, width);
-
-	cmlib::dip::Filter<ImageType, ImageType, false> f(kernel);
-	f(cmlib::dip::SymmetricSampler<ImageType>(src), dst);
-
-	cmlib::dip::gaussian_filter(src, dst, sigma);
-	cerr << equal(gaussian_default_result, dst) << endl;
-
-	cmlib::dip::GaussianFilter<ImageType, ImageType> filter(sigma);
-
-	filter(cmlib::dip::DefaultSampler<ImageType>(src), dst);
-	cerr << equal(gaussian_default_result, dst) << endl;
-
-	filter(cmlib::dip::DefaultSampler<ImageType>(src, value), dst);
-	cerr << equal(gaussian_default_0_1_result, dst) << endl;
-
-	filter(cmlib::dip::ReplicateSampler<ImageType>(src), dst);
-	cerr << equal(gaussian_replicate_result, dst) << endl;
-
-	filter(cmlib::dip::CircularSampler<ImageType>(src), dst);
-	cerr << equal(gaussian_circular_result, dst) << endl;
-
-	filter(cmlib::dip::SymmetricSampler<ImageType>(src), dst);
-	cerr << equal(gaussian_symmetric_result, dst) << endl;
-
-	return 0;
+	(cmlib::dip::Filter<ImageType, ImageType, false> (kernel))
+		(cmlib::dip::DefaultSampler<ImageType>(src), dst);
+	BOOST_CHECK( equal(gaussian_default_result, dst) );
 }
+
+BOOST_AUTO_TEST_CASE( filter_test_default_0_1 )
+{
+	(cmlib::dip::Filter<ImageType, ImageType, false> (kernel))
+		(cmlib::dip::DefaultSampler<ImageType>(src, value), dst);
+	BOOST_CHECK( equal(gaussian_default_0_1_result, dst) );
+}
+
+BOOST_AUTO_TEST_CASE( filter_test_replicate )
+{
+	(cmlib::dip::Filter<ImageType, ImageType, false> (kernel))
+		(cmlib::dip::ReplicateSampler<ImageType>(src), dst);
+	BOOST_CHECK( equal(gaussian_replicate_result, dst) );
+}
+
+BOOST_AUTO_TEST_CASE( filter_test_symmetric )
+{
+	(cmlib::dip::Filter<ImageType, ImageType, false> (kernel))
+		(cmlib::dip::SymmetricSampler<ImageType>(src), dst);
+	BOOST_CHECK( equal(gaussian_symmetric_result, dst) );
+}
+
+BOOST_AUTO_TEST_CASE( filter_test_circular )
+{
+	(cmlib::dip::Filter<ImageType, ImageType, false> (kernel))
+		(cmlib::dip::CircularSampler<ImageType>(src), dst);
+	BOOST_CHECK( equal(gaussian_circular_result, dst) );
+}
+
+BOOST_AUTO_TEST_SUITE_END();
+
+
+
+BOOST_AUTO_TEST_SUITE( gaussian_filter_test_suite );
+
+BOOST_AUTO_TEST_CASE( gaussian_filter_test_default )
+{
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+		(cmlib::dip::DefaultSampler<ImageType>(src), dst);
+	BOOST_CHECK( equal(gaussian_default_result, dst) );
+}
+
+BOOST_AUTO_TEST_CASE( gaussian_filter_test_default_0_1 )
+{
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+		(cmlib::dip::DefaultSampler<ImageType>(src, value), dst);
+	BOOST_CHECK( equal(gaussian_default_0_1_result, dst) );
+}
+
+BOOST_AUTO_TEST_CASE( gaussian_filter_test_replicate )
+{
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+		(cmlib::dip::ReplicateSampler<ImageType>(src), dst);
+	BOOST_CHECK( equal(gaussian_replicate_result, dst) );
+}
+
+BOOST_AUTO_TEST_CASE( gaussian_filter_test_circular )
+{
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+		(cmlib::dip::CircularSampler<ImageType>(src), dst);
+	BOOST_CHECK( equal(gaussian_circular_result, dst) );
+}
+
+BOOST_AUTO_TEST_CASE( gaussian_filter_test_symmetric )
+{
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+		(cmlib::dip::SymmetricSampler<ImageType>(src), dst);
+	BOOST_CHECK( equal(gaussian_symmetric_result, dst) );
+}
+
+BOOST_AUTO_TEST_SUITE_END();
+
+
+BOOST_AUTO_TEST_SUITE( gaussian_filter_helper_test_suite );
+
+BOOST_AUTO_TEST_CASE( gaussian_filter_helper_test )
+{
+	cmlib::dip::gaussian_filter(src, dst, sigma);
+	BOOST_CHECK( equal(gaussian_default_result, dst) );
+}
+
+BOOST_AUTO_TEST_SUITE_END();

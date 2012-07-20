@@ -3,17 +3,11 @@
 # (See accompanying file ../../../LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-CXXFLAGS = -I../../.. -I /usr/local/include -Wall -O3 -g
-CMLIB_LIBS = -L../../image/src -lcmlib-imageio
-BOOST_LIBS = -L /usr/local/lib -lboost_unit_test_framework-gcc
-LDFLAGS = $(CMLIB_LIBS)
+CMLIB_CXXFLAGS = -I../../.. -I /usr/local/include 
+CMLIB_LDFLAGS = -L../../image/src -lcmlib-imageio
 
-#%.o: %.cpp
-#	$(CXX) $(CFLAGS) -c $< -o $@ 
-#
-#test-colorspace: test-colorspace.o
-#	$(CXX) $< -o $@
+BOOST_CXXFALGS = -DBOOST_TEST_DYN_LINK
+BOOST_LDFLAGS = -lboost_unit_test_framework
 
-clean:
-	rm -rf *.o *.core 
-	rm -rf ByteImage* FloatImage*
+CXXFLAGS = -Wall -O3 -g $(BOOST_CXXFALGS) $(CMLIB_CXXFLAGS)
+LDFLAGS = $(BOOST_LDFLAGS) $(CMLIB_LDFLAGS)
