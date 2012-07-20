@@ -54,13 +54,15 @@ namespace { // anonymous namesapce
 					for (difference_type ix = 0; ix < static_cast<difference_type>(kernel.width()); ++ix) {
 						difference_type sx = x + ix - cx;
 						bool countable = true;
-						if (Outside)
+						if (Outside) {
 							value += sampler(sx, sy, countable) * kernel(ix, iy);
-						else 
+							if (Normalize && countable)
+								weight += kernel(ix, iy);
+						} else {
 							value += sampler(sx, sy) * kernel(ix, iy);
-
-						if (Normalize && Outside && countable)
-							weight += kernel(ix, iy);
+							if (Normalize)
+								weight += kernel(ix, iy);
+						}
 					}
 				}
 				dst(x, y) = value;
@@ -178,23 +180,23 @@ namespace { // anonymous namesapce
 		 */
 
 		// 1
-		filter<Normalize, true>
+		filter<Normalize || Sampler::outside_normalize, true>
 		(sampler, dst, kernel, cx, cy, 0, dst.width(), 0, cy);
 
 		// 2 
-		filter<Normalize, true>
+		filter<Normalize || Sampler::outside_normalize, true>
 		(sampler, dst, kernel, cx, cy, 0, cx, cy, dst.height() - kernel.height() + cy);
 
 		// 3 
-		filter<false, false>
+		filter<Normalize, false>
 		(sampler, dst, kernel, cx, cy, cx, dst.width() - kernel.width() + cx, cy, dst.height() - kernel.height() + cy);
 
 		// 4 
-		filter<Normalize, true>
+		filter<Normalize || Sampler::outside_normalize, true>
 		(sampler, dst, kernel, cx, cy, dst.width() - kernel.width() + cx, dst.width(), cy, dst.height() - kernel.height() + cy);
 
 		// 5 
-		filter<Normalize, true>
+		filter<Normalize || Sampler::outside_normalize, true>
 		(sampler, dst, kernel, cx, cy, 0, dst.width(), dst.height() - kernel.height() + cy, dst.height());
 
 		return dst;
@@ -342,7 +344,7 @@ namespace dip {
 		}
 
 		template<class Sampler>
-		const DstImage operator ()(const Sampler& sampler) const
+		DstImage operator ()(const Sampler& sampler) const
 		{
 			DstImage dst(sampler.width(), sampler.height());
 			return (*this)(sampler, dst);
@@ -414,22 +416,22 @@ namespace dip {
 			return (Filter<DstImage, Kernel, false>(kernel))(sampler, dst);
 	}
 
-	template<class SrcImage, class DstImage, class Kernel>
-	const DstImage filter(const SrcImage& src, const Kernel& kernel, typename Kernel::size_type x, typename Kernel::size_type y, bool normalize = false)
+	template<class Sampler, class DstImage, class Kernel>
+	DstImage filter(const Sampler& sampler, const Kernel& kernel, typename Kernel::size_type x, typename Kernel::size_type y, bool normalize = false)
 	{
 		if (normalize)
-			return (Filter<DstImage, Kernel, true>(kernel, x, y))(src);
+			return (Filter<DstImage, Kernel, true>(kernel, x, y))(sampler);
 		else
-			return (Filter<DstImage, Kernel, false>(kernel, x, y))(src);
+			return (Filter<DstImage, Kernel, false>(kernel, x, y))(sampler);
 	}
 
-	template<class SrcImage, class DstImage, class Kernel>
-	const DstImage filter(const SrcImage& src, const Kernel& kernel, bool normalize = false)
+	template<class Sampler, class DstImage, class Kernel>
+	DstImage filter(const Sampler& sampler, const Kernel& kernel, bool normalize = false)
 	{
 		if (normalize)
-			return (Filter<DstImage, Kernel, true>(kernel))(src);
+			return (Filter<DstImage, Kernel, true>(kernel))(sampler);
 		else
-			return (Filter<DstImage, Kernel, false>(kernel))(src);
+			return (Filter<DstImage, Kernel, false>(kernel))(sampler);
 	}
 
 } // namespace dip
