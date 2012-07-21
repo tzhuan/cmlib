@@ -17,6 +17,7 @@ namespace dip {
 
 		enum { outside_normalize = false };
 
+		typedef Image image_type;
 		typedef typename Image::value_type value_type;
 		typedef typename Image::size_type size_type;
 		typedef typename Image::difference_type difference_type;
@@ -51,6 +52,11 @@ namespace dip {
 			return my_image.height();
 		}
 
+		const Image& image() const
+		{
+			return my_image;
+		}
+
 	private:
 		const Image& my_image;
 		const value_type my_default;
@@ -62,6 +68,7 @@ namespace dip {
 
 		enum { outside_normalize = true };
 
+		typedef Image image_type;
 		typedef typename Image::value_type value_type;
 		typedef typename Image::size_type size_type;
 		typedef typename Image::difference_type difference_type;
@@ -98,6 +105,11 @@ namespace dip {
 			return my_image.height();
 		}
 
+		const Image& image() const
+		{
+			return my_image;
+		}
+
 	private:
 		const Image& my_image;
 	};
@@ -107,6 +119,7 @@ namespace dip {
 	public:
 		enum { outside_normalize = false };
 
+		typedef Image image_type;
 		typedef typename Image::value_type size_type;
 		typedef typename Image::value_type value_type;
 		typedef typename Image::difference_type difference_type;
@@ -145,6 +158,12 @@ namespace dip {
 		{
 			return my_image.height();
 		}
+
+		const Image& image() const
+		{
+			return my_image;
+		}
+
 	private:
 		const Image& my_image;
 	};
@@ -154,6 +173,7 @@ namespace dip {
 	public:
 		enum { outside_normalize = false };
 
+		typedef Image image_type;
 		typedef typename Image::size_type size_type;
 		typedef typename Image::value_type value_type;
 		typedef typename Image::difference_type difference_type;
@@ -193,6 +213,11 @@ namespace dip {
 			return my_image.height();
 		}
 
+		const Image& image() const
+		{
+			return my_image;
+		}
+
 	private:
 		const Image& my_image;
 
@@ -203,6 +228,7 @@ namespace dip {
 	public:
 		enum { outside_normalize = false };
 
+		typedef Image image_type;
 		typedef typename Image::size_type size_type;
 		typedef typename Image::value_type value_type;
 		typedef typename Image::difference_type difference_type;
@@ -242,30 +268,41 @@ namespace dip {
 			return my_image.height();
 		}
 
+		const Image& image() const
+		{
+			return my_image;
+		}
+
 	private:
 		const Image& my_image;
 	};
 
 	template<class Image>
-	const BasicSampler<Image> basic_sampler(Image& image)
+	DefaultSampler<Image> default_sampler(const Image& image, typename Image::value_type value = (typename Image::value_type)(0))
+	{
+		return DefaultSampler<Image>(image, value);
+	}
+
+	template<class Image>
+	BasicSampler<Image> basic_sampler(const Image& image)
 	{
 		return BasicSampler<Image>(image);
 	}
 
 	template<class Image>
-	const SymmetricSampler<Image> symmetric_sampler (Image& image)
+	SymmetricSampler<Image> symmetric_sampler (const Image& image)
 	{
 		return SymmetricSampler<Image>(image);
 	}
 
 	template<class Image>
-	const ReplicateSampler<Image> replicate_sampler(Image& image)
+	ReplicateSampler<Image> replicate_sampler(const Image& image)
 	{
 		return ReplicateSampler<Image>(image);
 	}
 
 	template<class Image>
-	const CircularSampler<Image> circular_sampler(Image& image)
+	CircularSampler<Image> circular_sampler(const Image& image)
 	{
 		return CircularSampler<Image>(image);
 	}
