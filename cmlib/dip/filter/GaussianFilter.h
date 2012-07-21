@@ -15,7 +15,7 @@ http://www.boost.org/LICENSE_1_0.txt)
 namespace cmlib {
 namespace dip {
 
-	template<class DstImage, class Kernel = cmlib::image::FloatImage1>
+	template<class DstImage, class Kernel = cmlib::image::FloatImage1, bool Inplace = false>
 	class GaussianFilter {
 	public:
 
@@ -43,7 +43,7 @@ namespace dip {
 		template<class Sampler>
 		DstImage& operator ()(const Sampler& sampler, DstImage& dst) const
 		{
-			return Filter<DstImage, Kernel, false>(my_kernel)(sampler, dst);
+			return Filter<DstImage, Kernel, false, Inplace>(my_kernel)(sampler, dst);
 		}
 
 	protected:
@@ -86,7 +86,7 @@ namespace dip {
 	DstImage& gaussian_filter(const SrcImage& src, DstImage& dst, float sigma)
 	{
 		return (GaussianFilter<DstImage>(sigma))(
-			DefaultSampler<const SrcImage>(src), dst
+			DefaultSampler<SrcImage>(src), dst
 		);
 	}
 
@@ -94,7 +94,7 @@ namespace dip {
 	DstImage& gaussian_filter(const SrcImage& src, DstImage& dst, float sigma_x, float sigma_y)
 	{
 		return (GaussianFilter<DstImage>(sigma_x, sigma_y))(
-			DefaultSampler<const SrcImage>(src), dst
+			DefaultSampler<SrcImage>(src), dst
 		);
 	}
 
@@ -102,7 +102,7 @@ namespace dip {
 	const DstImage gaussian_filter(const SrcImage& src, float sigma)
 	{
 		return (GaussianFilter<DstImage>(sigma))(
-			DefaultSampler<const SrcImage>(src)
+			DefaultSampler<SrcImage>(src)
 		);
 	}
 
@@ -110,7 +110,7 @@ namespace dip {
 	const DstImage gaussian_filter(const SrcImage& src, float sigma_x, float sigma_y)
 	{
 		return (GaussianFilter<DstImage>(sigma_x, sigma_y))(
-			DefaultSampler<const SrcImage>(src)
+			DefaultSampler<SrcImage>(src)
 		);
 	}
 
