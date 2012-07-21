@@ -46,16 +46,9 @@ bool equal(const Type answer[], const Image& image)
 
 typedef cmlib::image::DoubleImage1 ImageType;
 
-const int width = 10;
-const int height = 10;
-const int kernel_width = 7;
-const int kernel_height = 7;
-const double sigma = 1.0;
-const double value = 0.1;
-
-ImageType src(width, height);
+ImageType src(source_width, source_height);
 ImageType kernel(kernel_width, kernel_height);
-ImageType dst(width, height);
+ImageType dst(source_width, source_height);
 
 struct FilterConfig {
 
@@ -84,7 +77,7 @@ BOOST_AUTO_TEST_CASE( filter_test_default )
 BOOST_AUTO_TEST_CASE( filter_test_default_0_1 )
 {
 	(cmlib::dip::Filter<ImageType, ImageType, false> (kernel))
-		(cmlib::dip::DefaultSampler<ImageType>(src, value), dst);
+		(cmlib::dip::DefaultSampler<ImageType>(src, default_value), dst);
 	BOOST_CHECK( equal(gaussian_default_0_1_result, dst) );
 }
 
@@ -117,35 +110,35 @@ BOOST_AUTO_TEST_SUITE( gaussian_filter_test_suite );
 
 BOOST_AUTO_TEST_CASE( gaussian_filter_test_default )
 {
-	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(kernel_sigma))
 		(cmlib::dip::DefaultSampler<ImageType>(src), dst);
 	BOOST_CHECK( equal(gaussian_default_result, dst) );
 }
 
 BOOST_AUTO_TEST_CASE( gaussian_filter_test_default_0_1 )
 {
-	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
-		(cmlib::dip::DefaultSampler<ImageType>(src, value), dst);
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(kernel_sigma))
+		(cmlib::dip::DefaultSampler<ImageType>(src, default_value), dst);
 	BOOST_CHECK( equal(gaussian_default_0_1_result, dst) );
 }
 
 BOOST_AUTO_TEST_CASE( gaussian_filter_test_replicate )
 {
-	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(kernel_sigma))
 		(cmlib::dip::ReplicateSampler<ImageType>(src), dst);
 	BOOST_CHECK( equal(gaussian_replicate_result, dst) );
 }
 
 BOOST_AUTO_TEST_CASE( gaussian_filter_test_circular )
 {
-	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(kernel_sigma))
 		(cmlib::dip::CircularSampler<ImageType>(src), dst);
 	BOOST_CHECK( equal(gaussian_circular_result, dst) );
 }
 
 BOOST_AUTO_TEST_CASE( gaussian_filter_test_symmetric )
 {
-	(cmlib::dip::GaussianFilter<ImageType, ImageType>(sigma))
+	(cmlib::dip::GaussianFilter<ImageType, ImageType>(kernel_sigma))
 		(cmlib::dip::SymmetricSampler<ImageType>(src), dst);
 	BOOST_CHECK( equal(gaussian_symmetric_result, dst) );
 }
@@ -157,7 +150,7 @@ BOOST_AUTO_TEST_SUITE( gaussian_filter_helper_test_suite );
 
 BOOST_AUTO_TEST_CASE( gaussian_filter_helper_test )
 {
-	cmlib::dip::gaussian_filter(src, dst, sigma);
+	cmlib::dip::gaussian_filter(src, dst, kernel_sigma);
 	BOOST_CHECK( equal(gaussian_default_result, dst) );
 }
 
