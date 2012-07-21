@@ -15,11 +15,11 @@ namespace { // anonymous namesapce
 	/**
 	 * @brief partial 2-D filter
 	 *
-	 * This function filter the block of 2-D array (eg. image) with kernel,
-	 * and store the result on dst.
-	 * Block size: width by height;
-	 * sampler: [s_dx, s_dx+width) by [s_dy, s_dy+height);
-	 * dst: [d_dx, d_dx+width) by [d_dy, d_dy+height).
+	 * This function filter the sampler with kernel and store the result to
+	 * dst within the specified block.
+	 *   block size: width by height;
+	 *   sampler: [s_dx, s_dx+width) by [s_dy, s_dy+height);
+	 *   dst: [d_dx, d_dx+width) by [d_dy, d_dy+height).
 	 *
 	 * @tparam Normalize determine the filter should be normalized or not
 	 *
@@ -185,8 +185,8 @@ namespace { // anonymous namesapce
 		/*
 		 * If user requests inplace operation, or the sampler specify that
 		 * the area should be normalized when outside, then inplace filtering
-		 * should be used. Otherwise, do not use inplace operation to improve
-		 * the performance.
+		 * should be used. Otherwise, use non-inplace operation for performance
+		 * (in my test, inplace operation is much slower than non-inplace one).
 		 */
 		if (Inplace || Sampler::outside_normalize) {
 			/*
