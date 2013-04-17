@@ -103,7 +103,7 @@ namespace dip {
 	};
 
 	template<class SrcImage, class DstImage>
-	DstImage& gaussian_filter(
+	DstImage& gabor_filter(
 		const SrcImage& src, DstImage& dst, 
 		float o, float p, float w, float b, float a
 	) {
@@ -111,7 +111,7 @@ namespace dip {
 	}
 
 	template<class SrcImage, class DstImage>
-	const DstImage gaussian_filter(
+	const DstImage gabor_filter(
 		const SrcImage& src, float o, float p, float w, float b, float a
 	) {
 		return (GaborFilter<DstImage>(o, p, w, b, a))(src);
